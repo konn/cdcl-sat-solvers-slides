@@ -1,0 +1,47 @@
+@require: class-slydifi/theme/arctic
+@require: pervasives
+@require: list
+@require: colorbox/colorbox
+
+open Colorbox
+
+let-mutable theorem-number <- 0
+
+
+let make-theorem ctx header ?:title ?:tag ?:opts blk = 
+  let () = theorem-number <- !theorem-number + 1 in
+  let txt-header = header ^ arabic !theorem-number in
+  let () = match tag with
+            | None -> ()
+            | Some(tag) -> 
+              register-cross-reference tag txt-header
+  in
+  let str-title = embed-string txt-header in
+  let ib-title =
+        match title with
+        | None ->   {#str-title;}
+        | Some(title) -> {#str-title; (#title;)}
+  in
+  let user-opts = match opts with
+        | None -> []
+        | Some(uos) -> uos in
+  let opts = List.append user-opts
+        [ lefttitle 10pt; righttitle 10pt; toptitle 2.5pt; bottomtitle 2.5pt;
+        fonttitle [bold];
+        left 10pt; right 10pt; top 10pt;bottom 10pt;
+        ]
+  in
+  read-block ctx '<
+    +colorbox 
+      (opts)
+      ?:(ib-title)
+      <+p{#blk;}>
+  >
+
+let-block ctx +defn = make-theorem ctx `定義`
+let-block ctx +notation = make-theorem ctx `記法`
+let-block ctx +thm = make-theorem ctx `定理`
+let-block ctx +lem = make-theorem ctx `補題`
+let-block ctx +cor = make-theorem ctx `系`
+let-block ctx +question = make-theorem ctx `問`
+

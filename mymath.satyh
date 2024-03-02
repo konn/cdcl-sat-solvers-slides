@@ -1,0 +1,33 @@
+@require: math
+@require: class-slydifi/theme/arctic
+@require: uline/uline
+
+open SlydifiOverlay
+
+module MyMath : sig
+  direct \d : [] math-cmd
+  direct \R : [] math-cmd
+  direct \u : [] math-cmd
+  direct \dd : [math; math] math-cmd
+  direct \idd : [math; math] math-cmd
+  direct \pp : [math; math] math-cmd
+  direct \ipp : [math; math] math-cmd
+  direct \boldsymbol : [math] math-cmd
+  direct \mphantom : [int -> bool; math] math-cmd
+  direct \mghost : [int -> bool; math] math-cmd
+  direct \mselect : [int -> bool; math; math] math-cmd
+  direct \muline: [math] math-cmd
+end = struct 
+  let-math \d = ${\mathrm{d}}
+  let-math \dd f x = ${\frac{\d #f}{\d #x}}
+  let-math \idd f x = ${\mathord{\d #f/\d #x}}
+  let-math \pp f x = ${\frac{\partial #f}{\partial #x}}
+  let-math \ipp f x = ${\mathord{\partial #f/\partial #x}}
+  let-math \R = ${\mathord{\mathbb{R}}}
+  let-math \u = ${\bm{u}}
+  let-math \boldsymbol x = ${\bm{#x}}
+  let-math \mphantom p x = ${\text!{\phantom(p){${#x}}}}
+  let-math \mghost p x = ${\text!{\ghost(p){${#x}}}}
+  let-math \mselect p t e = ${\text!{\select(p){${#t}}{${#e}}}}
+  let-math \muline x = ${\text!{\uline{${#x}}}}
+end

@@ -1,0 +1,198 @@
+@require: class-slydifi/theme/arctic
+@require: ruby/ruby
+@require: easytable/easytable
+@require: bibyfi/bibyfi
+@require: bibyfi/bibyfi-IEEETran
+@require: azmath/azmath
+@require: matrix/matrix
+@require: colorbox/colorbox
+@require: arrows/arrows
+@require: arrows/commands
+@require: fss/fss
+@require: fss/fonts
+@require: latexcmds/latexcmds
+@require: fss/style
+@require: base/list-ext
+
+@import: Colors
+@import: tikzyfi
+@import: references
+@import: presets
+@import: theorems
+@import: mymath
+@import: utils
+
+open LatexCmds
+open SlydifiOverlay
+open FigBox
+open ArrowCommands
+open MyMath
+open TikZyFi
+open EasyTableAlias
+
+let math-int i = math-char MathInner (arabic i)
+let-inline \ok = {${\circ}}
+let-inline \ng = {${\times}}
+let-inline ctx \eqref key = 
+  match get-cross-reference (`eq:` ^ key ^ `:num`) with
+    | Some(label) -> 
+      read-inline ctx (embed-string (`(` ^ label ^ `)`))
+    | None -> read-inline ctx { (??) }
+let-math \eqrefm key = ${\text!{\eqref(key);}}
+let-block ctx +small arg = 
+  read-block (ctx |> set-font-size 15pt) arg
+
+let sudoku ctx = 
+  let dx = 36pt
+   in List.concat
+      [ [ stroke 2.5pt Color.black
+            (Gr.line (dx *' 2., 0pt) (dx *' 2., dx *' 4.))
+        ; stroke 2.5pt Color.black
+            (Gr.line (0pt, dx *' 2.) (dx *' 4., dx *' 2.))
+        ]
+      ; List.concat 
+        (Utils.generate 4 
+        (fun j ->
+          List.concat (Utils.generate 4 
+            (fun i -> 
+              
+              (
+                let imath = math-int i  in
+                let jmath = math-int j  in
+                let name = read-inline ctx {${d_{#imath#jmath}}} in
+                let (w, h, d) = get-natural-metrics name in
+              [ draw-text 
+                  ( dx *' float i +' (dx -' w) *' 0.5 
+                  , dx *' float j +' (dx -' h) *' 0.5 
+                  )
+                   name
+              ; stroke 1pt Color.black 
+                (Gr.rectangle 
+                (dx *' float i , dx *' float j)
+                (dx *' float (i+1) , dx *' float (j+1))
+                )
+              ])
+            )
+        )))
+      ]
+
+
+in 
+document '<
+  +set-config(slydifi-cfg);
+  +make-title(|
+    title = {|充足可能性ソルバ（SATソルバ）の原理|};
+    author = {|Hiromi ISHII|};
+    date = {|2024-03-10|Tsukuba Computer Mathematics Seminar 2024|};
+  |);
+
+  +section{|自己紹介|}<
+    +frame{自己紹介}<
+      +listing{
+        * \ruby[`いし`; `い`; `ひろ`; `み`]{|石|井|大|海|}
+        * 2018年度 筑波大学数学専攻博士後期課程修了（照井研）
+        * 計算機合宿には2014年から参加
+        * 現職：Haskell製大規模数値計算ベンチャー研究開発職
+        * 宣伝：今年 05/11, 12 に横浜でお芝居をするので興味のある方は是非観にきてください
+      }
+    >
+  >
+
+  +section{|充足可能性ソルバ（SATソルバ）の原理|}<
+    +frame{本日の話題：充足可能性問題とSATソルバ}<
+      +listing{
+        * \emph{充足可能性問題}：与えられた\emph{命題論理式}が\emph{（古典的に）充足可能}かどうかを判定する問題
+          ** \emph{古典命題論理式}：\emph{命題変数}${P_1, \ldots, Q_1, \ldots,} を${\land}（かつ）、${\lor}（または）、${\to}（ならば）、${¬}（でない）で結んで得られる論理式
+          ** \emph{古典的充足可能性}: 与えられた式を真とするような、命題変数への真偽値${\circ}（真）または${\times}（偽）の割り当てが存在するか？
+        * 充足可能性（\emph{SAT}isfiability）を略して SAT と呼ぶ。
+        * 判定問題としては \emph{NP-完全}：総当たりで解けるような任意の問題が SAT に帰着できる
+        * 色々な問題が SAT （やその拡張である SMTソルバ）で解け、実用上も重要
+      }
+    >
+
+    +frame{SATで解ける問題の例：論理パズル}<
+      +question?:({三人の島民 \cite[`Smullyan:2008`];}){
+        常に嘘だけをいう嘘吐きと、本当のことだけをいう正直者だけが住む島で、A, B, C三人の島民に出会った。彼らのいうことには：
+
+        \listing{
+          * A：「BとCはどちらも正直者だ」
+          * B：「Aは嘘吐きで、Cは正直者だ」
+        }
+
+        A, B, C はそれぞれ正直者か、嘘吐きか？
+      }
+    >
+
+    +frame{三人の島民：回答}<
+      +listing{
+        * ${A, B, C}を「Aが正直者」「Bが正直者」「Cが正直者」を表す命題変数とする
+        * 情報を命題論理式に変換して${\eqrefm!(`q1-cond1`) \land \eqrefm!(`q1-cond2`)}を充足する解を求めればよい：
+          
+          \align(${
+            | A | \Longleftrightarrow B \land C \label!(`q1-cond1`)
+            | B | \Longleftrightarrow \lnot A \land C \label!(`q1-cond2`)
+            |
+          });
+        * 真偽値表を書いてみると、\emph{全員嘘吐き}だとわかる。
+      }
+
+
+      +small< +centering{
+        \easytable[c;c;c;c;c;c]{
+          | ${A} | ${B} | ${C} | \eqref(`q1-cond1`); | \eqref(`q1-cond2`); | ${\eqrefm!(`q1-cond1`) \land \eqrefm!(`q1-cond2`)}
+          | \ok; | \ok; | \ok; | \ok; | \ng; | \ng;
+          | \ok; | \ok; | \ng; | \ng; | \ng; | \ng;
+          | \ok; | \ng; | \ok; | \ng; | \ok; | \ng;
+          | \ok; | \ng; | \ng; | \ng; | \ok; | \ng;
+          |
+          }
+        \quad;
+        \easytable?:[t; b; m 1; bg-r (Color.rgb 0.4 1.0 0.6) 4 5][c;c;c;c;c;c]{
+          | ${A} | ${B} | ${C} | \eqref(`q1-cond1`); | \eqref(`q1-cond2`); | ${\eqrefm!(`q1-cond1`) \land \eqrefm!(`q1-cond2`)}
+          | \ng; | \ok; | \ok; | \ng; | \ok; | \ng;
+          | \ng; | \ok; | \ng; | \ok; | \ng; | \ng;
+          | \ng; | \ng; | \ok; | \ok; | \ng; | \ng;
+          | \ng; | \ng; | \ng; | \ok; | \ok; | \ok;
+          |
+        }
+      }>
+    >
+
+    +frame{SATで解ける問題の例：数独}<
+      +fig-on-right(from-graphics-given-context (150pt, 150pt) sudoku)<
+        +listing{
+          * 簡単な例として、 ${4 \times 4} の小さな数独の問題を SAT で解くことを考える。
+            ** 各マスには ${1, 2, 3, 4} のいずれかの数字一つを入れる。
+              
+               \eqn(${
+                \bigwedge_{i=1}^4 \bigwedge_{j=1}^4 \bigwedge_{k=1}^4 \paren{P^{=k}_{ij} \Longrightarrow \bigwedge_{l \neq k} \lnot P^{=l}_{ij}}
+               });
+            ** 各行、各列、各 ${2 \times 2} の小ブロックには各数字 ${1, \ldots, 4} がちょうど一度ずつ入る。
+          * ${P^{=k}_{ij} \Longleftrightarrow d_{ij} = k}という命題変数とする。
+        }
+
+        +eqn(${
+        \bigwedge_{i=1}^4 \bigwedge_{j=1}^4 \bigvee_{k=1}^4 P^{=k}_{ij}
+        });
+      >
+    >
+  >
+
+  +section{|まとめ|}<
+    +namedframe(`まとめ`){\select(from 2){Any Questions?}{まとめ}}<
+      +listing{
+        * Matome here
+      }
+    >
+    +frame-nofooter{参考文献}<
+      +font-style[font-size 15pt]<
+        +makebibliography 
+          ?:(|sort-references=true; 
+              citestyle=CiteAsNumber;
+              name-shrink=true;
+          |)
+          (bibyfi-theme)(bibs);
+      >
+    >
+  >
+>

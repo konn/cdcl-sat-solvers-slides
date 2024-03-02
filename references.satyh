@@ -1,0 +1,122 @@
+@require: bibyfi/bibyfi
+@require: class-slydifi/theme/arctic
+@require: fss/fss
+@import: presets
+
+let bibs =
+  [ 
+    (`Zeljic:2019`,
+      Misc (|
+        author = Some [`Aleksandar Zeljić`]
+      ; howpublished = Some `https://web.stanford.edu/class/cs357/`
+      ; key = None
+      ; month = None
+      ; year = Some `2019`
+      ; note = None
+      ; title = Some `CS357: Advanced Topics in Computer Science`
+      |)
+    )
+
+  ; (`Oppen:1980`, 
+    Article (|
+        author = [`Derec C. Opeen`]
+      ; title = `Complexity, Convexity and Combinations of Theories`
+      ; journal = `Theoretical Computer Science`
+      ; pages = (`291`, `302`)
+      ; key = None
+      ; year = `1980`
+      ; month = None
+      ; note = None
+      ; volume = Some `12`
+      ; number = None
+      |)
+    )
+
+  ; (`鍋島:2010`, 
+    Article (|
+        author = [`鍋島秀和`; `宋剛秀`]
+      ; title = `高速SATソルバーの原理`
+      ; journal = `人工知能`
+      ; pages = (`68`, `76`)
+      ; key = None
+      ; year = `2010`
+      ; month = None
+      ; note = None
+      ; volume = Some `25`
+      ; number = Some `1`
+      |)
+    )
+
+  ; (`岩沼:2010`, 
+    Article (|
+        author = [`岩沼宏治`; `鍋島秀和`]
+      ; title = `SMT：個別理論を取り扱うSAT技術`
+      ; journal = `人工知能`
+      ; pages = (`86`, `95`)
+      ; key = None
+      ; year = `2010`
+      ; month = None
+      ; note = None
+      ; volume = Some `25`
+      ; number = Some `1`
+      |)
+    )
+  ; (`Zeljic:2019`,
+      Misc (|
+        author = Some [`Enuba Torlak`]
+      ; howpublished = Some `https://courses.cs.washington.edu/courses/cse507/17wi/lectures/L02.pdf`
+      ; key = None
+      ; month = None
+      ; year = Some `2003`
+      ; note = None
+      ; title = Some `A Modern SAT Solver`
+      |)
+    )
+
+  ; (`Liang:2015`,
+      InProceedings (|
+        author = [
+          `Jia Hui Liang`; `Vijay Ganesh`; `Ed Zulkoski`
+        ; `Atulan Zaman`; `Krzysztof Czarnecki`
+        ]
+      ; title = `Understanding VSIDS Branching Heuristics in Conflict-Driven Clause-Learning SAT Solvers`
+      ; address = Some `Cham`
+      ; booktitle = `Hardware and Software: Verification and Testing`
+      ; editor = Some [`Nir Piterman`]
+      ; key = None
+      ; month = Some `November`
+      ; note = None
+      ; organization = None
+      ; pages = Some (`225`, `241`)
+      ; publisher = Some `Springer International Publishing`
+      ; year = `2015`
+      |)
+    )
+  ; (`Wu:2006`, 
+      MasterThesis (|
+        author = [`Huayue Wu`]
+      ; title = `Randomization and Restart Strategies`
+      ; address = Some `Waterloo, Ontario, Canada, 2006`
+      ; key = None
+      ; month = None
+      ; year = `2006`
+      ; note = None
+      ; school = `University of Waterloo`
+      |)
+    )
+  ; (`Smullyan:2008`,
+      Book (|
+        author = [`レイモンド・スマリヤン`]
+      ; title = `スマリヤンの決定不能の論理パズル ゲーデルの定理と様相論理`
+      ; publisher = `白揚社`
+      ; address = None
+      ; year = `2008`
+      ; edition = None
+      ; key = None
+      ; month = None
+      ; note = None
+      ; series = None
+      ; volume = None
+      |)
+    )
+  ]

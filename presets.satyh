@@ -1,0 +1,126 @@
+@require: class-slydifi/theme/arctic
+@require: bibyfi/bibyfi-IEEETran
+@require: code-printer/code-printer
+@require: code-printer/code-syntax
+@require: code-printer/code-theme
+@require: code-printer/code-design
+
+let set-main-font name = fun ctx ->
+  ctx |> set-font Kana (name, 1., 0.)
+      |> set-font HanIdeographic (name, 1., 0.)
+      |> set-font OtherScript (name, 1., 0.)
+      |> set-font Latin (`lmroman`, 1., 0.)
+
+let set-font-metrics fsize ctx =
+  ctx |> set-font-size fsize
+      |> set-paragraph-margin (fsize *' 0.75) (fsize *' 0.75)
+      |> set-min-gap-of-lines 0pt
+      |> set-leading (fsize *' 1.4)
+
+let use-code-font = fun ctx ->
+      ctx |> set-main-font `system:JetBrainsMono-Medium`
+          |> set-font Latin (`system:JetBrainsMono-Medium`, 1., 0.)
+
+let use-code-font = fun ctx ->
+      ctx |> set-main-font `system:JetBrainsMono-Medium`
+          |> set-font Latin (`system:JetBrainsMono-Medium`, 1., 0.)
+
+let use-italic-code-font = fun ctx ->
+      ctx |> set-main-font `system:JetBrainsMono-MediumItalic`
+          |> set-font Latin (`system:JetBrainsMono-MediumItalic`, 1., 0.)
+
+let use-bold-code-font = fun ctx ->
+      ctx |> set-main-font `system:JetBrainsMono-Bold`
+          |> set-font Latin (`system:JetBrainsMono-Bold`, 1., 0.)
+
+let-inline ctx \texttt tt = read-inline (ctx |> use-code-font) tt
+
+let slydifi-cfg =
+    (| SlydifiThemeArctic.default-config with
+      font-normal = SlydifiScheme.apply-font-cfg 
+        [ set-main-font `system:HiraMaruProN-W4`
+        ; set-font-metrics 20pt
+        ];
+      font-code = SlydifiScheme.apply-font-cfg
+        [ set-main-font `system:JetBrainsMono-Medium`
+        ; set-font Latin (`system:JetBrainsMono-Medium`, 1., 0.)
+        ];
+      font-bold = SlydifiScheme.apply-font-cfg
+        [ set-main-font `system:HiraMaruProN-W4` ];
+      font-slide-title = SlydifiScheme.apply-font-cfg
+        [ set-main-font `system:.HiraKakuInterface-W5`
+        ; set-font-metrics 36pt
+        ];
+      font-slide-author = SlydifiScheme.apply-font-cfg
+        [ set-main-font `system:.HiraKakuInterface-W4`
+        ; set-font-metrics 24pt
+        ];
+      font-slide-date = 
+        SlydifiScheme.apply-font-cfg
+        [ set-main-font `system:.HiraKakuInterface-W4`
+        ; set-font-metrics 20pt
+        ];
+      font-section-title = 
+        SlydifiScheme.apply-font-cfg
+        [ set-main-font `system:.HiraKakuInterface-W4`
+        ; set-font-metrics 32pt
+        ];
+      font-frame-title = 
+        SlydifiScheme.apply-font-cfg
+        [ set-main-font `system:HiraMaruProN-W4`
+        ; set-font-metrics 28pt
+        ];
+      font-pagenum =
+        SlydifiScheme.apply-font-cfg
+        [ set-main-font `system:HiraMaruProN-W4` ];
+      font-footnote =
+        SlydifiScheme.apply-font-cfg
+        [ set-main-font `system:HiraMaruProN-W4` ];
+      font-quote =
+        SlydifiScheme.apply-font-cfg
+        [ set-main-font `system:HiraMaruProN-W4` ];
+    |)
+
+let bg-color = slydifi-cfg#color-bg
+
+let bibyfi-theme = BiByFiIEEETran.theme (|
+    name-shrink = true;
+    et-al = true;
+    journal-abbr = [];
+  |)
+
+let gray = Color.gray 0.75
+let code-bg = slydifi-cfg#color-bg-code
+
+let-inline ctx \verb s =
+  read-inline  (ctx |> use-code-font) (embed-string s)
+
+let default-code-theme = 
+      CodePrinter.make-theme
+      (|backcolor = code-bg
+      ; basic = use-code-font
+      ; comment = fun ctx ->
+          ctx |> use-italic-code-font |> set-text-color (Color.of-css `#8389A3`)
+      ; string = fun ctx ->
+          ctx |> use-italic-code-font |> set-text-color (Color.of-css `#3F83A6`)
+      ; keyword = fun ctx -> ctx 
+          |> use-bold-code-font 
+          |> set-text-color (Color.of-css `#149f03`)
+      ; identifier = fun ctx ->
+          ctx |> use-code-font |> set-text-color (Color.of-css `#7759B4`)
+      ; others = []
+      |)
+
+let default-code-printer = CodePrinter.default 
+  |> CodePrinter.set-theme default-code-theme
+  |> CodePrinter.set-number-fun CodeDesign.number-fun-null
+
+let haskell = default-code-printer
+  |> CodePrinter.set-syntax CodeSyntax.haskell
+
+let haskell = default-code-printer
+  |> CodePrinter.set-syntax CodeSyntax.haskell
+
+let lang x = default-code-printer|> CodePrinter.set-syntax x 
+
+open CodePrinter

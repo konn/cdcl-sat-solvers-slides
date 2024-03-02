@@ -1,0 +1,12 @@
+@require: Color
+module Colors : sig
+  val red: color
+  val green: color
+  val magenta: color
+  val blue: color
+end = struct
+  let red = Color.red
+  let magenta = Color.magenta
+  let green = Color.green
+  let blue = Color.blue
+end
