@@ -57,8 +57,8 @@ let sudoku ctx =
             (fun i -> 
               
               (
-                let imath = math-int i  in
-                let jmath = math-int j  in
+                let imath = math-int (i + 1) in
+                let jmath = math-int (j + 1) in
                 let name = read-inline ctx {${d_{#imath#jmath}}} in
                 let (w, h, d) = get-natural-metrics name in
               [ draw-text 
@@ -162,19 +162,35 @@ document '<
       +fig-on-right(from-graphics-given-context (150pt, 150pt) sudoku)<
         +listing{
           * 簡単な例として、 ${4 \times 4} の小さな数独の問題を SAT で解くことを考える。
-            ** 各マスには ${1, 2, 3, 4} のいずれかの数字一つを入れる。
+          * ${i, j, k \leq 4} に対し命題変数 ${P^{=k}_{ij}} を用意する（${d_{ij} = k} というきもち）。
+
+        }
+      >
+      +listing{
+        * 各マスには ${1, 2, 3, 4} のいずれかの数字一つを入れる。
               
-               \eqn(${
-                \bigwedge_{i=1}^4 \bigwedge_{j=1}^4 \bigwedge_{k=1}^4 \paren{P^{=k}_{ij} \Longrightarrow \bigwedge_{l \neq k} \lnot P^{=l}_{ij}}
-               });
-            ** 各行、各列、各 ${2 \times 2} の小ブロックには各数字 ${1, \ldots, 4} がちょうど一度ずつ入る。
-          * ${P^{=k}_{ij} \Longleftrightarrow d_{ij} = k}という命題変数とする。
+        \gather(${|
+         \bigwedge_{i \leq 4} \bigwedge_{j \leq 4} \pb{
+           \p{P^{=1}_{ij} \vee P^{=2}_{ij} \vee P^{=3}_{ij} \vee P^{=4}_{ij}} \land
+           \bigwedge_{k \leq 4} \bigwedge_{l \neq k} \paren{P^{=k}_{ij} \Longrightarrow \lnot P^{=l}_{ij}}
+           }
+        |});
+      }
+    >
+
+    +frame{SATで解ける問題の例：数独（続）}<
+        +listing{
+          * 各行、各列、各 ${2 \times 2} の小ブロックには各数字 ${1, \ldots, 4} が一つずつ入る。
+            ** 「各行」は次のように書ける（「各列」も${i,j}の役割を入れ換え同様）：
+
+              \eqn(${
+              \bigwedge_{i \leq 4} \bigwedge_{k \leq 4} (P^{=k}_{i1} \vee P^{=k}_{i2} \vee P^{=k}_{i3} \vee P^{=k}_{i4})
+              });
+            ** \emph{演習問題}：「一意性」の条件が要らない理由を考えてみよう。
+            ** \emph{演習問題}：「各ブロック」の条件を書き下してみよう。
+          * あとは盤面の情報を個別に ${P_{ij}^{=k}} で与えてやれば、個別の問題を SAT で解ける！
         }
 
-        +eqn(${
-        \bigwedge_{i=1}^4 \bigwedge_{j=1}^4 \bigvee_{k=1}^4 P^{=k}_{ij}
-        });
-      >
     >
   >
 
