@@ -61,7 +61,7 @@ let bibs =
       ; number = Some `1`
       |)
     )
-  ; (`Zeljic:2019`,
+  ; (`Torlak:2003`,
       Misc (|
         author = Some [`Enuba Torlak`]
       ; howpublished = Some `https://courses.cs.washington.edu/courses/cse507/17wi/lectures/L02.pdf`
