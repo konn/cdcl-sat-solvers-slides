@@ -406,22 +406,6 @@ document '<
     >);
 
 
-    +frame{CDCL: Conflict-Driven Clause Learning}<
-      +listing{
-        * 単純総当たりよりDPLLは賢いが、Backtrack で得られる情報が少ない
-          ** 折角 Backtrack でいったん真偽値が確定しても、更に Backtrack すればその情報は消えてしまう
-        * Backtrack は一段階ずつしか戻らない
-          ** \emph{場合分けが入れ子}になっている場合、実は直近の場合分けより\emph{もっと早くに}矛盾が起きていても延々と\emph{一段階ずつ} Backtrack してしまう
-        * 矛盾からに過程を辿っていって矛盾の原因となった「理由」を見付け。\emph{学習節}としてCNFに追加してそこまで\emph{一気に巻き戻そう} (\emph{Backjump})！
-          ** これが\emph{矛盾からの節学習}(Conflict-Driven Clause Learning, \emph{CDCL})
-          ** 学習節は\emph{元の CNF からの帰結}となるようにする
-      }
-    >
-
-    +frame{CDCL：含意グラフと学習節の生成}<
-      
-    >
-
     +frame-nofooter({Backtrack しまくる DPLL の動作例})(open DPLL in '< 
       +x-small<
         +derive
@@ -594,6 +578,33 @@ document '<
           ];
       >
     >);
+
+    +frame{CDCL: Conflict-Driven Clause Learning}<
+      +listing{
+        * 単純総当たりよりDPLLは賢いが、Backtrack で得られる情報が少ない
+          ** 折角 Backtrack でいったん真偽値が確定しても、更に Backtrack すればその情報は消えてしまう
+        * Backtrack は一段階ずつしか戻らない
+          ** \emph{場合分けが入れ子}になっている場合、実は直近の場合分けより\emph{もっと早くに}矛盾が起きていても延々と\emph{一段階ずつ} Backtrack してしまう
+        * 矛盾からに過程を辿っていって矛盾の原因となった「理由」を見付け。\emph{学習節}としてCNFに追加してそこまで\emph{一気に巻き戻そう} (\emph{Backjump})！
+          ** これが\emph{矛盾からの節学習}(Conflict-Driven Clause Learning, \emph{CDCL})
+          ** 学習節は\emph{元の CNF からの帰結}となるようにする
+      }
+    >
+
+    +frame{CDCL：含意グラフと学習節の生成}<
+      +listing{
+        * これまでに真を割り当てたリテラルを頂点として持つ有向グラフ
+        * 単位伝播で真になったリテラルへ、根拠となったリテラルから辺を伸ばす
+          ** 「根拠」：つまり、単位節に含まれる他のリテラルの\emph{否定}。
+          ** 単位伝播＝「他のリテラルが真にならなかったので最後の一つを真にする」
+        * ただ一つのリテラルのみからなる節や、場合分けで仮決めされたリテラルの場合は入次数はゼロになる。
+      }
+      +centering{
+        \tikzy[
+          matrix []
+        ];
+      }
+    >
 
     +frame-nofooter({同じ例の CDCL の動作})(open DPLL in '< 
       +xx-small<
