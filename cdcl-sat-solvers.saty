@@ -598,6 +598,7 @@ document '<
           ** 「根拠」：つまり、単位節に含まれる他のリテラルの\emph{否定}。
           ** 単位伝播＝「他のリテラルが真にならなかったので最後の一つを真にする」
         * ただ一つのリテラルのみからなる節や、場合分けで仮決めされたリテラルの場合は入次数はゼロになる。
+        * 以下は最初の ${\cnf!(open DPLL in [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]])} に対する含意グラフの例
       }
       +x-small< +centering(
         let cfg = (|default with 
@@ -615,6 +616,13 @@ document '<
         ; arrow (east-of `2`) (west-of `-6`)
         ];
       });>
+    >
+
+    +frame{含意グラフと学習節}<
+      +listing{
+        * UIP と 1-UIP
+        * Resolution で求まる話を書く
+      }
     >
 
     +frame-nofooter({同じ例の CDCL の動作})(open DPLL in '< 
