@@ -132,10 +132,10 @@ end = struct
               cs
             )
           )
-  let-math \UnitProp = ${\mathop{\mathrm{UnitProp}}}
-  let-math \Decide = ${\mathop{\mathrm{Decide}}}
-  let-math \Backtrack = ${\mathrm{Backtrack}}
-  let-math \Backjump = ${\mathrm{Backjump}}
+  let-math \UnitProp = ${\mathop{\mathrm{Unit}}}
+  let-math \Decide = ${\mathop{\mathrm{Dec}}}
+  let-math \Backtrack = ${\mathrm{Bktrk}}
+  let-math \Backjump = ${\mathrm{Bkjmp}}
   let from-rule r = match r with
       | Decide i -> 
           let n = from-plain-lit i 

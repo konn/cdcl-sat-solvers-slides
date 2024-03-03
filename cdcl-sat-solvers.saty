@@ -405,10 +405,24 @@ document '<
       >
     >);
 
-    +frame({DPLL の動作例2})(
-      open DPLL in 
-      let cnf = [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]] in
-    '< 
+
+    +frame{CDCL: Conflict-Driven Clause Learning}<
+      +listing{
+        * 単純総当たりよりDPLLは賢いが、Backtrack で得られる情報が少ない
+          ** 折角 Backtrack でいったん真偽値が確定しても、更に Backtrack すればその情報は消えてしまう
+        * Backtrack は一段階ずつしか戻らない
+          ** \emph{場合分けが入れ子}になっている場合、実は直近の場合分けより\emph{もっと早くに}矛盾が起きていても延々と\emph{一段階ずつ} Backtrack してしまう
+        * 矛盾からに過程を辿っていって矛盾の原因となった「理由」を見付け。\emph{学習節}としてCNFに追加してそこまで\emph{一気に巻き戻そう} (\emph{Backjump})！
+          ** これが\emph{矛盾からの節学習}(Conflict-Driven Clause Learning, \emph{CDCL})
+          ** 学習節は\emph{元の CNF からの帰結}となるようにする
+      }
+    >
+
+    +frame{CDCL：含意グラフと学習節の生成}<
+      
+    >
+
+    +frame({Backtrack しまくる DPLL の動作例})(open DPLL in '< 
       +x-small<
         +derive
           [ [lit (-1); lit (-2); lit (-3); lit (-4); lit 5]
@@ -581,24 +595,214 @@ document '<
       >
     >);
 
+    +frame-nofooter({同じ例の CDCL の動作})(open DPLL in '< 
+      +xx-small<
+        +derive
+          [ [lit (-1); lit (-2); lit (-3); lit (-4); lit 5]
+          ; [lit (-3); lit (-4); lit (-6)]
+          ; [lit (-5); lit 6; lit (-1); lit 7]
+          ; [lit (-7); lit 8]
+          ; [lit (-2); lit (-7); lit 9]
+          ; [lit (-8); lit (-9); lit 10]
+          ; [lit (-10); lit 11]
+          ; [lit (-11); lit 12]
+          ; [lit (-10); lit (-2); lit (-12)]
+          ]
+          [ ( rule ${\cdots}
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
+              ; [ff (-3); ff (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); tt 7]
+              ; [ff (-7); tt 8]
+              ; [ff (-2); ff (-7); tt 9]
+              ; [ff (-8); ff (-9); tt 10]
+              ; [ff (-10); tt 11]
+              ; [ff (-11); xx 12]
+              ; [ff (-10); ff (-2); xx (-12)]
+              ]
+            , [somit; dd 4; somit; lit 11; xx 12]
+            )
+          ; (bj
+            , [ [ff (-1); ff (-2); lit (-3); lit (-4); lit 5]
+              ; [lit (-3); lit (-4); lit (-6)]
+              ; [lit (-5); lit 6; ff (-1); lit 7]
+              ; [lit (-7); lit 8]
+              ; [ff (-2); lit (-7); lit 9]
+              ; [lit (-8); lit (-9); lit 10]
+              ; [lit (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [lit (-10); ff (-2); lit (-12)]
+              ; [lit (-10); ff (-2)]
+              ]
+            , [dd 1; dd 2]
+            )
+          ; (unit-prop (-10)
+            , [ [ff (-1); ff (-2); lit (-3); lit (-4); lit 5]
+              ; [lit (-3); lit (-4); lit (-6)]
+              ; [lit (-5); lit 6; ff (-1); lit 7]
+              ; [lit (-7); lit 8]
+              ; [ff (-2); lit (-7); lit 9]
+              ; [lit (-8); lit (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ]
+            , [dd 1; dd 2; lit (-10)]
+            )
+          ; (rule ${\Decide [3\text!{-}4]}
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); lit 5]
+              ; [ff (-3); ff (-4); lit (-6)]
+              ; [lit (-5); lit 6; ff (-1); lit 7]
+              ; [lit (-7); lit 8]
+              ; [ff (-2); lit (-7); lit 9]
+              ; [lit (-8); lit (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ]
+            , [lit (-10); somit; dd 4]
+            )
+          ; (rule ${\UnitProp[5\text!{-}8]}
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
+              ; [ff (-3); ff (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); tt 7]
+              ; [ff (-7); tt 8]
+              ; [ff (-2); ff (-7); xx 9]
+              ; [ff (-8); xx (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ]
+            , [lit (-10); somit; lit 8]
+            )
+          ; (bj
+            , [ [ff (-1); ff (-2); lit (-3); lit (-4); lit 5]
+              ; [lit (-3); lit (-4); lit (-6)]
+              ; [lit (-5); lit 6; ff (-1); lit 7]
+              ; [lit (-7); lit 8]
+              ; [ff (-2); lit (-7); lit 9]
+              ; [lit (-8); lit (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ; [ff (-2); lit (-7); ff 10]
+              ]
+            , [dd 1; dd 2; lit (-10)]
+            )
+          ; (unit-prop (-7)
+            , [ [ff (-1); ff (-2); lit (-3); lit (-4); lit 5]
+              ; [lit (-3); lit (-4); lit (-6)]
+              ; [lit (-5); lit 6; ff (-1); ff 7]
+              ; [tt (-7); lit 8]
+              ; [ff (-2); tt (-7); lit 9]
+              ; [lit (-8); lit (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ; [ff (-2); tt (-7); ff 10]
+              ]
+            , [somit; lit (-7)]
+            )
+          ; (rule ${\Decide[3\text!{-}4]}
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); lit 5]
+              ; [ff (-3); ff (-4); lit (-6)]
+              ; [lit (-5); lit 6; ff (-1); ff 7]
+              ; [tt (-7); lit 8]
+              ; [ff (-2); tt (-7); lit 9]
+              ; [lit (-8); lit (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ; [ff (-2); tt (-7); ff 10]
+              ]
+            , [somit; dd 4]
+            )
+          ; (rule ${\UnitProp[5\text!{-}6]}
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
+              ; [ff (-3); ff (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); ff 7]
+              ; [tt (-7); lit 8]
+              ; [ff (-2); tt (-7); lit 9]
+              ; [lit (-8); lit (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ; [ff (-2); tt (-7); ff 10]
+              ]
+            , [somit; lit (-6)]
+            )
+          ; (dec 8
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
+              ; [ff (-3); ff (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); ff 7]
+              ; [tt (-7); tt 8]
+              ; [ff (-2); tt (-7); lit 9]
+              ; [ff (-8); lit (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ; [ff (-2); tt (-7); ff 10]
+              ]
+            , [somit; dd 8]
+            )
+          ; (unit-prop (-9)
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
+              ; [ff (-3); ff (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); ff 7]
+              ; [tt (-7); tt 8]
+              ; [ff (-2); tt (-7); ff 9]
+              ; [ff (-8); tt (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ; [ff (-2); tt (-7); ff 10]
+              ]
+            , [somit; dd 4; somit; lit (-6); dd 8; lit (-9)]
+            )
+          ; (dec 11
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
+              ; [ff (-3); ff (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); ff 7]
+              ; [tt (-7); tt 8]
+              ; [ff (-2); tt (-7); ff 9]
+              ; [ff (-8); tt (-9); ff 10]
+              ; [tt (-10); tt 11]
+              ; [ff (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ; [ff (-2); tt (-7); ff 10]
+              ]
+            , [somit;  lit 11]
+            )
+          ; (unit-prop 12
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
+              ; [ff (-3); ff (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); ff 7]
+              ; [tt (-7); tt 8]
+              ; [ff (-2); tt (-7); ff 9]
+              ; [ff (-8); tt (-9); ff 10]
+              ; [tt (-10); tt 11]
+              ; [ff (-11); tt 12]
+              ; [tt (-10); ff (-2); ff (-12)]
+              ; [tt (-10); ff (-2)]
+              ; [ff (-2); tt (-7); ff 10]
+              ]
+            , [dd 1; somit;  lit 12]
+            )
+          ];
+      >
 
-    +frame{CDCL: Conflict-Driven Clause Learning}<
-      +listing{
-        * 単純総当たりよりDPLLは賢いが、Backtrack で得られる情報が少ない
-          ** 折角 Backtrack でいったん真偽値が確定しても、更に Backtrack すればその情報は消えてしまう
-        * Backtrack は一段階ずつしか戻らない
-          ** \emph{場合分けが入れ子}になっている場合、実は直近の場合分けより\emph{もっと早くに}矛盾が起きていても延々と\emph{一段階ずつ} Backtrack してしまう
-        * 矛盾からに過程を辿っていって矛盾の原因となった「理由」を見付け。\emph{学習節}としてCNFに追加してそこまで\emph{一気に巻き戻そう} (\emph{Backjump})！
-          ** これが\emph{矛盾からの節学習}(Conflict-Driven Clause Learning, \emph{CDCL})
-          ** 学習節は\emph{元の CNF からの帰結}となるようにする
-      }
-    >
+      +centering{Backjump 二回だけですんなり解けている！}
+    >);
 
-    +frame{CDCL：含意グラフと学習節の生成}<
-      
-    >
-
-    
 
     +frame-nofooter{CDCL：更なる最適化手法}<
       +p{
