@@ -30,6 +30,7 @@ type node-style = (|
   padding: length;
   name: string option;
   distance: length option;
+  style: context -> context;
 |)
 type config = (|unit-length: length; default-node-style : node-style|)
 type matrix-config = (|
@@ -56,6 +57,7 @@ module TikZyFi : sig
   val circle: node-style -> node-style
   val rect: node-style -> node-style
   val plain: node-style -> node-style
+  val style: (context -> context) list -> node-style -> node-style
   val default: config
   val default-matrix: matrix-config
   val default-node-style: node-style
@@ -87,6 +89,7 @@ end = struct
     ; fill-color = Color.white
     ; name = None
     ; distance = None
+    ; style = fun ctx -> ctx
     |)
 
   let named name = fun opt -> (|opt with name = Some(name)|)
@@ -104,6 +107,7 @@ end = struct
   let circle = fun x -> (| x with shape = Circle|)
   let rect = fun x -> (| x with shape = Rect|)
   let plain = fun x -> (| x with shape = Plain|)
+  let style xs = fun x -> (| x with style = Utils.apps xs |)
 
   let graphics-extent grs = 
     let ((min-x, min-y), (max-x, max-y)) = 
@@ -234,10 +238,11 @@ end = struct
     let style = node#style cfg#default-node-style in
     let it = node#body in 
     let pads = (style#padding, style#padding, style#padding, style#padding)  in
+    let ctx2 = ctx |> style#style in
     let node = match style#shape with
-        | Plain   -> read-inline ctx it
-        | Rect    -> rectify style (read-inline ctx it)
-        | Circle  -> circled style (read-inline ctx it)
+        | Plain   -> read-inline ctx2 it
+        | Rect    -> rectify style (read-inline ctx2 it)
+        | Circle  -> circled style (read-inline ctx2 it)
     in (node, style)
 
   let process-node ctx cfg (Node node) = process-node-raw ctx cfg node

@@ -35,50 +35,68 @@ let use-bold-code-font = fun ctx ->
 
 let-inline ctx \texttt tt = read-inline (ctx |> use-code-font) tt
 
+let preset-math-font = `lmodern`
+
 let slydifi-cfg =
     (| SlydifiThemeArctic.default-config with
       font-normal = SlydifiScheme.apply-font-cfg 
         [ set-main-font `system:HiraMaruProN-W4`
+        ; set-math-font preset-math-font
         ; set-font-metrics 20pt
         ];
       font-code = SlydifiScheme.apply-font-cfg
         [ set-main-font `system:JetBrainsMono-Medium`
+        ; set-math-font preset-math-font
         ; set-font Latin (`system:JetBrainsMono-Medium`, 1., 0.)
         ];
       font-bold = SlydifiScheme.apply-font-cfg
-        [ set-main-font `system:HiraMaruProN-W4` ];
+        [ set-main-font `system:HiraMaruProN-W4`
+        ; set-math-font preset-math-font
+        ];
       font-slide-title = SlydifiScheme.apply-font-cfg
         [ set-main-font `system:.HiraKakuInterface-W5`
+        ; set-math-font preset-math-font
         ; set-font-metrics 36pt
         ];
       font-slide-author = SlydifiScheme.apply-font-cfg
         [ set-main-font `system:.HiraKakuInterface-W4`
+        ; set-math-font preset-math-font
         ; set-font-metrics 24pt
         ];
       font-slide-date = 
         SlydifiScheme.apply-font-cfg
         [ set-main-font `system:.HiraKakuInterface-W4`
+        ; set-math-font preset-math-font
         ; set-font-metrics 20pt
         ];
       font-section-title = 
         SlydifiScheme.apply-font-cfg
         [ set-main-font `system:.HiraKakuInterface-W4`
+        ; set-math-font preset-math-font
         ; set-font-metrics 32pt
         ];
       font-frame-title = 
         SlydifiScheme.apply-font-cfg
         [ set-main-font `system:HiraMaruProN-W4`
+        ; set-math-font preset-math-font
         ; set-font-metrics 28pt
         ];
       font-pagenum =
         SlydifiScheme.apply-font-cfg
-        [ set-main-font `system:HiraMaruProN-W4` ];
+        [ set-main-font `system:HiraMaruProN-W4`
+        ; set-math-font preset-math-font
+        ; set-font-metrics 16pt
+        ];
       font-footnote =
         SlydifiScheme.apply-font-cfg
-        [ set-main-font `system:HiraMaruProN-W4` ];
+        [ set-main-font `system:HiraMaruProN-W4` 
+        ; set-math-font preset-math-font
+        ];
       font-quote =
         SlydifiScheme.apply-font-cfg
-        [ set-main-font `system:HiraMaruProN-W4` ];
+        [ set-main-font `system:HiraMaruProN-W4` 
+        ; set-math-font preset-math-font
+        ];
     |)
 
 let bg-color = slydifi-cfg#color-bg

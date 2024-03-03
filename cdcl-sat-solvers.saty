@@ -41,7 +41,12 @@ let-inline ctx \eqref key =
 let-math \eqrefm key = ${\text!{\eqref(key);}}
 let-block ctx +small arg = 
   read-block (ctx |> set-font-size 15pt) arg
+let-inline ctx \small arg = 
+  read-inline (ctx |> set-font-size 15pt) arg
+let-block ctx +very-small arg = 
+  read-block (ctx |> set-font-size 12pt) arg
 let-math \SAT = ${\mathrm{SAT}}
+let-math \CNF = ${\mathrm{CNF}}
 let-math \NP = ${\mathrm{NP}}
 let sudoku ctx = 
   let dx = 36pt
@@ -233,6 +238,74 @@ document '<
         * 本質的に速くなくても\emph{実用的な問題に対し十分速い}手法が研究されている
           ** 以下ではその中でも主流な\emph{CDCL 法}の原理を簡単に紹介（参考文献\cite[`Zeljic:2019`; `鍋島:2010`; `岩沼:2010`; `Torlak:2003`];）
       }
+    >
+
+    +frame{連言標準形（CNF）}<
+      +listing{
+        * SAT ソルバは\emph{連言標準形} (CNF) と呼ばれる形の論理式を扱うことが多い
+      }
+
+      +defn{
+        \enumerate{
+          * 命題変数${P_i}およびその否定${\lnot P_i}を合わせて\emph{リテラル}と呼ぶ。以下、リテラルを表すメタ変数を${l, l_i}などと書く。
+          * 0個以上のリテラルを「または」で繋いだもの ${l_1 \lor \ldots \lor l_k}を\emph{節}と呼ぶ。以下、節を表すメタ変数を${C, C_i}などと書く。
+          * 0個以上の節を「かつ」で繋いだ${C_1 \land \ldots \land C_m}の形の論理式を\emph{連言標準形}（Conjunctive Normal Form\emph{CNF}）と呼ぶ。
+        }
+      }
+    >
+
+    +frame{任意の命題論理式はCNFで表せる}<
+      +thm?:({命題論理式のCNFへの変換}){
+        任意の命題論理式 ${\phi}は同値なCNF ${\phi_{\CNF}}を持つ。
+      }
+      +listing{
+        * de Morgan 則と分配則を使って変換すればよいが、自乗のオーダーかかる
+        * 充足可能性だけを考えればよいのなら、結合子ごとに追加の命題変数${n_i}を導入し、各節のサイズが高々 ${3} のCNF（\emph{${3\text!{-}\CNF}}）に変換できる
+      }
+
+      +fig-on-right(
+        let diag = 
+              { \tikzy?:(|
+                  default with
+                  default-node-style = 
+                    (|default-node-style with padding=2pt|) 
+                      |> circle |> distance 1.25cm
+                      |> style [set-font-size 12pt]
+                |)
+                (
+                let label ctx = ctx |> plain |> distance 3pt |> style [set-font-size 10pt]
+                in 
+                [ node-at?:[named `root`] (coord (0pt, 0pt)) {${\lor}}
+                ; node-at?:[label] (north-of `root`) {${n_0}}
+                ; node-at?:[named `l`] (south-west-of `root`) {${\lnot}}
+                ; node-at?:[label] (west-of `l`) {${n_1}}
+                ; node-at?:[named `ld`; distance 1cm] (south-of `l`) {${\land}}
+                ; node-at?:[label] (west-of `ld`) {${n_2}}
+                ; node-at?:[named `P`] (south-west-of `ld`) {${P}}
+                ; node-at?:[named `Q`] (south-east-of `ld`) {${Q}}
+                ; node-at?:[named `R`] (south-east-of `root`) {${R}}
+                ; arrow (south-west-of `root`) (north-of `l`)
+                ; arrow (south-east-of `root`) (north-of `R`)
+                ; arrow (south-of `l`) (north-of `ld`)
+                ; arrow (south-west-of `ld`) (north-of `P`)
+                ; arrow (south-east-of `ld`) (north-of `Q`)
+                ]);
+              }
+        in textbox-with-width 6cm diag
+      )<
+        +listing{
+          * 論理式 ${\lnot (P \land Q) \lor (R \land S)} のCNFへの変換例：
+
+            \small{\align?:(AZMathEquation.notag)(${
+              | n_0 | \land (\lnot n_0 \lor n_1 \lor R) \land (\lnot n_1 \lor n_0) \land (\lnot R \lor n_0)
+              |     | \land (\lnot n_1 \lor \lnot n_2) \land (n_1 \lor n_2)
+              |     | \land (\lnot n_2 \lor P) \land (\lnot n_2 \lor Q) \land (\lnot P \lor \lnot Q \lor n_2)
+              |});
+            }
+          
+          * \emph{演習問題}：他の結合子の変換規則を考えてみよう。
+        }
+      >
     >
   >
 
