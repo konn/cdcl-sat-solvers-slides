@@ -9,7 +9,7 @@ let-math \widebar it =
           let color = get-text-color ctx in
           inline-graphics
               width
-              (height +' offset)
+              height
               depth
               (fun (x, y) -> [
                 draw-text (x, y) it;

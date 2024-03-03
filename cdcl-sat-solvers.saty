@@ -599,11 +599,22 @@ document '<
           ** 単位伝播＝「他のリテラルが真にならなかったので最後の一つを真にする」
         * ただ一つのリテラルのみからなる節や、場合分けで仮決めされたリテラルの場合は入次数はゼロになる。
       }
-      +centering{
-        \tikzy[
-          matrix []
+      +x-small< +centering(
+        let cfg = (|default with 
+                    default-node-style = default-node-style |> circle |> padding 5pt;
+                    unit-length = 1.25cm;
+                  |) in {
+        \tikzy?:(cfg)[
+          matrix
+            [ [node {${3}}; node?:[named`5`] {${5}}; node?:[named`6`] {${6}}; ]
+            ; [node?:[named `1`] {${1}}; node?:[named `2`] {${2}}; node?:[named `-6`] {${\widebar{6}}}]
+            ]
+        ; arrow (east-of `5`) (west-of `6`)
+        ; arrow (east-of `1`) (west-of `2`)
+        ; arrow (north-east-of `2`) (south-west-of `6`)
+        ; arrow (east-of `2`) (west-of `-6`)
         ];
-      }
+      });>
     >
 
     +frame-nofooter({同じ例の CDCL の動作})(open DPLL in '< 
