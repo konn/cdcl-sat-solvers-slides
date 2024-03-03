@@ -248,7 +248,7 @@ document '<
           ?:(|sort-references=true; 
               citestyle=CiteAsNumber;
               name-shrink=true;
-          |)
+            |)
           (bibyfi-theme)(bibs);
       >
     >

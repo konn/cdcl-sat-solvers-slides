@@ -1,20 +1,15 @@
 @require: bibyfi/bibyfi
 @require: class-slydifi/theme/arctic
 @require: fss/fss
+@require: annot
 @import: presets
 
+let-inline ctx \url url = 
+  read-inline (ctx |> use-code-font |> set-font-size 15pt) {\href(url)(embed-string url);}
 let bibs =
   [ 
     (`Zeljic:2019`,
-      Misc (|
-        author = Some [`Aleksandar Zeljić`]
-      ; howpublished = Some `https://web.stanford.edu/class/cs357/`
-      ; key = None
-      ; month = None
-      ; year = Some `2019`
-      ; note = None
-      ; title = Some `CS357: Advanced Topics in Computer Science`
-      |)
+      WildCard {Aleksandar Zeljić, "CS357: Advanced Topics in Computer Science". Course Material. Stanford University. 2019. \url(`https://web.stanford.edu/class/cs357/`);.}
     )
 
   ; (`Oppen:1980`, 
@@ -62,15 +57,7 @@ let bibs =
       |)
     )
   ; (`Torlak:2003`,
-      Misc (|
-        author = Some [`Enuba Torlak`]
-      ; howpublished = Some `https://courses.cs.washington.edu/courses/cse507/17wi/lectures/L02.pdf`
-      ; key = None
-      ; month = None
-      ; year = Some `2003`
-      ; note = None
-      ; title = Some `A Modern SAT Solver`
-      |)
+      WildCard {Enuba Torlak, “A Modern SAT Solver”. Course Material. 2003. \url(`https://courses.cs.washington.edu/courses/cse507/17wi/lectures/L02.pdf`);.}
     )
 
   ; (`Liang:2015`,
