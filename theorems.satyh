@@ -39,6 +39,7 @@ let make-theorem ctx header ?:title ?:tag ?:opts blk =
   >
 
 let-block ctx +defn = make-theorem ctx `定義`
+let-block ctx +rem = make-theorem ctx `注意`
 let-block ctx +notation = make-theorem ctx `記法`
 let-block ctx +thm = make-theorem ctx `定理`
 let-block ctx +lem = make-theorem ctx `補題`

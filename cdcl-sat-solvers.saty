@@ -256,8 +256,10 @@ document '<
         \enumerate{
           * 命題変数${P_i}およびその否定${\lnot P_i}を合わせて\emph{リテラル}と呼ぶ。以下、リテラルを表すメタ変数を${l, l_i}などと書く。
           * 0個以上のリテラルを「または」で繋いだもの ${l_1 \lor \ldots \lor l_k}を\emph{節}と呼ぶ。以下、節を表すメタ変数を${C, C_i}などと書く。
-          * 0個以上の節を「かつ」で繋いだ${C_1 \land \ldots \land C_m}の形の論理式を\emph{連言標準形}（Conjunctive Normal Form\emph{CNF}）と呼ぶ。
+          * 0個以上の節を「かつ」で繋いだ${C_1 \land \ldots \land C_m}の形の論理式を\emph{連言標準形}（Conjunctive Normal Form, \emph{CNF}）と呼ぶ。
         }
+
+        \emph{注意}：空の節は\emph{矛盾}に、空のCNFは\emph{恒真}に対応する。
       }
     >
 
@@ -313,6 +315,21 @@ document '<
           * \emph{演習問題}：他の結合子の変換規則を考えてみよう。
         }
       >
+    >
+
+    +frame{DPLL: CDCL の祖先}<
+      +listing{
+        * CDCL はDavis–Putnam–Logemann–Loveland (\emph{DPLL}) を基礎としている
+        * 基本的な考え方：CNFの節やリテラルを\emph{削れるまで削ってから}場合分け
+          ** 充足された節は削除できる→節が一つもなくなれば充足可能！
+          ** 偽なリテラルがあれば、節から削除できる→空な節ができたら充足不能！
+        * 以下の規則に従ってCNFを変形する：
+          \enumerate{
+            * \emph{単位節伝播}：リテラル一つだけの節${\pb{l}}があれば、${l}を真とし他の節から ${\lnot l}を削除
+            * \emph{純リテラル}：肯定のみまたは否定のみで出現するリテラル${l}があれば、${l}を真とし、そのリテラルを含む節を削除
+          }
+        * 規則が適用できなくなったら、未定リテラルを一つ選び\emph{場合分け}をする。
+      }
     >
   >
 

@@ -5,7 +5,7 @@
 @import: presets
 
 let-inline ctx \url url = 
-  read-inline (ctx |> use-code-font |> set-font-size 15pt) {\href(url)(embed-string url);}
+  read-inline (ctx |> use-code-font |> set-font-size 12pt) {\href(url)(embed-string url);}
 let bibs =
   [ 
     (`Zeljic:2019`,
@@ -36,7 +36,7 @@ let bibs =
       ; key = None
       ; year = `2010`
       ; month = None
-      ; note = None
+      ; note = Some(`https://www.jstage.jst.go.jp/article/jjsai/25/1/25_68/_article/-char/ja/`)
       ; volume = Some `25`
       ; number = Some `1`
       |)
@@ -51,7 +51,7 @@ let bibs =
       ; key = None
       ; year = `2010`
       ; month = None
-      ; note = None
+      ; note = Some(`https://www.jstage.jst.go.jp/article/jjsai/25/1/25_86/_article/-char/ja/`)
       ; volume = Some `25`
       ; number = Some `1`
       |)
