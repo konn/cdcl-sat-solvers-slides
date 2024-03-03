@@ -355,10 +355,13 @@ document '<
     >
 
     +frame{DPLL の動作例}<
-      +notation{
-        以下${(P_1 \vee \lnot P_2) \land P_2 \land (\lnot P_1 \vee P_3 \vee P_4)}などを${(1 \bar{2})\ (2)\ (\bar{1} 3 4)}と略記する
-      }
-
+      +listing( open DPLL in 
+        let cnf = [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]] in
+        {
+          * ${\pretty-cnf!(cnf)} を DPLL で解いてみよう。
+          * 今後は CNF しか出て来ないので、${\cnf!(cnf)}と略記する
+        }
+      );
       +small(
         open DPLL in '<
           +derive

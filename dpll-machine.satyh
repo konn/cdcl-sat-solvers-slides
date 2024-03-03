@@ -18,7 +18,9 @@ module DPLL : sig
   type clause
   val from-clause: literal list -> math
   val from-cnf: (literal list) list -> math
+  direct \cnf: [(literal list) list] math-cmd
   val pretty-cnf: (literal list) list -> math
+  direct \pretty-cnf: [(literal list) list] math-cmd
   type rule
   val unit-prop : int -> rule
   val dec : int -> rule
@@ -73,7 +75,27 @@ end = struct
         let body = Utils.concat-maths (List.map from-lit cs)
          in ${(#body)}
   let from-cnf cs = Utils.concat-maths (List.map from-clause cs)
-  let pretty-cnf cs = Utils.concat-maths (List.map from-clause cs)
+  let-math \cnf cs = from-cnf cs
+  let pretty-clause cs = Utils.concat-maths 
+        (List.intersperse ${\lor} 
+          (List.map 
+            (fun (Lit (_, i)) -> 
+              (let sign = if i < 0 then ${\lnot} else ${}
+                in let n = if i < 0 then -i else i
+                in let idx = text-in-math MathOrd (fun ctx -> read-inline ctx ((embed-string (arabic n))))
+                in ${#sign P_{#idx}}
+              )
+            ) 
+            cs
+          )
+        )
+  let pretty-cnf cs = Utils.concat-maths 
+    (List.intersperse ${\land} 
+      (List.map 
+        (fun x -> (let b = pretty-clause x in ${\p{#b}})) cs
+      )
+    )
+  let-math \pretty-cnf cs = pretty-cnf cs
   let from-stack cs = Utils.concat-maths (List.map from-lit cs)
   let from-rule r = match r with
       | Decide i -> 
