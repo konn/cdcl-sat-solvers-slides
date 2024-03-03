@@ -144,25 +144,41 @@ document '<
       }
 
 
-      +small< +centering{
-        \easytable[c;c;c;c;c;c]{
-          | ${A} | ${B} | ${C} | \eqref(`q1-cond1`); | \eqref(`q1-cond2`); | ${\eqrefm!(`q1-cond1`) \land \eqrefm!(`q1-cond2`)}
-          | \ok; | \ok; | \ok; | \ok; | \ng; | \ng;
-          | \ok; | \ok; | \ng; | \ng; | \ng; | \ng;
-          | \ok; | \ng; | \ok; | \ng; | \ok; | \ng;
-          | \ok; | \ng; | \ng; | \ng; | \ok; | \ng;
-          |
-          }
+      +small< +centering(
+        let show p = if p then {${\circ}} else {${\times}} in
+        let iff p q = (p && q) || ((not p) && (not q)) in
+        let mkRow a b c = 
+            (let one = iff a (b && c) in
+             let two = iff b (not a && c) in
+              List.map show [a; b; c; one; two; one && two]
+            ) in
+        let mkTable as0 bs cs =
+              List.append
+              {| ${A} | ${B} | ${C} | ${\eqrefm!(`q1-cond1`)} | ${\eqrefm!(`q1-cond2`)}
+              | ${\eqrefm!(`q1-cond1`) \land \eqrefm!(`q1-cond2`)}
+              |}
+              (List.concat
+                (List.concat
+                  (List.concat 
+                    (List.map 
+                      (fun a -> 
+                        List.map 
+                          (fun b ->
+                            List.map (mkRow a b) cs
+                          ) 
+                          bs
+                      )
+                      as0
+                    )
+                  )
+                )
+              )
+        in {
+        \easytable[c;c;c;c;c;c](mkTable [true] [true; false] [true; false]);
         \quad;
-        \easytable?:[t; b; m 1; bg-r (Color.rgb 0.4 1.0 0.6) 4 5][c;c;c;c;c;c]{
-          | ${A} | ${B} | ${C} | \eqref(`q1-cond1`); | \eqref(`q1-cond2`); | ${\eqrefm!(`q1-cond1`) \land \eqrefm!(`q1-cond2`)}
-          | \ng; | \ok; | \ok; | \ng; | \ok; | \ng;
-          | \ng; | \ok; | \ng; | \ok; | \ng; | \ng;
-          | \ng; | \ng; | \ok; | \ok; | \ng; | \ng;
-          | \ng; | \ng; | \ng; | \ok; | \ok; | \ok;
-          |
-        }
-      }>
+        \easytable?:[t; b; m 1; bg-r (Color.rgb 0.4 1.0 0.6) 4 5][c;c;c;c;c;c]
+          (mkTable [false] [true; false] [true; false]);
+      });>
     >
 
     +frame{SATで解ける問題の例：数独}<
