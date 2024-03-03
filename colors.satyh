@@ -4,9 +4,11 @@ module Colors : sig
   val green: color
   val magenta: color
   val blue: color
+  val gray: float -> color
 end = struct
   let red = Color.red
   let magenta = Color.magenta
   let green = Color.green
   let blue = Color.blue
+  let gray = Color.gray
 end

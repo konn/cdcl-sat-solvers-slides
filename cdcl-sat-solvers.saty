@@ -21,6 +21,7 @@
 @import: theorems
 @import: mymath
 @import: utils
+@import: dpll-machine
 
 open LatexCmds
 open SlydifiOverlay
@@ -30,8 +31,22 @@ open MyMath
 open TikZyFi
 open EasyTableAlias
 
-let concat-map f xs = List.concat (List.map f xs)
 let math-int i = math-char MathInner (arabic i)
+let-math \dec lit = ${#lit^\mathrm{d}}
+let-math \Dec lit = ${\mathop{\mathrm{Decide}} #lit}
+let-math \UP lit = ${\mathop{\mathrm{UnitProp}} #lit}
+let-math \Bt lit = ${\mathop{\mathrm{Backtrack}} #lit}
+let-math \Bj lit = ${\mathop{\mathrm{Backjump}} #lit}
+let-math \true args = math-color Colors.green args
+let-math \conflict args = math-color Colors.red args
+let-math \false args = math-color (Colors.gray 0.6) args
+let-math \leads-to = math-char MathRel `⤳`
+let-math \rewrites-to reason = 
+  let backsp r = text-in-math MathOrd 
+        (fun ctx -> inline-skip (get-font-size ctx *' (0. -. r)))
+  in let back1 = backsp 0.2
+  in let back2 = backsp 0.5
+  in ${-#back1\p{#reason}#back2\longrightarrow}
 let-inline ctx \eqref key = 
   match get-cross-reference (`eq:` ^ key ^ `:num`) with
     | Some(label) -> 
@@ -39,10 +54,14 @@ let-inline ctx \eqref key =
     | None -> read-inline ctx { (??) }
 let-math \eqrefm key = ${\text!{\eqref(key);}}
 let-block ctx +small arg = 
-  read-block (ctx |> set-font-size 15pt) arg
+  read-block (ctx |> set-font-size 18pt) arg
 let-inline ctx \small arg = 
+  read-inline (ctx |> set-font-size 18pt) arg
+let-block ctx +x-small arg = 
+  read-block (ctx |> set-font-size 15pt) arg
+let-inline ctx \x-small arg = 
   read-inline (ctx |> set-font-size 15pt) arg
-let-block ctx +very-small arg = 
+let-block ctx +xx-small arg = 
   read-block (ctx |> set-font-size 12pt) arg
 let-math \SAT = ${\mathrm{SAT}}
 let-math \CNF = ${\mathrm{CNF}}
@@ -143,7 +162,7 @@ document '<
       }
 
 
-      +small< +centering(
+      +x-small< +centering(
         let show p = if p then {${\circ}} else {${\times}} in
         let iff p q = (p && q) || ((not p) && (not q)) in
         let mkRow a b c = 
@@ -156,10 +175,10 @@ document '<
               {| ${A} | ${B} | ${C} | ${\eqrefm!(`q1-cond1`)} | ${\eqrefm!(`q1-cond2`)}
               | ${\eqrefm!(`q1-cond1`) \land \eqrefm!(`q1-cond2`)}
               |}
-              (concat-map 
+              (Utils.concat-map 
                 (fun a -> 
-                  concat-map 
-                    (fun b -> concat-map (mkRow a b) cs) 
+                  Utils.concat-map 
+                    (fun b -> Utils.concat-map (mkRow a b) cs) 
                     bs
                 )
                 as0
@@ -305,7 +324,7 @@ document '<
         +listing{
           * 論理式 ${\lnot (P \land Q) \lor (R \land S)} のCNFへの変換例：
 
-            \small{\align?:(AZMathEquation.notag)(${
+            \x-small{\align?:(AZMathEquation.notag)(${
               | n_0 | \land (\lnot n_0 \lor n_1 \lor R) \land (\lnot n_1 \lor n_0) \land (\lnot R \lor n_0)
               |     | \land (\lnot n_1 \lor \lnot n_2) \land (n_1 \lor n_2)
               |     | \land (\lnot n_2 \lor P) \land (\lnot n_2 \lor Q) \land (\lnot P \lor \lnot Q \lor n_2)
@@ -326,7 +345,7 @@ document '<
         * 以下の規則に従ってCNFを変形する：
           \enumerate{
             * \emph{単位節伝播}：リテラル一つだけの節${\pb{l}}があれば${l\equiv\top}とし${\lnot l}を削除
-            * \emph{純リテラル}：肯定または否定のみ出現するリテラル${l}があれば${l\equiv\top}としそのリテラルを含む節を削除
+            * \emph{純リテラル}：肯定または否定のみ出現するリテラル${l}があれば${l\equiv\top}としそのリテラルを含む節を削除（コスト面から\emph{実装しない}事が多い）
             * \emph{Decide}：他規則が適用できないならリテラルを一つ選び\emph{場合分け}
               \listing{
                 * 真偽を仮決めし継続。失敗したら巻き戻し (\emph{Backtrack}) 否定で確定し継続
@@ -335,9 +354,59 @@ document '<
       }
     >
 
+    +frame{DPLL の動作例}<
+      +notation{
+        以下${(P_1 \vee \lnot P_2) \land P_2 \land (\lnot P_1 \vee P_3 \vee P_4)}などを${(1 \bar{2})\ (2)\ (\bar{1} 3 4)}と略記する
+      }
+
+      +small(
+        open DPLL in '<
+          +derive
+            [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]]
+            [ ( dec 1
+              , [ [ff (-1); pos 2]; [pos 3; pos 4]
+                ; [neg 5; neg 6]; [neg 2; neg 5; pos 6]
+                ]
+              , [dd 1]
+              )
+            ; ( unit-prop 2
+              , [ [ff (-1); tt 2]; [pos 3; pos 4]
+                ; [neg 5; neg 6]; [neg 2; neg 5; pos 6]
+                ]
+              , [dd 1; lit 2]
+              )
+            ; ( dec 3
+              , [ [ff (-1); tt 2]; [tt 3; pos 4]
+                ; [neg 5; neg 6]; [ff (-2); neg 5; pos 6]
+                ]
+              , [dd 1; lit 2; dd 3]
+              )
+            ; ( dec 5
+              , [ [ff (-1); tt 2]; [tt 3; pos 4]
+                ; [ff (-5); neg 6]; [ff (-2); ff (-5); pos 6]
+                ]
+              , [dd 1; lit 2; dd 3; dd 5]
+              )
+            ; ( unit-prop (-6)
+              , [ [ff (-1); tt 2]; [tt 3; pos 4]
+                ; [ff (-5); tt (-6)]; [ff (-2); ff (-5); xx 6]
+                ]
+              , [dd 1; lit 2; dd 3; dd 5; xx (-6)]
+              )
+            ; ( bt
+              , [ [ff (-1); tt 2]; [tt 3; pos 4]
+                ; [tt (-5); neg 6]; [ff (-2); tt (-5); pos 6]
+                ]
+              , [dd 1; lit 2; dd 3; lit (-5)]
+              )
+            ];
+      >);
+    >
+
     +frame{CDCL: Conflict-Driven Clause Learning}<
       +listing{
         * 単純総当たりよりDPLLは賢いが、Backtrack で得られる情報が少ない
+          ** 折角 Backtrack でいったん真偽値が確定しても、更に Backtrack すればその情報は消えてしまう
         * Backtrack は一段階ずつしか戻らない
           ** \emph{場合分けが入れ子}になっている場合、実は直近の場合分けより\emph{もっと早くに}矛盾が起きていても延々と\emph{一段階ずつ} Backtrack してしまう
         * 矛盾からに過程を辿っていって矛盾の原因となった「理由」を見付け。\emph{学習節}としてCNFに追加してそこまで\emph{一気に巻き戻そう} (\emph{Backjump})！
