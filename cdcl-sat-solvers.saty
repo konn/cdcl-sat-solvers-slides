@@ -434,33 +434,7 @@ document '<
               ]
             , [somit; dd 4]
             )
-          ; (unit-prop 5
-            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
-              ; [ff (-3); ff (-4); lit (-6)]
-              ; [ff (-5); lit 6; ff (-1); lit 7]
-              ; [lit (-7); lit 8]
-              ; [ff (-2); lit (-7); lit 9]
-              ; [lit (-8); lit (-9); lit 10]
-              ; [lit (-10); lit 11]
-              ; [lit (-11); lit 12]
-              ; [lit (-10); ff (-2); lit (-12)]
-              ]
-            , [somit; dd 4; lit 5]
-            )
-          ; (unit-prop (-6)
-            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
-              ; [ff (-3); ff (-4); tt (-6)]
-              ; [ff (-5); ff 6; ff (-1); lit 7]
-              ; [lit (-7); lit 8]
-              ; [ff (-2); lit (-7); lit 9]
-              ; [lit (-8); lit (-9); lit 10]
-              ; [lit (-10); lit 11]
-              ; [lit (-11); lit 12]
-              ; [lit (-10); ff (-2); lit (-12)]
-              ]
-            , [somit; dd 4; lit 5; lit (-6)]
-            )
-          ; (rule ${\UnitProp[7\text!{-}11]}
+          ; (rule ${\UnitProp[5\text!{-}11]}
             , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
               ; [ff (-3); ff (-4); tt (-6)]
               ; [ff (-5); ff 6; ff (-1); tt 7]
@@ -473,7 +447,7 @@ document '<
               ]
             , [somit; dd 4; somit; lit 11]
             )
-          ; (unit-prop 12
+          ; ( unit-prop 12
             , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
               ; [ff (-3); ff (-4); tt (-6)]
               ; [ff (-5); ff 6; ff (-1); tt 7]
@@ -497,7 +471,111 @@ document '<
               ; [lit (-11); lit 12]
               ; [lit (-10); ff (-2); lit (-12)]
               ]
-            , [dd 1; dd 2; dd 3; lit (-4)]
+            , [somit; lit (-4)]
+            )
+          ; (rule ${\Decide[5\text!{-}7]}
+            , [ [ff (-1); ff (-2); ff (-3); tt (-4); tt 5]
+              ; [ff (-3); tt (-4); ff (-6)]
+              ; [ff (-5); tt 6; ff (-1); tt 7]
+              ; [ff (-7); lit 8]
+              ; [ff (-2); ff (-7); lit 9]
+              ; [lit (-8); lit (-9); lit 10]
+              ; [lit (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [lit (-10); ff (-2); lit (-12)]
+              ]
+            , [somit; lit (-4); somit; dd 7]
+            )
+          ; (rule ${\UnitProp[8\text!{-}11]}
+            , [ [ff (-1); ff (-2); ff (-3); tt (-4); tt 5]
+              ; [ff (-3); tt (-4); ff (-6)]
+              ; [ff (-5); tt 6; ff (-1); tt 7]
+              ; [ff (-7); tt 8]
+              ; [ff (-2); ff (-7); tt 9]
+              ; [ff (-8); ff (-9); tt 10]
+              ; [ff (-10); tt 11]
+              ; [ff (-11); xx 12]
+              ; [ff (-10); ff (-2); xx (-12)]
+              ]
+            , [somit; lit (-4); somit; lit 11]
+            )
+          ; ( bt
+            , [ [ff (-1); ff (-2); ff (-3); tt (-4); tt 5]
+              ; [ff (-3); tt (-4); ff (-6)]
+              ; [ff (-5); tt 6; ff (-1); ff 7]
+              ; [tt (-7); lit 8]
+              ; [ff (-2); tt (-7); lit 9]
+              ; [lit (-8); lit (-9); lit 10]
+              ; [lit (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [lit (-10); ff (-2); lit (-12)]
+              ]
+            , [somit; lit (-4); somit; lit (-7)]
+            )
+          ; ( rule ${\cdots}
+            , [ [ff (-1); ff (-2); ff (-3); tt (-4); tt 5]
+              ; [ff (-3); tt (-4); ff (-6)]
+              ; [ff (-5); tt 6; ff (-1); ff 7]
+              ; [tt (-7); tt 8]
+              ; [ff (-2); tt (-7); tt 9]
+              ; [ff (-8); ff (-9); tt 10]
+              ; [ff (-10); tt 11]
+              ; [ff (-11); xx 12]
+              ; [ff (-10); ff (-2); xx (-12)]
+              ]
+            , [somit; lit (-4); somit; lit 11]
+            )
+          ; ( bt
+            , [ [ff (-1); ff (-2); ff (-3); tt (-4); tt 5]
+              ; [ff (-3); tt (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); lit 7]
+              ; [lit (-7); lit 8]
+              ; [ff (-2); lit (-7); lit 9]
+              ; [lit (-8); lit (-9); lit 10]
+              ; [lit (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [lit (-10); ff (-2); lit (-12)]
+              ]
+            , [somit; lit (-4); somit; lit (-6)]
+            )
+          ; ( rule ${\cdots}
+            , [ [ff (-1); ff (-2); ff (-3); tt (-4); tt 5]
+              ; [ff (-3); tt (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); tt 7]
+              ; [ff (-7); tt 8]
+              ; [ff (-2); ff (-7); tt 9]
+              ; [ff (-8); ff (-9); tt 10]
+              ; [ff (-10); tt 11]
+              ; [ff (-11); xx 12]
+              ; [ff (-10); ff (-2); xx (-12)]
+              ]
+            , [somit; lit (-4); somit; lit 11]
+            )
+          ; ( bt
+            , [ [ff (-1); ff (-2); ff (-3); tt (-4); ff 5]
+              ; [ff (-3); tt (-4); lit (-6)]
+              ; [tt (-5); lit 6; ff (-1); lit 7]
+              ; [lit (-7); lit 8]
+              ; [ff (-2); lit (-7); lit 9]
+              ; [lit (-8); lit (-9); lit 10]
+              ; [lit (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [lit (-10); ff (-2); lit (-12)]
+              ]
+            , [somit; lit (-4); somit; lit (-5)]
+            )
+          ; ( rule ${\mathrm{Bt} \mathrel{\text!{ on }} 7,8,10,11}
+            , [ [ff (-1); ff (-2); ff (-3); tt (-4); ff 5]
+              ; [ff (-3); tt (-4); lit (-6)]
+              ; [tt (-5); lit 6; ff (-1); lit 7]
+              ; [tt (-7); lit 8]
+              ; [ff (-2); tt (-7); lit 9]
+              ; [tt (-8); lit (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ]
+            , [somit; lit (-5); lit (-7); lit (-8); lit (-10); lit (-11)]
             )
           ];
       >
