@@ -359,7 +359,7 @@ document '<
       let cnf = [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]] in
     '< 
       +listing{
-        * ${\pretty-cnf!(cnf)} を DPLL で解いてみよう。
+        * ${\pretty-cnf!(cnf)} を DPLL で解いてみよう（\cite[`Zeljic:2019`];の例）。
         * 今後は CNF しか出て来ないので、${\cnf!(cnf)}と略記する
       }
       +small<
