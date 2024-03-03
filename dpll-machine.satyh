@@ -106,7 +106,22 @@ end = struct
     )
   let-math \pretty-cnf cs = pretty-cnf cs
   let rule m = Escape m
-  let from-stack cs = Utils.concat-maths (List.map from-lit cs)
+  let math-size sty sz m = 
+    text-in-math sty 
+    (fun ctx ->
+      read-inline (ctx |> set-font-size (sz (get-font-size ctx)))
+      {${#m}}
+    )
+  let-math \mathsize sty sz m = math-size sty sz m
+  let from-stack cs = 
+        Utils.concat-maths 
+          (List.intersperse 
+            (math-skip 1pt)
+            (List.map 
+              (fun l -> math-size MathOrd (fun l -> l *' 0.75) (from-lit l)) 
+              cs
+            )
+          )
   let from-rule r = match r with
       | Decide i -> 
           let n = from-plain-lit i 
@@ -125,7 +140,7 @@ end = struct
               (fun ctx -> inline-skip (get-font-size ctx *' (0. -. r)))
           in let back1 = backsp 0.2
           in let back2 = backsp 0.5
-          in ${-#back1\p{#reason}#back2\longrightarrow}
+          in ${\mathsize!(MathRel)!(fun p -> p *' 0.75){-#back1\p{#reason}#back2\longrightarrow}}
  
   let derivation-to-maths =
         Utils.concat-map
