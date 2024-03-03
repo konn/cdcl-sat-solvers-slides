@@ -27,6 +27,7 @@ module DPLL : sig
   val dec : int -> rule
   val bj : rule
   val bt : rule
+  val rule : math -> rule
   type row
   val from-stack : literal list -> math
   type derivation
@@ -39,6 +40,7 @@ end = struct
     | Decide of int
     | Backtrack
     | Backjump
+    | Escape of math
   type valuation = 
     | Neutral | True | False | Conflict | Deciding
   type literal = 
@@ -103,6 +105,7 @@ end = struct
       )
     )
   let-math \pretty-cnf cs = pretty-cnf cs
+  let rule m = Escape m
   let from-stack cs = Utils.concat-maths (List.map from-lit cs)
   let from-rule r = match r with
       | Decide i -> 
@@ -113,6 +116,7 @@ end = struct
             in ${\mathop{\mathrm{UnitProp}}#n}
       | Backjump -> ${\mathop{\mathrm{Backjump}}}
       | Backtrack -> ${\mathop{\mathrm{Backtrack}}}
+      | Escape m -> m
   let from-some-rule r = match r with
       | None -> ${}
       | Some rule -> 

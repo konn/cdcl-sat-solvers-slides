@@ -405,6 +405,38 @@ document '<
       >
     >);
 
+    +frame({DPLL の動作例2})(
+      open DPLL in 
+      let cnf = [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]] in
+    '< 
+      +x-small<
+        +derive
+          [ [lit (-1); lit (-2); lit (-3); lit (-4); lit 5]
+          ; [lit (-2); lit (-4); lit (-6)]
+          ; [lit (-5); lit 6; lit (-1); lit 7]
+          ; [lit (-7); lit 8]
+          ; [lit (-3); lit (-7); lit 9]
+          ; [lit (-8); lit (-9); lit 10]
+          ; [lit (-10); lit 11]
+          ; [lit (-10); lit (-3); lit (-11)]
+          ]
+          [ (rule ${\mathrm{Decide}(1,2,3)}
+            , [ [ff (-1); ff (-2); ff (-3); lit (-4); lit 5]
+              ; [lit (-2); lit (-4); lit (-6)]
+              ; [lit (-5); lit 6; lit (-1); lit 7]
+              ; [lit (-7); lit 8]
+              ; [lit (-3); lit (-7); lit 9]
+              ; [lit (-8); lit (-9); lit 10]
+              ; [lit (-10); lit 11]
+              ; [lit (-10); lit (-3); lit (-11)]
+              ]
+            , [dd 1; dd 2; dd 3]
+            )
+          ];
+      >
+    >);
+
+
     +frame{CDCL: Conflict-Driven Clause Learning}<
       +listing{
         * 単純総当たりよりDPLLは賢いが、Backtrack で得られる情報が少ない
