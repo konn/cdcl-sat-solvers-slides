@@ -71,7 +71,7 @@ end = struct
         | True -> math-color Colors.blue
         | False -> math-color (Colors.gray 0.7)
         | Conflict -> fun x ->  math-color Colors.red ${\text!{\uwave{\skip(2pt);${#x}\skip(2pt);}}}
-        | Deciding -> fun x -> ${#x^d}
+        | Deciding -> fun x -> ${#x^\mathrm{d}}
       in modifier (from-plain-lit i)
   let from-clause cs = 
         let body = Utils.concat-maths (List.map from-lit cs)
