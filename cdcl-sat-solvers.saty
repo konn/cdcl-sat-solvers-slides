@@ -354,57 +354,56 @@ document '<
       }
     >
 
-    +frame{DPLL の動作例}<
-      +listing( open DPLL in 
-        let cnf = [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]] in
-        {
-          * ${\pretty-cnf!(cnf)} を DPLL で解いてみよう。
-          * 今後は CNF しか出て来ないので、${\cnf!(cnf)}と略記する
-        }
-      );
-      +small(
-        open DPLL in '<
-          +derive
-            [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]]
-            [ ( dec 1
-              , [ [ff (-1); pos 2]; [pos 3; pos 4]
-                ; [neg 5; neg 6]; [neg 2; neg 5; pos 6]
-                ]
-              , [dd 1]
-              )
-            ; ( unit-prop 2
-              , [ [ff (-1); tt 2]; [pos 3; pos 4]
-                ; [neg 5; neg 6]; [neg 2; neg 5; pos 6]
-                ]
-              , [dd 1; lit 2]
-              )
-            ; ( dec 3
-              , [ [ff (-1); tt 2]; [tt 3; pos 4]
-                ; [neg 5; neg 6]; [ff (-2); neg 5; pos 6]
-                ]
-              , [dd 1; lit 2; dd 3]
-              )
-            ; ( dec 5
-              , [ [ff (-1); tt 2]; [tt 3; pos 4]
-                ; [ff (-5); neg 6]; [ff (-2); ff (-5); pos 6]
-                ]
-              , [dd 1; lit 2; dd 3; dd 5]
-              )
-            ; ( unit-prop (-6)
-              , [ [ff (-1); tt 2]; [tt 3; pos 4]
-                ; [ff (-5); tt (-6)]; [ff (-2); ff (-5); xx 6]
-                ]
-              , [dd 1; lit 2; dd 3; dd 5; xx (-6)]
-              )
-            ; ( bt
-              , [ [ff (-1); tt 2]; [tt 3; pos 4]
-                ; [tt (-5); neg 6]; [ff (-2); tt (-5); pos 6]
-                ]
-              , [dd 1; lit 2; dd 3; lit (-5)]
-              )
-            ];
-      >);
-    >
+    +frame({DPLL の動作例})(
+      open DPLL in 
+      let cnf = [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]] in
+    '< 
+      +listing{
+        * ${\pretty-cnf!(cnf)} を DPLL で解いてみよう。
+        * 今後は CNF しか出て来ないので、${\cnf!(cnf)}と略記する
+      }
+      +small<
+        +derive
+          [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]]
+          [ ( dec 1
+            , [ [ff (-1); pos 2]; [pos 3; pos 4]
+              ; [neg 5; neg 6]; [neg 2; neg 5; pos 6]
+              ]
+            , [dd 1]
+            )
+          ; ( unit-prop 2
+            , [ [ff (-1); tt 2]; [pos 3; pos 4]
+              ; [neg 5; neg 6]; [neg 2; neg 5; pos 6]
+              ]
+            , [dd 1; lit 2]
+            )
+          ; ( dec 3
+            , [ [ff (-1); tt 2]; [tt 3; pos 4]
+              ; [neg 5; neg 6]; [ff (-2); neg 5; pos 6]
+              ]
+            , [dd 1; lit 2; dd 3]
+            )
+          ; ( dec 5
+            , [ [ff (-1); tt 2]; [tt 3; pos 4]
+              ; [ff (-5); neg 6]; [ff (-2); ff (-5); pos 6]
+              ]
+            , [dd 1; lit 2; dd 3; dd 5]
+            )
+          ; ( unit-prop (-6)
+            , [ [ff (-1); tt 2]; [tt 3; pos 4]
+              ; [ff (-5); tt (-6)]; [ff (-2); ff (-5); xx 6]
+              ]
+            , [dd 1; lit 2; dd 3; dd 5; xx (-6)]
+            )
+          ; ( bt
+            , [ [ff (-1); tt 2]; [tt 3; pos 4]
+              ; [tt (-5); neg 6]; [ff (-2); tt (-5); pos 6]
+              ]
+            , [dd 1; lit 2; dd 3; lit (-5)]
+            )
+          ];
+      >
+    >);
 
     +frame{CDCL: Conflict-Driven Clause Learning}<
       +listing{
