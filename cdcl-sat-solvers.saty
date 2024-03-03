@@ -317,7 +317,7 @@ document '<
       >
     >
 
-    +frame{DPLL: CDCL の祖先}<
+    +frame-nofooter{DPLL: CDCL の祖先}<
       +listing{
         * CDCL はDavis–Putnam–Logemann–Loveland (\emph{DPLL}) を基礎としている
         * 基本的な考え方：CNFの節やリテラルを\emph{削れるまで削ってから}場合分け
@@ -327,15 +327,22 @@ document '<
           \enumerate{
             * \emph{単位節伝播}：リテラル一つだけの節${\pb{l}}があれば${l\equiv\top}とし${\lnot l}を削除
             * \emph{純リテラル}：肯定または否定のみ出現するリテラル${l}があれば${l\equiv\top}としそのリテラルを含む節を削除
+            * \emph{Decide}：他規則が適用できないならリテラルを一つ選び\emph{場合分け}
+              \listing{
+                * 真偽を仮決めし継続。失敗したら巻き戻し (\emph{Backtrack}) 否定で確定し継続
+              }
           }
-        * 規則が適用できなくなったら、未定リテラルを一つ選び\emph{場合分け}をする。
-          ** 真偽を仮決めし先に進む。失敗したら巻き戻して否定で確定させ継続。
       }
     >
 
     +frame{CDCL: Conflict-Driven Clause Learning}<
       +listing{
-        * 単純な総当たりよりもDPLLは賢いが、
+        * 単純総当たりよりDPLLは賢いが、Backtrack で得られる情報が少ない
+        * Backtrack は一段階ずつしか戻らない
+          ** \emph{場合分けが入れ子}になっている場合、実は直近の場合分けより\emph{もっと早くに}矛盾が起きていても延々と\emph{一段階ずつ} Backtrack してしまう
+        * 矛盾から逆向きに過程を辿っていって、矛盾の原因となった「理由」を見付けて\emph{学習節}として学習した上でそこまで\emph{一気に巻き戻そう} (\emph{Backjump})！
+          ** これが\emph{矛盾からの節学習}(Conflict-Driven Clause Learning, \emph{CDCL})
+          ** 学習節は\emph{元の CNF からの帰結}となるようにする
       }
     >
   >
