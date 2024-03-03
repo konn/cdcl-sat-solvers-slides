@@ -65,18 +65,23 @@ end = struct
         in let sign x = if i < 0 then ${\bar{#x}} else x
         in sign (text-in-math MathOrd (fun ctx -> read-inline ctx ((embed-string (arabic abs-i)))))
   let-inline ctx \skip sz = inline-skip sz
+  let math-skip sz = text-in-math MathPunct (fun ctx -> inline-skip sz)
+  let-math \math-skip sz = math-skip sz
   let from-lit (Lit (s, i)) = 
       let modifier = match s with
         | Neutral -> Fn.id
         | True -> math-color Colors.blue
         | False -> math-color (Colors.gray 0.7)
-        | Conflict -> fun x ->  math-color Colors.red ${\text!{\uwave{\skip(2pt);${#x}\skip(2pt);}}}
+        | Conflict -> fun x -> math-color Colors.red ${\text!{\uwave{\skip(2pt);${#x}\skip(2pt);}}}
         | Deciding -> fun x -> ${#x^\mathrm{d}}
       in modifier (from-plain-lit i)
   let from-clause cs = 
-        let body = Utils.concat-maths (List.map from-lit cs)
+        let body = Utils.concat-maths (List.intersperse ${,} (List.map from-lit cs))
          in ${(#body)}
-  let from-cnf cs = Utils.concat-maths (List.map from-clause cs)
+  let from-cnf cs = Utils.concat-maths (
+         List.intersperse (math-skip 2pt)
+          (List.map from-clause cs)
+        )
   let-math \cnf cs = from-cnf cs
   let pretty-clause cs = Utils.concat-maths 
         (List.intersperse ${\lor} 
