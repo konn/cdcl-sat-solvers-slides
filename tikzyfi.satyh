@@ -57,6 +57,7 @@ module TikZyFi : sig
   val circle: node-style -> node-style
   val rect: node-style -> node-style
   val plain: node-style -> node-style
+  val padding: length -> node-style -> node-style
   val style: (context -> context) list -> node-style -> node-style
   val default: config
   val default-matrix: matrix-config
@@ -92,6 +93,7 @@ end = struct
     ; style = fun ctx -> ctx
     |)
 
+  let padding n = fun x -> (|x with padding = n|)
   let named name = fun opt -> (|opt with name = Some(name)|)
   let distance d = fun x -> (| x with distance = Some(d) |)
 
