@@ -135,8 +135,8 @@ document '<
         * 情報を命題論理式に変換して${\eqrefm!(`q1-cond1`) \land \eqrefm!(`q1-cond2`)}を充足する解を求めればよい：
           
           \align(${
-            | A | \Longleftrightarrow B \land C \label!(`q1-cond1`)
-            | B | \Longleftrightarrow \lnot A \land C \label!(`q1-cond2`)
+            | A | \longleftrightarrow B \land C \label!(`q1-cond1`)
+            | B | \longleftrightarrow \lnot A \land C \label!(`q1-cond2`)
             |
           });
         * 真理表を書いてみると、\emph{全員嘘吐き}だとわかる。
@@ -186,7 +186,7 @@ document '<
         \gather(${|
          \bigwedge_{i \leq 4} \bigwedge_{j \leq 4} \pb{
            \p{P^{=1}_{ij} \vee P^{=2}_{ij} \vee P^{=3}_{ij} \vee P^{=4}_{ij}} \land
-           \bigwedge_{k \leq 4} \bigwedge_{l \neq k} \paren{P^{=k}_{ij} \Longrightarrow \lnot P^{=l}_{ij}}
+           \bigwedge_{k \leq 4} \bigwedge_{l \neq k} \paren{P^{=k}_{ij} \longrightarrow \lnot P^{=l}_{ij}}
            }
         |});
       }
