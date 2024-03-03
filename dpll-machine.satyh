@@ -17,12 +17,17 @@ module DPLL : sig
   val ff : int -> literal
   val xx : int -> literal
   val dd : int -> literal 
+  val somit : literal
   type clause
   val from-clause: literal list -> math
   val from-cnf: (literal list) list -> math
   direct \cnf: [(literal list) list] math-cmd
   val pretty-cnf: (literal list) list -> math
   direct \pretty-cnf: [(literal list) list] math-cmd
+  direct \UnitProp: [] math-cmd
+  direct \Decide: [] math-cmd
+  direct \Backtrack: [] math-cmd
+  direct \Backjump: [] math-cmd
   type rule
   val unit-prop : int -> rule
   val dec : int -> rule
@@ -63,9 +68,12 @@ end = struct
   let ff l = Lit (False, l)
   let xx l = Lit (Conflict, l)
   let dd l = Lit (Deciding, l)
+  let somit = Lit (Neutral, 0)
   let from-plain-lit i = 
         let abs-i = if i < 0 then -i else i
-        in let sign x = if i < 0 then ${\widebar{#x}} else x
+        in let sign x = 
+              if i == 0 then ${\ldots}
+              else if i < 0 then ${\widebar{#x}} else x
         in sign (text-in-math MathOrd (fun ctx -> read-inline ctx ((embed-string (arabic abs-i)))))
   let-inline ctx \skip sz = inline-skip sz
   let math-skip sz = text-in-math MathPunct (fun ctx -> inline-skip sz)
@@ -124,15 +132,19 @@ end = struct
               cs
             )
           )
+  let-math \UnitProp = ${\mathop{\mathrm{UnitProp}}}
+  let-math \Decide = ${\mathop{\mathrm{Decide}}}
+  let-math \Backtrack = ${\mathrm{Backtrack}}
+  let-math \Backjump = ${\mathrm{Backjump}}
   let from-rule r = match r with
       | Decide i -> 
           let n = from-plain-lit i 
-           in ${\mathop{\mathrm{Decide}}#n}
+           in ${\Decide #n}
       | UnitProp i ->
           let n = from-plain-lit i 
-            in ${\mathop{\mathrm{UnitProp}}#n}
-      | Backjump -> ${\mathop{\mathrm{Backjump}}}
-      | Backtrack -> ${\mathop{\mathrm{Backtrack}}}
+            in ${\UnitProp #n}
+      | Backjump -> ${\Backjump}
+      | Backtrack -> ${\Backtrack}
       | Escape m -> m
   let from-some-rule r = match r with
       | None -> ${}

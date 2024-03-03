@@ -44,16 +44,16 @@ let-math \muuline it =
                 lw
                 (get-text-color ctx)
                 (
-                    start-path (x +' dx, y -' offset)
-                    |> line-to (x +' width -' dx, y -' offset)
+                    start-path (x +' dx,          y -' depth -' offset)
+                    |> line-to (x +' width -' dx, y -' depth -' offset)
                     |> close-with-line
                 );
                 stroke
                 lw
                 (get-text-color ctx)
                 (
-                    start-path (x +' dx,          y -' lw -' offset *' 2.0)
-                    |> line-to (x +' width -' dx, y -' lw -' offset *' 2.0)
+                    start-path (x +' dx,          y -' depth -' lw -' offset *' 2.0)
+                    |> line-to (x +' width -' dx, y -' depth -' lw -' offset *' 2.0)
                     |> close-with-line
                 );
               ])
