@@ -31,8 +31,6 @@ open TikZyFi
 open EasyTableAlias
 
 let math-int i = math-char MathInner (arabic i)
-let-inline \ok = {${\circ}}
-let-inline \ng = {${\times}}
 let-inline ctx \eqref key = 
   match get-cross-reference (`eq:` ^ key ^ `:num`) with
     | Some(label) -> 
@@ -140,7 +138,7 @@ document '<
             | B | \Longleftrightarrow \lnot A \land C \label!(`q1-cond2`)
             |
           });
-        * 真偽値表を書いてみると、\emph{全員嘘吐き}だとわかる。
+        * 真理表を書いてみると、\emph{全員嘘吐き}だとわかる。
       }
 
 
@@ -246,7 +244,7 @@ document '<
   +section{|SATソルバの原理|}<
     +frame{SATは「難しい」}<
       +listing{
-        * 論理パズルの解法で見たように、すべての命題変数の有り得る真偽値の割り当てを\emph{総当たり}して、\emph{真偽値表}をつくれば原理的には解ける
+        * 論理パズルの解法で見たように、すべての命題変数の有り得る真偽値の割り当てを\emph{総当たり}して、\emph{真理表}をつくれば原理的には解ける
           ** これは命題変数の数を ${n} とすると \emph{${2^n} 通りの場合分けが必要}になる
           ** もっと効率的な方法はないか？
         * 実は\emph{「総当たりで解ける問題」は全て SAT に帰着できる}（${\SAT}は\emph{${\NP}-完全}である）ことが知られている
