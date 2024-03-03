@@ -141,4 +141,6 @@ let haskell = default-code-printer
 
 let lang x = default-code-printer|> CodePrinter.set-syntax x 
 
+let bib-size = 12pt
+
 open CodePrinter

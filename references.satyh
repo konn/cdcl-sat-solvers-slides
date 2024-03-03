@@ -5,7 +5,7 @@
 @import: presets
 
 let-inline ctx \url url = 
-  read-inline (ctx |> use-code-font |> set-font-size 12pt) {\href(url)(embed-string url);}
+  read-inline (ctx |> use-code-font |> set-font-size (bib-size *' 0.8)) {\href(url)(embed-string url);}
 let bibs =
   [ 
     (`Zeljic:2019`,
@@ -80,15 +80,17 @@ let bibs =
       |)
     )
   ; (`Wu:2006`, 
-      MasterThesis (|
+      Article (|
         author = [`Huayue Wu`]
       ; title = `Randomization and Restart Strategies`
-      ; address = Some `Waterloo, Ontario, Canada, 2006`
       ; key = None
       ; month = None
       ; year = `2006`
+      ; journal = `Master's Thesis, University of Waterloo`
       ; note = None
-      ; school = `University of Waterloo`
+      ; number = None
+      ; volume = None
+      ; pages = (`1`, `68`)
       |)
     )
   ; (`Smullyan:2008`,
