@@ -340,7 +340,7 @@ document '<
         * 単純総当たりよりDPLLは賢いが、Backtrack で得られる情報が少ない
         * Backtrack は一段階ずつしか戻らない
           ** \emph{場合分けが入れ子}になっている場合、実は直近の場合分けより\emph{もっと早くに}矛盾が起きていても延々と\emph{一段階ずつ} Backtrack してしまう
-        * 矛盾から逆向きに過程を辿っていって、矛盾の原因となった「理由」を見付けて\emph{学習節}としてCNFに追加し、そこまで\emph{一気に巻き戻そう} (\emph{Backjump})！
+        * 矛盾からに過程を辿っていって矛盾の原因となった「理由」を見付け。\emph{学習節}としてCNFに追加してそこまで\emph{一気に巻き戻そう} (\emph{Backjump})！
           ** これが\emph{矛盾からの節学習}(Conflict-Driven Clause Learning, \emph{CDCL})
           ** 学習節は\emph{元の CNF からの帰結}となるようにする
       }
