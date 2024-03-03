@@ -30,6 +30,7 @@ open MyMath
 open TikZyFi
 open EasyTableAlias
 
+let concat-map f xs = List.concat (List.map f xs)
 let math-int i = math-char MathInner (arabic i)
 let-inline ctx \eqref key = 
   match get-cross-reference (`eq:` ^ key ^ `:num`) with
@@ -155,21 +156,13 @@ document '<
               {| ${A} | ${B} | ${C} | ${\eqrefm!(`q1-cond1`)} | ${\eqrefm!(`q1-cond2`)}
               | ${\eqrefm!(`q1-cond1`) \land \eqrefm!(`q1-cond2`)}
               |}
-              (List.concat
-                (List.concat
-                  (List.concat 
-                    (List.map 
-                      (fun a -> 
-                        List.map 
-                          (fun b ->
-                            List.map (mkRow a b) cs
-                          ) 
-                          bs
-                      )
-                      as0
-                    )
-                  )
+              (concat-map 
+                (fun a -> 
+                  concat-map 
+                    (fun b -> concat-map (mkRow a b) cs) 
+                    bs
                 )
+                as0
               )
         in {
         \easytable[c;c;c;c;c;c](mkTable [true] [true; false] [true; false]);
