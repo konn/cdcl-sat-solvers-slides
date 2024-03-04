@@ -601,14 +601,20 @@ document '<
         * 以下は最初の ${\cnf!(open DPLL in [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]])} に対する含意グラフの例
       }
       +x-small< +centering(
-        let cfg = (|default with 
+        let prev ctx = ctx 
+              |> fc Colors.black 
+              |> style [set-text-color Colors.white]
+        in let contra ctx = ctx 
+              |> fc Colors.red 
+              |> style [set-text-color Colors.white]
+        in  let cfg = (|default with 
                     default-node-style = default-node-style |> circle |> padding 5pt;
                     unit-length = 1.25cm;
                   |) in {
         \tikzy?:(cfg)[
           matrix
-            [ [node {${3}}; node?:[named`5`] {${5}}; node?:[named`6`] {${6}}; ]
-            ; [node?:[named `1`] {${1}}; node?:[named `2`] {${2}}; node?:[named `-6`] {${\widebar{6}}}]
+            [ [node?:[prev] {${3}}; node?:[named`5`] {${5}}; node?:[contra; named`6`] {${6}}; ]
+            ; [node?:[named `1`; prev] {${1}}; node?:[named `2`] {${2}}; node?:[named `-6`; contra] {${\widebar{6}}}]
             ]
         ; arrow (east-of `5`) (west-of `6`)
         ; arrow (east-of `1`) (west-of `2`)
