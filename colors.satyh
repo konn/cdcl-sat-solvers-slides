@@ -1,5 +1,7 @@
 @require: Color
 module Colors : sig
+  val white: color
+  val black: color
   val red: color
   val green: color
   val magenta: color
@@ -9,6 +11,8 @@ module Colors : sig
   val yellow: color
   val gray: float -> color
 end = struct
+  let white = Color.white
+  let black = Color.black
   let red = Color.red
   let pink = Color.pink
   let green = Color.green
