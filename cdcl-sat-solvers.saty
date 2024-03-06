@@ -614,28 +614,35 @@ document '<
           ** ただ一つのリテラルを持つ単位節のリテラルや、場合分けリテラルの場合入次数はゼロ
         * 以下は最初の ${\cnf!(open DPLL in [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]])} に対する含意グラフの例
       }
-      +x-small< +centering(
-        let prev ctx = ctx 
-              |> fc Colors.black 
-              |> style [set-text-color Colors.white]
-        in let contra ctx = ctx 
-              |> fc Colors.red 
-              |> style [set-text-color Colors.white]
-        in  let cfg = (|default with 
-                    default-node-style = default-node-style |> circle |> padding 5pt;
-                    unit-length = 1.25cm;
-                  |) in {
-        \tikzy?:(cfg)[
-          matrix
-            [ [node?:[prev] {${3}}; node?:[named`5`] {${5}}; node?:[contra; named`6`] {${6}}; ]
-            ; [node?:[named `1`; prev] {${1}}; node?:[named `2`] {${2}}; node?:[named `-6`; contra] {${\widebar{6}}}]
-            ]
-        ; arrow (east-of `5`) (west-of `6`)
-        ; arrow (east-of `1`) (west-of `2`)
-        ; arrow (north-east-of `2`) (south-west-of `6`)
-        ; arrow (east-of `2`) (west-of `-6`)
-        ];
-      });>
+      +fig-on-right(
+          let prev ctx = ctx 
+                |> fc Colors.black 
+                |> style [set-text-color Colors.white]
+          in let contra ctx = ctx 
+                |> fc Colors.red 
+                |> style [set-text-color Colors.white]
+          in  let cfg = (|default with 
+                      default-node-style = default-node-style |> circle |> padding 5pt;
+                      unit-length = 1.25cm;
+                    |) 
+          in textbox-with-width 5cm {\x-small{
+                \tikzy?:(cfg)[
+                  matrix
+                    [ [node?:[prev] {${3}}; node?:[named`5`] {${5}}; node?:[contra; named`6`] {${6}}; ]
+                    ; [node?:[named `1`; prev] {${1}}; node?:[named `2`] {${2}}; node?:[named `-6`; contra] {${\widebar{6}}}]
+                    ]
+                ; arrow (east-of `5`) (west-of `6`)
+                ; arrow (east-of `1`) (west-of `2`)
+                ; arrow (north-east-of `2`) (south-west-of `6`)
+                ; arrow (east-of `2`) (west-of `-6`)
+                ];
+          }}
+      )<
+        +listing{
+          * 黒丸はこれよりも前の場合分けで仮置きされたリテラル
+          * 赤丸は互いに矛盾したリテラル
+        }
+      >
     >
 
     +frame{CDCL：含意グラフと学習節}<
@@ -645,9 +652,7 @@ document '<
             * \emph{conflict side}: 直接矛盾した頂点をどちらも含む
             * \emph{reason side}: 現在の場合分けの起点と以前の場合分け対象全部を含む
           }
-        * このとき、conflict side から
-        * UIP と 単位節
-        * 1-UIP が Resolution で求まる話を書く
+        * このとき、reason side から conflict side に辺が伸びている
       }
     >
 
