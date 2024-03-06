@@ -9,7 +9,7 @@ type 'a 'b these =
 module Algorithms : sig
   type 'a 'b these
   val topsort: 
-      'k Ord.t -> ('v -> 'k option) -> 
+      'k Ord.t -> ('v -> 'k list) -> 
       'k 'v TreeMap.t -> ((('k * 'v) list) list) option
   val align-with: ('a 'b these -> 'c) -> 'a list -> 'b list -> 'c list
   val zip-with: ('a -> 'b -> 'c) -> 'a list -> 'b list -> 'c list
@@ -34,15 +34,24 @@ module Algorithms : sig
   val union: 'k Ord.t -> 'k 'v TreeMap.t -> 'k 'v TreeMap.t -> 'k 'v TreeMap.t
 end = struct
   let concat xss = List.fold-right List.append [] xss
-  let incr ord toEdge (ident, mpos) inDegs  =
+  let incr ord toEdges (ident, mpos) inDegs  =
     let indegs1 = TreeMap.insert ord ident 0 inDegs in
-    match toEdge mpos with
-    | Some(targ) -> 
-        (match TreeMap.get ord targ indegs1 with
-            | None -> TreeMap.insert ord targ 1 indegs1
-            | Some(n) -> TreeMap.insert ord targ (n + 1) indegs1)
-    | _ -> indegs1
-  let dfs2 ord toEdge starts graph =
+    let targs = toEdges mpos in
+    List.fold-left
+      (fun ins targ -> 
+        (match TreeMap.get ord targ ins with
+          | None ->  TreeMap.insert ord targ 1 ins
+          | Some(n) -> TreeMap.insert ord targ (n + 1) ins
+        )
+      )
+      indegs1
+      targs
+  let union-ts ord l r = 
+        if TreeSet.size l < TreeSet.size r then
+          List.fold-left (fun s x -> TreeSet.insert ord x s) r (TreeSet.to-list l)
+        else
+          List.fold-left (fun s x -> TreeSet.insert ord x s) l (TreeSet.to-list r)
+  let dfs2 ord toEdges starts graph =
       let-rec
         go1 vis x = 
           if TreeSet.mem ord vis x
@@ -50,11 +59,14 @@ end = struct
           else 
             let vis2 = TreeSet.insert ord x vis in
             let source = Option.expect `Node not found` (TreeMap.get ord x graph) in
-            match toEdge source with
-            | Some(targ) -> 
-                let (vis3, ys) = go1 vis2 targ
-                in (vis3, (x, source) :: ys)
-            | None -> (vis2, [(x, source)])
+            List.fold-left
+              (fun  (vis2, reaches) targ ->
+                  (let (vis3, ys) = go1 vis2 targ
+                  in (vis3, List.append reaches ys)
+                  )
+              )
+              (vis2, [(x, source)])
+              (toEdges source)
       in let-rec
           go 
             | vis [] acc = acc
@@ -62,16 +74,16 @@ end = struct
                 let (vis2, xreach) = go1 vis x
                 in go vis2 xs (xreach :: acc)
       in go TreeSet.empty starts []
-  let topsort ord toEdge graph = 
+  let topsort ord toEdges graph = 
     let inDegs = 
           List.fold 
               TreeMap.empty
-              (incr ord toEdge) 
+              (incr ord toEdges) 
               (TreeMap.to-list graph) in
     let lones0 = 
           List.filter (fun (_, d) -> d == 0) (TreeMap.to-list inDegs) in
     let lones = List.map (fun (x, _) -> x) lones0 in
-    let sorted = dfs2 ord toEdge lones graph in
+    let sorted = dfs2 ord toEdges lones graph in
     let order = 
           TreeSet.size 
           (TreeSet.of-list ord 

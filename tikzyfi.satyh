@@ -38,7 +38,10 @@ type matrix-config = (|
   matrix-name: string;
   default-node-style : node-style;
 |)
-type position = Absolute of point | Relative of direction * string
+type position =
+  | Absolute of point 
+  | Relative of direction * string
+  | Between of position * position
 
 type matrix-node = (|name : string option; shape : shape;|)
 
@@ -63,6 +66,7 @@ module TikZyFi : sig
   val default-matrix: matrix-config
   val default-node-style: node-style
   val coord: point -> position
+  val between: position -> position -> position
   val north-of: string -> position
   val south-of: string -> position
   val west-of: string -> position
@@ -339,17 +343,22 @@ end = struct
             )
     in Utils.add-pt endpt dxy
 
-  let get-dir-of pad poss pos =
+  let-rec get-dir-of pad poss pos =
       match pos with
       | Absolute pt -> pt
       | Relative (dir, parent) ->
         ( let targ = 
-            Option.expect (`No target node: ` ^ parent)
-              (TreeMap.get String.ord parent poss)
-          in dir-of pad dir targ
-          )
+          Option.expect (`No target node: ` ^ parent)
+          (TreeMap.get String.ord parent poss)
+        in dir-of pad dir targ
+        )
+      | Between (src, tgt) -> 
+        let src-pt = get-dir-of pad poss src
+        in let tgt-pt = get-dir-of pad poss tgt
+        in Utils.scale-pt (Utils.add-pt tgt-pt src-pt) 0.5
 
   let coord pt = Absolute pt
+  let between src tgt = Between (src, tgt)
   let north-of s = Relative (North, s)
   let south-of s = Relative (South, s)
   let west-of s = Relative (West, s)
@@ -371,12 +380,14 @@ end = struct
     in let (x, y) = position
     in TreeMap.insert String.ord name node2 poss
 
-  let toEdge b =
-    match b#position with
-      | Absolute _ -> None
-      | Relative (_, targ) -> Some(targ)
+  let-rec toEdges-pos p =
+    match p with
+      | Absolute _ -> []
+      | Relative (_, targ) -> [targ]
+      | Between (src, tgt) -> List.append (toEdges-pos src) (toEdges-pos tgt)
+  let toEdges b = toEdges-pos b#position
 
-  let dfs = topsort String.ord toEdge
+  let dfs = topsort String.ord toEdges
 
   let process-elem ctx cfg key elt =
       match elt with
@@ -399,10 +410,15 @@ end = struct
       List.fold-right
         (fun (k, v) shown -> 
             `(` ^ k ^ `, ` 
-              ^ Option.map-or `None` (fun s -> `Some(` ^ s ^ `)`) v 
+              ^ `Some(` ^ v ^ `)` 
               ^ `); ` ^ shown)
         String.empty
-        (List.map (fun (nam, b) -> (nam, toEdge b)) (TreeMap.to-list env))
+        (Utils.concat-map 
+          (fun (nam, b) -> 
+              List.map (fun edge -> (nam, edge)) (toEdges b)
+          ) 
+          (TreeMap.to-list env)
+        )
 
   let draw-arrow ctx cfg node-dic (src, tgt) =
     let cfg2 = (|cfg with unit-length = -5pt|)

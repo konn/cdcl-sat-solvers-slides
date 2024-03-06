@@ -22,6 +22,7 @@
 @import: theorems
 @import: mymath
 @import: utils
+@import: diagrams
 @import: dpll-machine
 
 open LatexCmds
@@ -645,18 +646,19 @@ document '<
       >
     >
 
-    +frame{CDCL：含意グラフと学習節}<
+    +frame{CDCL：含意グラフと学習節1 - カットと矛盾原因}<
       +listing{
         * 含意グラフを以下の二つの集合に\emph{カット}すると、矛盾への\emph{原因}が得られる
           \enumerate{
             * \emph{conflict side}: 直接矛盾した頂点をどちらも含む
             * \emph{reason side}: 現在の場合分けの起点と以前の場合分け対象全部を含む
           }
-        * このとき、reason side から conflict side に辺が伸びている
+        * このとき、\emph{reason side}のリテラルはconflict side の\emph{原因}になっている
+          ** 特に\emph{conflict sideに向かう辺を持つreason sideの頂点}があれば十分
       }
     >
 
-    +frame{「長い例」の最初の矛盾までの含意グラフ}<
+    +frame{\small{例：Backtrackしまくる例の最初の矛盾までの含意グラフ}}<
       +small< +eqn?:(AZMathEquation.notag)(${
         \cnf!(open DPLL in 
           [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
@@ -671,56 +673,9 @@ document '<
           ]
         )
       });>
-      +x-small<+centering(
-        let cfg = (|default with 
-                    default-node-style = 
-                      default-node-style 
-                        |> circle |> padding 3pt;
-                    unit-length = 1.25cm;
-                  |)
-        in let prev ctx = ctx 
-              |> fc Colors.black 
-              |> style [set-text-color Colors.white]
-        in let contra ctx = ctx 
-              |> fc Colors.red 
-              |> style [set-text-color Colors.white]
-        in  { \tikzy?:(cfg)
-              [ matrix
-                [ [ empty; empty; empty ;  node?:[named `2`; prev] {${2}} ]
-                ; [ empty; node?:[named `5`]{${5}}
-                  ; node?:[named `1`; prev] {${1}}
-                  ; node?:[named `8`] {${8}}; empty; empty; node?:[named `-12`; padding 1.5pt; contra] {${\widebar{12}}}
-                  ]
-                ; [ node?:[named `4`]{${4}}; node?:[named `3`; prev] {${3}}
-                  ; node?:[named `7`]{${7}}; empty; node?:[named `10`; padding 1.5pt] {${10}}
-                  ]
-                ; [ empty; node?:[named `-6`]{${\widebar{6}}}; empty
-                  ; node?:[named `9`] {${9}}; empty
-                  ; node?:[named `11`; padding 1.5pt] {${11}}
-                  ; node?:[named `12`; padding 1.5pt; contra] {${12}}
-                ]
-                ]
-              ; arrow (west-of `1`) (east-of `5`)
-              ; arrow (south-of `1`) (north-of `7`)
-              ; arrow (south-west-of `2`) (north-east-of `5`)
-              ; arrow (south-east-of `2`) (north-west-of `-12`)
-              ; arrow (north-of `3`) (south-of `5`)
-              ; arrow (south-of `3`) (north-of `-6`)
-              ; arrow (north-east-of `4`) (south-west-of `5`)
-              ; arrow (south-east-of `4`) (north-west-of `-6`)
-              ; arrow (south-east-of `5`) (north-west-of `7`)
-              ; arrow (north-east-of `-6`) (south-west-of `7`)
-              ; arrow (north-east-of `7`) (south-west-of `8`)
-              ; arrow (south-east-of `7`) (north-west-of `9`)
-              ; arrow (south-east-of `8`) (north-west-of `10`)
-              ; arrow (north-east-of `9`) (south-west-of `10`)
-              ; arrow (north-east-of `10`) (south-west-of `-12`)
-              ; arrow (south-east-of `10`) (north-west-of `11`)
-              ; arrow (east-of `11`) (west-of `12`)
-              ];
-            }
-      );
-    >
+      +x-small< +centering{
+         \tikzy?:(large-graph-cfg)(large-graph-nodes);
+      }>
     >
 
     +frame-nofooter({同じ例の CDCL の動作})(open DPLL in '< 
