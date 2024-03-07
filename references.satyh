@@ -108,4 +108,23 @@ let bibs =
       ; volume = None
       |)
     )
+  ; (`Zhang:2001`,
+      InProceedings (|
+        author = [
+          `Lintao Zhang`; `Conor F. Madigan`
+        ; `Matthew H. Moskewicz`; `Sharad Malik`
+        ]
+      ; title = `EffEfficient Conflict Driven Learning in a Boolean Satisfiability Solver`
+      ; address = None
+      ; booktitle = `Proceedings of ICCAD-01`
+      ; editor = None
+      ; key = None
+      ; month = Some `November`
+      ; note = None
+      ; organization = None
+      ; pages = Some (`279`, `285`)
+      ; publisher = None
+      ; year = `2001`
+      |)
+    )
   ]
