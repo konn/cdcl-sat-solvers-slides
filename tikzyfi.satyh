@@ -66,7 +66,7 @@ module TikZyFi : sig
   val matrix: string ?-> (node list) list -> element
   val node-at: (node-style -> node-style) list ?-> position -> inline-text -> element
   val arrow: position -> position -> element
-  val lines: (path-style -> path-style) ?-> position list -> element
+  val lines: (path-style -> path-style) list ?-> position list -> element
   val empty: node
   val node: (node-style -> node-style) list ?-> inline-text -> node
   val pc: color -> path-style -> path-style
@@ -206,7 +206,7 @@ end = struct
   let lines ?:styler ls = match ls with
         | [] -> panic `empty line!`
         | (x :: xs) -> LineSegments (|
-              style = Option.unwrap-or Fn.id styler; start = x; points = xs|)
+              style = Option.map-or Fn.id Utils.apps styler; start = x; points = xs|)
 
   let pads-of style = (style#padding, style#padding, style#padding, style#padding)
 
