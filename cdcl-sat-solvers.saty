@@ -688,9 +688,16 @@ document '<
               [ proj (between (north-of `8`) (north-of `-12`)) (north-of `1`, north-of `2`)
               ; between (north-of `8`) (north-of `-12`)
               ; between (south-east-of `2`) (north-west-of `8`)
+              ; proj (between (south-of `2`) (south-of `8`))
+                  ( (between (east-of `1`) (west-of `2`))
+                  , (between (east-of `7`) (west-of `8`))
+                  )
+              ; proj (between (center-of `8`) (center-of `9`))
+                  ( (between (east-of `1`) (west-of `2`))
+                  , (between (east-of `7`) (west-of `8`))
+                  )
               ; proj (between (center-of `1`) (center-of `2`))
                   (center-of `-6`, south-west-of `9`)
-
               ]
           ]
         );
