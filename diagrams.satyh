@@ -21,21 +21,21 @@ let large-graph-cfg =
   |) 
 
 let large-graph-matrix = 
-      matrix
-          [ [ empty; empty; empty; node?:[named `1`; prev] {${1}} ;  node?:[named `2`; prev] {${2}} ]
-          ; [ empty; empty; node?:[named `5`]{${5}}
-            ; empty
-            ; node?:[named `8`] {${8}}; empty; empty; node?:[named `-12`; padding 1.5pt; contra] {${\widebar{12}}}
-            ]
-          ; [ node?:[named `3`; prev] {${3}}; node?:[named `4`]{${4}}; empty
-            ; node?:[named `7`]{${7}}; empty; node?:[named `10`; padding 1.5pt] {${10}}
-            ]
-          ; [ empty; empty; node?:[named `-6`]{${\widebar{6}}}; empty
-            ; node?:[named `9`] {${9}}; empty
-            ; node?:[named `11`; padding 1.5pt] {${11}}
-            ; node?:[named `12`; padding 1.5pt; contra] {${12}}
-          ]
-        ]
+  matrix
+    [ [ empty; empty; empty; node?:[named `1`; prev] {${1}} ;  node?:[named `2`; prev] {${2}} ]
+    ; [ empty; empty; node?:[named `5`]{${5}}
+      ; empty
+      ; node?:[named `8`] {${8}}; empty; empty; node?:[named `-12`; padding 1.5pt; contra] {${\widebar{12}}}
+      ]
+    ; [ node?:[named `3`; prev] {${3}}; node?:[named `4`]{${4}}; empty
+      ; node?:[named `7`]{${7}}; empty; node?:[named `10`; padding 1.5pt] {${10}}
+      ]
+    ; [ empty; empty; node?:[named `-6`]{${\widebar{6}}}; empty
+      ; node?:[named `9`] {${9}}; empty
+      ; node?:[named `11`; padding 1.5pt] {${11}}
+      ; node?:[named `12`; padding 1.5pt; contra] {${12}}
+    ]
+  ]
 
 let large-graph-nodes =
   large-graph-matrix ::
