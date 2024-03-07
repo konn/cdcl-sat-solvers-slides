@@ -23,6 +23,10 @@ type direction
   | SouthEast | SouthWest
   | Center
 type shape = Plain | Circle | Rect
+type path-style = (|
+  stroke-color: color;
+  line-width: length;
+|)
 type node-style = (|
   shape: shape;
   fill-color: color;
@@ -32,11 +36,16 @@ type node-style = (|
   distance: length option;
   style: context -> context;
 |)
-type config = (|unit-length: length; default-node-style : node-style|)
+type config = (|
+    unit-length: length;
+    default-node-style : node-style;
+    default-path-style: path-style
+    |)
 type matrix-config = (|
   unit-length: length;
   matrix-name: string;
   default-node-style : node-style;
+  default-path-style: path-style
 |)
 
 % A line determined by ax + by + c = 0
@@ -57,8 +66,11 @@ module TikZyFi : sig
   val matrix: string ?-> (node list) list -> element
   val node-at: (node-style -> node-style) list ?-> position -> inline-text -> element
   val arrow: position -> position -> element
+  val lines: (path-style -> path-style) ?-> position list -> element
   val empty: node
   val node: (node-style -> node-style) list ?-> inline-text -> node
+  val pc: color -> path-style -> path-style
+  val lw: length -> path-style -> path-style
   val fc: color -> node-style -> node-style
   val lc: color -> node-style -> node-style
   val distance: length -> node-style -> node-style
@@ -71,6 +83,7 @@ module TikZyFi : sig
   val default: config
   val default-matrix: matrix-config
   val default-node-style: node-style
+  val default-path-style: path-style
   val coord: point -> position
   val between: position -> position -> position
   val center-of: string -> position
@@ -106,6 +119,12 @@ end = struct
     ; style = fun ctx -> ctx
     |)
 
+  let default-path-style: path-style = 
+    (| 
+      line-width = 0.5pt;
+      stroke-color = Color.black;
+    |)
+
   let padding n = fun x -> (|x with padding = n|)
   let named name = fun opt -> (|opt with name = Some(name)|)
   let distance d = fun x -> (| x with distance = Some(d) |)
@@ -115,10 +134,12 @@ end = struct
           then Lt
           else if x >' y then Gt else Eq)
         )
-  let default : config = (|unit-length = 1cm ; default-node-style = default-node-style |)
+  let default : config = (|unit-length = 1cm ; default-node-style = default-node-style; default-path-style = default-path-style |)
 
   let fc c = fun x -> (| x with fill-color = c |)
   let lc c = fun x -> (| x with stroke-color = c |)
+  let pc c = fun x -> (| x with stroke-color = c|)
+  let lw l = fun x -> (| x with line-width = l|)
   let circle = fun x -> (| x with shape = Circle|)
   let rect = fun x -> (| x with shape = Rect|)
   let plain = fun x -> (| x with shape = Plain|)
@@ -162,11 +183,17 @@ end = struct
   let node ?:styler body = Node (|style = Option.map-or Fn.id Utils.apps styler; body = body|)
   type raw-node = (|position: position; style: node-style -> node-style; body: inline-text|)
   type abs-box-node = (|position: point; style: node-style; body: inline-boxes|)
+  type raw-path = (|
+    style: path-style -> path-style;
+    start: position;
+    points: position list
+  |)
 
   type element 
     = Matrix of string option * (node list) list
     | ANode of raw-node
     | Arrow of position * position
+    | LineSegments of raw-path
 
   let matrix ?:name rows = Matrix (name, rows)
   let node-at ?:styler position body = 
@@ -176,6 +203,10 @@ end = struct
           ; body = body
           |)
   let arrow from to = Arrow (from, to)
+  let lines ?:styler ls = match ls with
+        | [] -> panic `empty line!`
+        | (x :: xs) -> LineSegments (|
+              style = Option.unwrap-or Fn.id styler; start = x; points = xs|)
 
   let pads-of style = (style#padding, style#padding, style#padding, style#padding)
 
@@ -329,6 +360,7 @@ end = struct
   let make-diagram ctx paths = []
   let as-matrix-config: string -> config -> matrix-config = fun nam cfg ->
       (|default-node-style = cfg#default-node-style
+      ; default-path-style = cfg#default-path-style
       ; unit-length = cfg#unit-length
       ; matrix-name = nam
       |)
@@ -443,15 +475,17 @@ end = struct
             (as-matrix-config (Option.unwrap-or key mname) cfg)
             rows
           , DList.empty
+          , DList.empty
           )
       | ANode raw ->
           (let (node, style) = process-node-raw ctx cfg raw
           in let style0 = raw#style cfg#default-node-style
           in let name = Option.unwrap-or key style0#name 
           in let final = (|position = raw#position; style = style; body = node|)
-          in (TreeMap.of-list String.ord [(name, final)], DList.empty)
+          in (TreeMap.of-list String.ord [(name, final)], DList.empty, DList.empty)
           )
-      | Arrow(src, tgt) -> (TreeMap.empty, DList.singleton (src, tgt))
+      | Arrow(src, tgt) -> (TreeMap.empty, DList.singleton (src, tgt), DList.empty)
+      | LineSegments(pts) -> (TreeMap.empty, DList.empty, DList.singleton pts)
 
   let display env =
       List.fold-right
@@ -475,12 +509,21 @@ end = struct
     in let drawer = Arrow.read (Arrow.solid (|line-width = 0.05; head-size = 0.3|)) ctx
     in DList.of-list (drawer#draw src-pt tgt-pt)
 
+  let draw-line-segment ctx cfg node-dic raw =
+    let cfg2 = (|cfg with unit-length = -5pt|)
+    in let src-pt = get-dir-of -2pt node-dic raw#start
+    in let pts = List.map (get-dir-of -2pt node-dic) raw#points
+    in let style = raw#style cfg#default-path-style
+    in stroke style#line-width style#stroke-color (poly-line src-pt pts)
+
   let make-tikzy ctx cfg elems =
     let uuid = `#!tikz-` ^ arabic (random())
-    in let (ini-nodes, arrows0) = 
+    in let (ini-nodes, arrows0, linsegs) = 
           fold-mapi 
-            (TreeMap.empty, DList.empty) 
-            (Utils.biap (union String.ord) DList.append) 
+            (TreeMap.empty, DList.empty, DList.empty) 
+            (fun (a1, b1, c1) (a2, b2, c2) ->
+              (union String.ord a1 a2, DList.append b1 b2, DList.append c1 c2)
+            ) 
             (fun n -> process-elem ctx cfg (uuid ^ `@` ^ arabic n))
             elems
     in let arrows = DList.to-list arrows0
@@ -499,7 +542,9 @@ end = struct
           (fold-map DList.empty DList.append 
             (draw-arrow ctx cfg node-dic) arrows
           )
-    in render-graphics (List.append node-grs arrow-grs)
+    in let line-grs =
+        List.map (draw-line-segment ctx cfg node-dic) (DList.to-list linsegs)
+    in render-graphics (List.concat [node-grs; arrow-grs; line-grs])
 
   let-inline ctx \matrix ?:cfg0 xss =
     let cfg = Option.unwrap-or default-matrix cfg0
