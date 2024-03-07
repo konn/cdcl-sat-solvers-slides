@@ -658,7 +658,7 @@ document '<
       }
     >
 
-    +frame{Cutと学習節の例：多段Backtrackの例の序盤}<
+    +frame-nofooter{Cutと学習節の例：多段Backtrackの例の序盤}<
       +x-small< +eqn?:(AZMathEquation.notag)(${
         \cnf!(open DPLL in 
           [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
@@ -673,8 +673,16 @@ document '<
           ]
         )
       });>
-      +x-small< +centering{
-        \tikzy?:(large-graph-cfg)(
+      +xx-small< +centering{
+        \tikzy?:(|
+            large-graph-cfg
+            with
+            default-node-style =
+              large-graph-cfg#default-node-style
+              |> padding 3pt
+              |> distance 4pt
+          ; unit-length = 1cm
+          |)(
           let cut = fun xs -> xs |> pc Colors.purple |> lw 2pt in
           let cut-label = fun xs -> xs |> plain
                 |> style [set-text-color Colors.purple; set-font-size 15pt] in
@@ -723,6 +731,13 @@ document '<
           ]
         );
       }>
+
+      +listing(open DPLL in {
+        * Cut1: ${\cnf![[lit (-1);lit (-2);lit (-3);lit (-4)]]} → ${3} の場合分け直後へ飛び、${\widebar{4}}が単位節伝播
+        * Cut2: ${\cnf![[lit (-2);lit (-7);lit (-8)]]} → ${2} の場合分け直後へ飛ぶが何もわからない
+        * Cut3: ${\cnf![[lit (-2);lit (-10)]]} → ${2} の場合分け直後へ飛び、${\widebar{10}}が単位節伝播
+        ** 単位節になっているものとなっていないものの違いは何か？
+      });
     >
 
     +frame-nofooter({同じ例の CDCL の動作})(open DPLL in '< 
