@@ -677,7 +677,7 @@ document '<
         \tikzy?:(large-graph-cfg)(
           List.append
           large-graph-nodes
-          [ lines?:[pc (Colors.gray 0.75); lw 1pt]
+          [ lines?:[pc (Colors.gray 0.7); lw 2pt]
               [ between (north-of `2`) 
                 (proj (north-of `2`) (north-of `11`, south-of `11`))
               ; between (center-of `10`) (center-of `-12`)

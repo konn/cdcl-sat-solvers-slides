@@ -22,29 +22,29 @@ let large-graph-cfg =
 
 let large-graph-matrix = 
       matrix
-          [ [ empty; empty; empty ;  node?:[named `2`; prev] {${2}} ]
-        ; [ empty; node?:[named `5`]{${5}}
-          ; node?:[named `1`; prev] {${1}}
-          ; node?:[named `8`] {${8}}; empty; empty; node?:[named `-12`; padding 1.5pt; contra] {${\widebar{12}}}
+          [ [ empty; empty; empty; node?:[named `1`; prev] {${1}} ;  node?:[named `2`; prev] {${2}} ]
+          ; [ empty; empty; node?:[named `5`]{${5}}
+            ; empty
+            ; node?:[named `8`] {${8}}; empty; empty; node?:[named `-12`; padding 1.5pt; contra] {${\widebar{12}}}
+            ]
+          ; [ node?:[named `3`; prev] {${3}}; node?:[named `4`]{${4}}; empty
+            ; node?:[named `7`]{${7}}; empty; node?:[named `10`; padding 1.5pt] {${10}}
+            ]
+          ; [ empty; empty; node?:[named `-6`]{${\widebar{6}}}; empty
+            ; node?:[named `9`] {${9}}; empty
+            ; node?:[named `11`; padding 1.5pt] {${11}}
+            ; node?:[named `12`; padding 1.5pt; contra] {${12}}
           ]
-        ; [ node?:[named `4`]{${4}}; node?:[named `3`; prev] {${3}}
-          ; node?:[named `7`]{${7}}; empty; node?:[named `10`; padding 1.5pt] {${10}}
-          ]
-        ; [ empty; node?:[named `-6`]{${\widebar{6}}}; empty
-          ; node?:[named `9`] {${9}}; empty
-          ; node?:[named `11`; padding 1.5pt] {${11}}
-          ; node?:[named `12`; padding 1.5pt; contra] {${12}}
-        ]
         ]
 
 let large-graph-nodes =
   large-graph-matrix ::
-  [arrow (west-of `1`) (east-of `5`)
+  [arrow (west-of `1`) (north-of `5`)
   ; arrow (south-of `1`) (north-of `7`)
   ; arrow (south-west-of `2`) (north-east-of `5`)
   ; arrow (south-east-of `2`) (north-west-of `-12`)
-  ; arrow (north-of `3`) (south-of `5`)
-  ; arrow (south-of `3`) (north-of `-6`)
+  ; arrow (north-east-of `3`) (west-of `5`)
+  ; arrow (south-east-of `3`) (west-of `-6`)
   ; arrow (north-east-of `4`) (south-west-of `5`)
   ; arrow (south-east-of `4`) (north-west-of `-6`)
   ; arrow (south-east-of `5`) (north-west-of `7`)
