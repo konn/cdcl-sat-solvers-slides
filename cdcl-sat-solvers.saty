@@ -658,8 +658,8 @@ document '<
       }
     >
 
-    +frame{\small{例：Backtrackしまくる例の最初の矛盾までの含意グラフ}}<
-      +small< +eqn?:(AZMathEquation.notag)(${
+    +frame{Cutと学習節の例：多段Backtrackの例の序盤}<
+      +x-small< +eqn?:(AZMathEquation.notag)(${
         \cnf!(open DPLL in 
           [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
           ; [ff (-3); ff (-4); tt (-6)]
@@ -675,30 +675,50 @@ document '<
       });>
       +x-small< +centering{
         \tikzy?:(large-graph-cfg)(
-          let cut = fun xs -> xs |> pc (Colors.gray 0.7) |> lw 2pt in
+          let cut = fun xs -> xs |> pc Colors.purple |> lw 2pt in
+          let cut-label = fun xs -> xs |> plain
+                |> style [set-text-color Colors.purple; set-font-size 15pt] in
           List.append
           large-graph-nodes
-          [ spline?:[cut]
-              [ proj (center-of `11`) 
-                  (north-of `1`, north-of `2`)
-              ; between (center-of `10`) (center-of `-12`)
-              ; between (south-of `9`) (south-of `11`)
+          [ % Cut 1
+            node-at?:[cut-label; named `cut1`]
+              (proj (center-of `4`) (south-of `-6`, south-of `9`))
+              {Cut ${1}}
+          ; spline?:[cut]
+              [ proj (between (north-of `2`) (north-of `10`)) (north-of `1`, north-of `2`)
+              ; between (center-of `2`) (center-of `8`)
+              ; between (center-of `1`) (center-of `5`)
+              ; proj
+                  (between (center-of `4`) (center-of `5`))
+                  ( between (center-of `2`) (center-of `8`)
+                  , between (center-of `1`) (center-of `5`)
+                  )
+              ; between (center-of `4`) (center-of `5`)
+              ; between (center-of `5`) (center-of `-6`)
+              ; north-of `cut1`
               ]
+          % Cut #2
+          ; node-at?:[cut-label; named `cut2`]
+              (proj 
+                (center-of `1`)
+                (south-of `-6`, south-of `9`)
+              )
+              {Cut ${2}}
           ; spline?:[cut]
               [ proj (between (north-of `8`) (north-of `-12`)) (north-of `1`, north-of `2`)
               ; between (north-of `8`) (north-of `-12`)
-              ; between (south-east-of `2`) (north-west-of `8`)
-              ; proj (between (south-of `2`) (south-of `8`))
-                  ( (between (east-of `1`) (west-of `2`))
-                  , (between (east-of `7`) (west-of `8`))
-                  )
-              ; proj (between (center-of `8`) (center-of `9`))
-                  ( (between (east-of `1`) (west-of `2`))
-                  , (between (east-of `7`) (west-of `8`))
-                  )
-              ; proj (between (center-of `1`) (center-of `2`))
-                  (center-of `-6`, south-west-of `9`)
+              ; between (center-of `8`) (center-of `9`)
+              ; north-of `cut2`
               ]
+          % Cut #3
+          ; node-at?:[cut-label; named `cut3`] 
+              (between (south-of `9`) (south-of `11`)) {Cut ${3}}
+          ; spline?:[cut]
+            [ proj (center-of `11`) 
+                (north-of `1`, north-of `2`)
+            ; between (center-of `10`) (center-of `-12`)
+            ; north-of `cut3`
+            ]
           ]
         );
       }>
