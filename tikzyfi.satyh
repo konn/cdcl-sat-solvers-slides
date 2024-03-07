@@ -66,7 +66,8 @@ module TikZyFi : sig
   val matrix: string ?-> (node list) list -> element
   val node-at: (node-style -> node-style) list ?-> position -> inline-text -> element
   val arrow: position -> position -> element
-  val lines: (path-style -> path-style) list ?-> position list -> element
+  val polyline: (path-style -> path-style) list ?-> position list -> element
+  val spline: (path-style -> path-style) list ?-> position list -> element
   val empty: node
   val node: (node-style -> node-style) list ?-> inline-text -> node
   val pc: color -> path-style -> path-style
@@ -188,12 +189,18 @@ end = struct
     start: position;
     points: position list
   |)
+  type raw-spline = (|
+    style: path-style -> path-style;
+    start: position;
+    points: position list
+  |)
 
   type element 
     = Matrix of string option * (node list) list
     | ANode of raw-node
     | Arrow of position * position
     | LineSegments of raw-path
+    | CatmullRomSpline of raw-spline
 
   let matrix ?:name rows = Matrix (name, rows)
   let node-at ?:styler position body = 
@@ -203,9 +210,13 @@ end = struct
           ; body = body
           |)
   let arrow from to = Arrow (from, to)
-  let lines ?:styler ls = match ls with
-        | [] -> panic `empty line!`
+  let polyline ?:styler ls = match ls with
+        | [] -> panic `polyline: empty line!`
         | (x :: xs) -> LineSegments (|
+              style = Option.map-or Fn.id Utils.apps styler; start = x; points = xs|)
+  let spline ?:styler ls = match ls with
+        | [] -> panic `empty line!`
+        | (x :: xs) -> CatmullRomSpline (|
               style = Option.map-or Fn.id Utils.apps styler; start = x; points = xs|)
 
   let pads-of style = (style#padding, style#padding, style#padding, style#padding)
@@ -476,16 +487,21 @@ end = struct
             rows
           , DList.empty
           , DList.empty
+          , DList.empty
           )
       | ANode raw ->
           (let (node, style) = process-node-raw ctx cfg raw
           in let style0 = raw#style cfg#default-node-style
           in let name = Option.unwrap-or key style0#name 
           in let final = (|position = raw#position; style = style; body = node|)
-          in (TreeMap.of-list String.ord [(name, final)], DList.empty, DList.empty)
+          in  ( TreeMap.of-list String.ord [(name, final)]
+              , DList.empty
+              , DList.empty, DList.empty
+              )
           )
-      | Arrow(src, tgt) -> (TreeMap.empty, DList.singleton (src, tgt), DList.empty)
-      | LineSegments(pts) -> (TreeMap.empty, DList.empty, DList.singleton pts)
+      | Arrow(src, tgt) -> (TreeMap.empty, DList.singleton (src, tgt), DList.empty, DList.empty)
+      | LineSegments(pts) -> (TreeMap.empty, DList.empty, DList.singleton pts, DList.empty)
+      | CatmullRomSpline(sp) -> (TreeMap.empty, DList.empty, DList.empty, DList.singleton sp)
 
   let display env =
       List.fold-right
@@ -509,20 +525,51 @@ end = struct
     in let drawer = Arrow.read (Arrow.solid (|line-width = 0.05; head-size = 0.3|)) ctx
     in DList.of-list (drawer#draw src-pt tgt-pt)
 
-  let draw-line-segment ctx cfg node-dic raw =
+  let draw-line-segments ctx cfg node-dic raw =
     let cfg2 = (|cfg with unit-length = -5pt|)
     in let src-pt = get-dir-of -2pt node-dic raw#start
     in let pts = List.map (get-dir-of -2pt node-dic) raw#points
     in let style = raw#style cfg#default-path-style
     in stroke style#line-width style#stroke-color (poly-line src-pt pts)
 
+  let extend-spline p0 p1 p2 p3 =
+      let v0 = add-pt (scale-pt (sub-pt p2 p0) (1.0 /. 6.0)) p1 in
+      let v1 = add-pt (scale-pt (sub-pt p1 p3) (1.0 /. 6.0)) p2 in
+      bezier-to v0 v1 p2
+
+  let draw-splines ctx cfg node-dic raw =
+    let cfg2 = (|cfg with unit-length = -5pt|)
+    in let src-pt = get-dir-of -2pt node-dic raw#start
+    in let pts = List.map (get-dir-of -2pt node-dic) raw#points
+    in let style = raw#style cfg#default-path-style
+    in let-rec go 
+          | p0 p1 p2 (p3 :: ps) acc = 
+              extend-spline p0 p1 p2 p3 acc
+                |> go p1 p2 p3 ps
+          | p0 p1 p2 [] acc = 
+              extend-spline p0 p1 p2 (add-pt p2 (sub-pt p2 p1)) acc
+        
+    in match pts with
+        | [] -> DList.empty
+        | (tgt :: []) -> DList.singleton (stroke style#line-width style#stroke-color (line src-pt tgt))
+        | (p1 :: p2 :: ps) ->
+          DList.singleton (
+            stroke 
+              style#line-width style#stroke-color
+              ( terminate-path
+                (go (add-pt src-pt (sub-pt src-pt p1)) src-pt p1 (p2 :: ps) (start-path src-pt))
+              )
+          )
+
   let make-tikzy ctx cfg elems =
     let uuid = `#!tikz-` ^ arabic (random())
-    in let (ini-nodes, arrows0, linsegs) = 
+    in let (ini-nodes, arrows0, linsegs, splines) = 
           fold-mapi 
-            (TreeMap.empty, DList.empty, DList.empty) 
-            (fun (a1, b1, c1) (a2, b2, c2) ->
-              (union String.ord a1 a2, DList.append b1 b2, DList.append c1 c2)
+            (TreeMap.empty, DList.empty, DList.empty, DList.empty) 
+            (fun (a1, b1, c1, d1) (a2, b2, c2, d2) ->
+              ( union String.ord a1 a2, DList.append b1 b2
+              , DList.append c1 c2, DList.append d1 d2
+              )
             ) 
             (fun n -> process-elem ctx cfg (uuid ^ `@` ^ arabic n))
             elems
@@ -543,8 +590,14 @@ end = struct
             (draw-arrow ctx cfg node-dic) arrows
           )
     in let line-grs =
-        List.map (draw-line-segment ctx cfg node-dic) (DList.to-list linsegs)
-    in render-graphics (List.concat [node-grs; arrow-grs; line-grs])
+        List.map (draw-line-segments ctx cfg node-dic) (DList.to-list linsegs)
+    in let spline-grs =
+          DList.to-list
+          (fold-map DList.empty DList.append 
+            (draw-splines ctx cfg node-dic) 
+            (DList.to-list splines)
+          )
+    in render-graphics (List.concat [node-grs; arrow-grs; line-grs; spline-grs])
 
   let-inline ctx \matrix ?:cfg0 xss =
     let cfg = Option.unwrap-or default-matrix cfg0
