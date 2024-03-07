@@ -674,7 +674,12 @@ document '<
         )
       });>
       +x-small< +centering{
-         \tikzy?:(large-graph-cfg)(large-graph-nodes);
+        \tikzy?:(large-graph-cfg)(
+          List.append
+          large-graph-nodes
+          [ 
+          ]
+        );
       }>
     >
 

@@ -38,10 +38,16 @@ type matrix-config = (|
   matrix-name: string;
   default-node-style : node-style;
 |)
+
+% A line determined by ax + by + c = 0
+type line = LineABC of (|a: float; b: float; c: float|)
+
 type position =
   | Absolute of point 
   | Relative of direction * string
   | Between of position * position
+  | Intersect of (position * position) * (position * position)
+  | Projection of position * (position * position)
 
 type matrix-node = (|name : string option; shape : shape;|)
 
@@ -67,6 +73,9 @@ module TikZyFi : sig
   val default-node-style: node-style
   val coord: point -> position
   val between: position -> position -> position
+  val center-of: string -> position
+  val intersect: (position * position) -> (position * position) -> position
+  val proj: position -> (position * position) -> position
   val north-of: string -> position
   val south-of: string -> position
   val west-of: string -> position
@@ -330,6 +339,24 @@ end = struct
   let center-of ((x1 ,y1), (x2, y2)) = 
       ((x1 +' x2) *' 0.5, (y1 +' y2) *' 0.5)
 
+  let line-thru (x1, y1) (x2, y2) = 
+    let a = (y2 -' y1) /' 1pt
+    in let b = (x1 -' x2) /' 1pt
+    in let c = ((x2 /' 1pt) *. (y1  /' 1pt) -. (x1 /' 1pt) *. (y2 /' 1pt))
+    in LineABC (|a = a; b = b; c = c|)
+
+  let calc-intersect (LineABC l1) (LineABC l2) =
+    let det = l1#a *. l2#b -. l2#a *. l1#b
+    in let x = (l1#b *. l2#c -. l2#b *. l1#c) /. det
+    in let y = (l2#a *. l1#c -. l1#a *. l2#c) /. det
+    in (1pt *' x, 1pt *' y)
+
+  let calc-projection (x0, y0) (LineABC l) =
+    let d = (x0 /' 1pt) *. l#b -. (y0 /' 1pt) *. l#a
+    in calc-intersect (LineABC l) (LineABC (|a = -1.0 *. l#b; b = l#a; c = d|))
+
+  let proj pt (src, tgt) = Projection (pt, (src, tgt))
+
   let dir-of pad dir targ =
     let center = center-of (get-graphics-bbox targ#body)
     in let endpt = 
@@ -356,9 +383,25 @@ end = struct
         let src-pt = get-dir-of pad poss src
         in let tgt-pt = get-dir-of pad poss tgt
         in Utils.scale-pt (Utils.add-pt tgt-pt src-pt) 0.5
+      | Intersect ((src1, tgt1), (src2, tgt2)) ->
+          let src1 = get-dir-of pad poss src1 in
+          let tgt1 = get-dir-of pad poss tgt1 in
+          let src2 = get-dir-of pad poss src2 in
+          let tgt2 = get-dir-of pad poss tgt2 in
+          let l1 = line-thru src1 tgt1 in
+          let l2 = line-thru src2 tgt2 in
+          calc-intersect l1 l2
+      | Projection (pt, (src, tgt)) ->
+          let pt = get-dir-of pad poss pt in
+          let src = get-dir-of pad poss src in
+          let tgt = get-dir-of pad poss tgt in
+          calc-projection pt (line-thru src tgt)
 
+
+  let intersect l1 l2 = Intersect (l1, l2)
   let coord pt = Absolute pt
   let between src tgt = Between (src, tgt)
+  let center-of s = Relative (Center, s)
   let north-of s = Relative (North, s)
   let south-of s = Relative (South, s)
   let west-of s = Relative (West, s)
@@ -385,6 +428,10 @@ end = struct
       | Absolute _ -> []
       | Relative (_, targ) -> [targ]
       | Between (src, tgt) -> List.append (toEdges-pos src) (toEdges-pos tgt)
+      | Intersect ((src1, tgt1), (src2, tgt2)) -> 
+          concat-map toEdges-pos [src1; tgt1; src2; tgt2]
+      | Projection (pt, (src, tgt)) -> 
+          concat-map toEdges-pos [pt; src; tgt]
   let toEdges b = toEdges-pos b#position
 
   let dfs = topsort String.ord toEdges

@@ -14,13 +14,14 @@ let contra ctx = ctx
     |> style [set-text-color Colors.white]
 let large-graph-cfg = 
   (|  default with 
-      default-node-style = default-node-style |> circle |> padding 5pt;
-      unit-length = 1.25cm *' 0.5;
+      default-node-style = default-node-style |> circle 
+          |> padding  4pt 
+          |> distance 6pt;
+      unit-length = 1.25cm;
   |) 
 
 let large-graph-matrix = 
       matrix
-        (List.intersperse [] (List.map (List.intersperse empty)
           [ [ empty; empty; empty ;  node?:[named `2`; prev] {${2}} ]
         ; [ empty; node?:[named `5`]{${5}}
           ; node?:[named `1`; prev] {${1}}
@@ -34,7 +35,7 @@ let large-graph-matrix =
           ; node?:[named `11`; padding 1.5pt] {${11}}
           ; node?:[named `12`; padding 1.5pt; contra] {${12}}
         ]
-        ]))
+        ]
 
 let large-graph-nodes =
   large-graph-matrix ::
