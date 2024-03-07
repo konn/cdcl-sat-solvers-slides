@@ -753,6 +753,33 @@ document '<
       });
     >
 
+    +frame{1-UIP学習節の生成と融合規則}<
+      +listing{
+        * 含意グラフは概念上でわかりやすいが、直接実装する必要はない
+          ** 矛盾節に\emph{融合}規則 (\emph{Resolution}) を単位節になるまで繰り返し適用すればよい
+      }
+      +thm?:({融合規則}){
+        以下の規則は古典論理の定理：
+
+        \eqn?:(AZMathEquation.notag)(
+          ${\frac{c \lor \Phi, \mquad \lnot c \lor \Psi}{\Phi \lor \Psi}}
+        );
+      }
+      +listing{
+        * 古典的に${c \lor \Phi}は${\lnot c \rightarrow \Phi}と、${\lnot c \lor \Psi}は${c \rightarrow \Psi}とそれぞれ同値
+        * 更に排中律があるので${c \lor \lnot c}が成り立つから、結局${\Phi \lor \Psi}が結論できる
+      }
+    >
+
+    +frame{融合の繰り返しで1-UIP学習節を作る}<
+      +enumerate{
+        * 矛盾した二つの節を矛盾リテラルで融合し仮学習節とする
+        * 単位節になるまで、仮学習節の中で「一番最後に真偽が確定した命題変数」を選び、その真偽を確定させた節と融合させる
+          \listing{* 「単位節になる」＝最後の場合分け以後の命題変数が一つになる}
+      }
+      % TODO: 例
+    >
+
     +frame-nofooter({同じ例の CDCL の動作})(open DPLL in '< 
       +xx-small<
         +derive
