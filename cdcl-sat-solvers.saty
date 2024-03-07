@@ -675,13 +675,22 @@ document '<
       });>
       +x-small< +centering{
         \tikzy?:(large-graph-cfg)(
+          let cut = fun xs -> xs |> pc (Colors.gray 0.7) |> lw 2pt in
           List.append
           large-graph-nodes
-          [ spline?:[pc (Colors.gray 0.7); lw 2pt]
-              [ between (north-of `2`) 
-                (proj (north-of `2`) (north-of `11`, south-of `11`))
+          [ spline?:[cut]
+              [ proj (center-of `11`) 
+                  (north-of `1`, north-of `2`)
               ; between (center-of `10`) (center-of `-12`)
               ; between (south-of `9`) (south-of `11`)
+              ]
+          ; spline?:[cut]
+              [ proj (between (north-of `8`) (north-of `-12`)) (north-of `1`, north-of `2`)
+              ; between (north-of `8`) (north-of `-12`)
+              ; between (south-east-of `2`) (north-west-of `8`)
+              ; proj (between (center-of `1`) (center-of `2`))
+                  (center-of `-6`, south-west-of `9`)
+
               ]
           ]
         );

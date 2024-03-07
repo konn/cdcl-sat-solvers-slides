@@ -547,7 +547,7 @@ end = struct
               extend-spline p0 p1 p2 p3 acc
                 |> go p1 p2 p3 ps
           | p0 p1 p2 [] acc = 
-              extend-spline p0 p1 p2 (add-pt p2 (sub-pt p2 p1)) acc
+              extend-spline p0 p1 p2 (add-pt p2 (scale-pt (sub-pt p2 p1) 0.25)) acc
         
     in match pts with
         | [] -> DList.empty
@@ -557,7 +557,8 @@ end = struct
             stroke 
               style#line-width style#stroke-color
               ( terminate-path
-                (go (add-pt src-pt (sub-pt src-pt p1)) src-pt p1 (p2 :: ps) (start-path src-pt))
+                (go (add-pt src-pt (scale-pt (sub-pt src-pt p1) 0.25)) 
+                    src-pt p1 (p2 :: ps) (start-path src-pt))
               )
           )
 
