@@ -681,8 +681,10 @@ document '<
           List.append
           large-graph-nodes
           [ % Cut 1
-            node-at?:[cut-label; named `cut1`]
-              (proj (center-of `4`) (south-of `-6`, south-of `9`))
+            node-at?:[cut-label; named `cut1`; distance 0.5cm]
+              (proj (between (south-east-of `4`) (south-west-of `-6`)) 
+                (south-of `-6`, south-of `9`)
+              )
               {Cut ${1}}
           ; spline?:[cut]
               [ proj (between (north-of `2`) (north-of `10`)) (north-of `1`, north-of `2`)
@@ -694,11 +696,10 @@ document '<
                   , between (center-of `1`) (center-of `5`)
                   )
               ; between (center-of `4`) (center-of `5`)
-              ; between (center-of `5`) (center-of `-6`)
               ; north-of `cut1`
               ]
           % Cut #2
-          ; node-at?:[cut-label; named `cut2`]
+          ; node-at?:[cut-label; named `cut2`; distance 0.5cm]
               (proj 
                 (center-of `1`)
                 (south-of `-6`, south-of `9`)
@@ -711,7 +712,7 @@ document '<
               ; north-of `cut2`
               ]
           % Cut #3
-          ; node-at?:[cut-label; named `cut3`] 
+          ; node-at?:[cut-label; named `cut3`; distance 0.5cm] 
               (between (south-of `9`) (south-of `11`)) {Cut ${3}}
           ; spline?:[cut]
             [ proj (center-of `11`) 
