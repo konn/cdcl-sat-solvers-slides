@@ -315,7 +315,7 @@ end = struct
           then 
             (
               let (w,h,d) = get-natural-metrics node0
-              in inline-graphics w 0pt 0pt (fun _ -> []) 
+              in inline-graphics w h d (fun _ -> []) 
             )
           else node0
     in (node, style)
@@ -536,18 +536,26 @@ end = struct
           (TreeMap.to-list env)
         )
 
+  let phantom-gr gr =
+    (
+      let ((x0,y0), (x1, y1)) = get-graphics-bbox gr in
+      draw-text (x0, y0) (inline-graphics (x1 -' x0) (y1 -' y0) 0pt (fun _ -> []))
+    )
+
   let draw-arrow ctx cfg node-dic (styler, src, tgt) =
     let src-pt = get-dir-of cfg#path-offset node-dic src
     in let style = styler cfg#default-path-style
     in let tgt-pt = get-dir-of cfg#path-offset node-dic tgt
     in let theta = atan2-pt (sub-pt tgt-pt src-pt)
     in let drawer = Arrow.read (Arrow.solid (|line-width = 0.05; head-size = 0.3|)) ctx
-    in DList.of-list (drawer#draw src-pt tgt-pt)
+    in let wrap = if style#phantom then List.map phantom-gr else Fn.id
+    in DList.of-list (wrap (drawer#draw src-pt tgt-pt))
 
   let draw-line-segments ctx cfg node-dic raw =
     let src-pt = get-dir-of cfg#path-offset node-dic raw#start
     in let pts = List.map (get-dir-of cfg#path-offset node-dic) raw#points
     in let style = raw#style cfg#default-path-style
+    in let wrap = if style#phantom then List.map phantom-gr else Fn.id
     in stroke style#line-width style#stroke-color (poly-line src-pt pts)
 
   let extend-spline p0 p1 p2 p3 =
@@ -566,18 +574,18 @@ end = struct
                 |> go p1 p2 p3 ps
           | p0 p1 p2 [] acc = 
               extend-spline p0 p1 p2 (add-pt p2 (scale-pt (sub-pt p2 p1) 0.25)) acc
-        
+    in let wrap = if style#phantom then phantom-gr else Fn.id
     in match pts with
         | [] -> DList.empty
-        | (tgt :: []) -> DList.singleton (stroke style#line-width style#stroke-color (line src-pt tgt))
+        | (tgt :: []) -> DList.singleton (wrap (stroke style#line-width style#stroke-color (line src-pt tgt)))
         | (p1 :: p2 :: ps) ->
           DList.singleton (
-            stroke 
+            wrap (stroke 
               style#line-width style#stroke-color
               ( terminate-path
                 (go (add-pt src-pt (scale-pt (sub-pt src-pt p1) 0.25)) 
                     src-pt p1 (p2 :: ps) (start-path src-pt))
-              )
+              ))
           )
 
   let make-tikzy ctx cfg elems =

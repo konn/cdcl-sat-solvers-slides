@@ -773,13 +773,17 @@ document '<
       }
     >
 
-    +frame{導出の繰り返しで1-UIP学習節を作る}<
+    +frame?:(6){導出の繰り返しで1-UIP学習節を作る}<
       +enumerate{
         * 矛盾した二つの節の矛盾リテラルに導出規則を適用
         * 単位節になるまで、仮学習節の中で「一番最後に真偽が確定した命題変数」を選び、その真偽を確定させた節と導出規則を適用
           \listing{* 「単位節になる」＝最後の場合分け以後の命題変数が一つになる}
-        * 学習節の導出の例：
-          \fig-on-right(
+      }
+      +listing{
+          * 学習節の導出の例：
+      }
+      +phantom(from 2)<+fig-on-right(
+        let n = SlydifiParam.get layer in
             textbox {
               \small{
                   \tikzy?:
@@ -787,21 +791,27 @@ document '<
                         default-node-style = default-node-style |> padding 2pt
                       ; path-offset = -7.5mm
                       ; unit-length = 6mm
-                    |)(open DPLL in [
-                    matrix
+                    |)(
+                      open DPLL in
+                      let overrider = 
+                            override-node [`-12`; `12`] 
+                              [if n >= 3 then fc Colors.red else Fn.id
+                              ]
+                      in overrider [
+                      matrix
                       [ [node?:[named `-12`] {${\cnf![[lit (-2); lit (-10); lit (-12)]]}}]
                       ; [ empty; empty; empty
-                        ; node?:[named `res-1`] {${\cnf![[lit (-2); lit (-10); lit (-11)]]}}
+                        ; node?:[named `res-1`; phantom (n < 3)] {${\cnf![[lit (-2); lit (-10); lit (-11)]]}}
                         ; node?:[lc slydifi-cfg#color-bg; rect; fc slydifi-cfg#color-bg
                                 ; padding 2pt; named `stop`; distance 2.5mm] {\hskip(2cm);}
-                        ; node?:[named `res-2`] {${\cnf![[lit (-2); lit (-10)]]}}
+                        ; node?:[named `res-2`; phantom (n < 5)] {${\cnf![[lit (-2); lit (-10)]]}}
                         ]
                       ; [node?:[named `12`] {${\cnf![[lit (-11); lit 12]]}}]
                       ]
-                  ; arrow (east-of `-12`) (north-west-of `res-1`)
-                  ; arrow (east-of  `12`) (south-west-of `res-1`)
-                  ; arrow (east-of  `res-1`) (west-of `res-2`)
-                  ; node-at (north-of `stop`)
+                  ; arrow?:[phantom (n < 3)] (east-of `-12`) (north-west-of `res-1`)
+                  ; arrow?:[phantom (n < 3)] (east-of  `12`) (south-west-of `res-1`)
+                  ; arrow?:[phantom (n < 4)] (east-of  `res-1`) (west-of `res-2`)
+                  ; node-at?:[phantom (n<4)] (north-of `stop`)
                       {\x-small{${\cnf![[lit (-10); lit 11]]}}}
                   ]);
                       
@@ -824,11 +834,10 @@ document '<
               );
               }
             >
-          >
-      }
-      +listing{
+          >>
+      +phantom(from 6)<+listing{
         * 根拠となる節で導出を繰り返す事が、「原因」を手繰っていく事に対応
-      }
+      }>
     >
 
     +frame-nofooter({同じ例の CDCL の動作})(open DPLL in '< 
