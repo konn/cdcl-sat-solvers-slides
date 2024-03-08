@@ -791,14 +791,8 @@ document '<
                         default-node-style = default-node-style |> padding 2pt
                       ; path-offset = -7.5mm
                       ; unit-length = 6mm
-                    |)(
-                      open DPLL in
-                      let overrider = 
-                            override-node [`-12`; `12`] 
-                              [if n >= 3 then fc Colors.red else Fn.id
-                              ]
-                      in overrider [
-                      matrix
+                    |)(open DPLL in [
+                    matrix
                       [ [node?:[named `-12`] {${\cnf![[lit (-2); lit (-10); lit (-12)]]}}]
                       ; [ empty; empty; empty
                         ; node?:[named `res-1`; phantom (n < 3)] {${\cnf![[lit (-2); lit (-10); lit (-11)]]}}
@@ -827,10 +821,30 @@ document '<
                 |> distance 4pt
               ; unit-length = 0.75cm
               |)(
-                let cut = fun xs -> xs |> pc Colors.purple |> lw 2pt in
-                let cut-label = fun xs -> xs |> plain
-                      |> style [set-text-color Colors.purple; set-font-size 15pt] in
-                large-graph-nodes
+                let n = SlydifiParam.get layer in
+                let overrider sty = sty
+                  |> override-node [`-12`; `12`] 
+                    (if n >= 3 then 
+                        [fc Colors.white
+                        ; style [set-text-color Colors.black]
+                        ]
+                    else []
+                    )
+                  |> override-node [`2`; `10`; `11`]
+                    (if 3 <= n && n <= 4 then 
+                        [fc Colors.red
+                        ; style [set-text-color Colors.white]
+                        ]
+                    else []
+                    )
+                  |> override-node [`2`; `10`]
+                    (if n >= 5 then 
+                        [fc Colors.red
+                        ; style [set-text-color Colors.white]
+                        ]
+                    else []
+                    )
+                in overrider large-graph-nodes
               );
               }
             >
