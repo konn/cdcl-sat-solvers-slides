@@ -26,6 +26,7 @@ type shape = Plain | Circle | Rect
 type path-style = (|
   stroke-color: color;
   line-width: length;
+  phantom: bool;
 |)
 type node-style = (|
   shape: shape;
@@ -35,6 +36,7 @@ type node-style = (|
   name: string option;
   distance: length option;
   style: context -> context;
+  phantom: bool;
 |)
 type config = (|
     unit-length: length;
@@ -61,13 +63,14 @@ type position =
   | Projection of position * (position * position)
 
 type matrix-node = (|name : string option; shape : shape;|)
+let phantom p x = (|x with phantom = p|)
 
 module TikZyFi : sig
   type node
   type element
   val matrix: string ?-> (node list) list -> element
   val node-at: (node-style -> node-style) list ?-> position -> inline-text -> element
-  val arrow: position -> position -> element
+  val arrow: (path-style -> path-style) list ?-> position -> position -> element
   val polyline: (path-style -> path-style) list ?-> position list -> element
   val spline: (path-style -> path-style) list ?-> position list -> element
   val empty: node
@@ -100,6 +103,7 @@ module TikZyFi : sig
   val north-east-of: string -> position
   val south-west-of: string -> position
   val south-east-of: string -> position
+  val override-node: string list -> (node-style -> node-style) list -> element list -> element list
   direct \matrix: [matrix-config?; (node list) list] inline-cmd
   direct \tikzy: [config?; element list] inline-cmd
 end = struct
@@ -120,12 +124,14 @@ end = struct
     ; name = None
     ; distance = None
     ; style = fun ctx -> ctx
+    ; phantom = false
     |)
 
   let default-path-style: path-style = 
     (| 
       line-width = 0.5pt;
       stroke-color = Color.black;
+      phantom = false;
     |)
 
   let padding n = fun x -> (|x with padding = n|)
@@ -201,7 +207,7 @@ end = struct
   type element 
     = Matrix of string option * (node list) list
     | ANode of raw-node
-    | Arrow of position * position
+    | Arrow of (path-style -> path-style) * position * position
     | LineSegments of raw-path
     | CatmullRomSpline of raw-spline
 
@@ -212,7 +218,7 @@ end = struct
           ; style = Option.map-or Fn.id Utils.apps styler
           ; body = body
           |)
-  let arrow from to = Arrow (from, to)
+  let arrow ?:styler from to = Arrow (Option.map-or  Fn.id  Utils.apps styler, from, to)
   let polyline ?:styler ls = match ls with
         | [] -> panic `polyline: empty line!`
         | (x :: xs) -> LineSegments (|
@@ -263,7 +269,7 @@ end = struct
         (let circle = f style pt w h d
         in [ stroke 1pt style#stroke-color circle 
            ; fill style#fill-color circle 
-          ]
+           ]
         )
       )
 
@@ -299,10 +305,19 @@ end = struct
     let it = node#body in 
     let pads = (style#padding, style#padding, style#padding, style#padding)  in
     let ctx2 = ctx |> style#style in
-    let node = match style#shape with
+    let body = read-inline ctx2 it in 
+    let node0 = match style#shape with
         | Plain   -> read-inline ctx2 it
-        | Rect    -> rectify style (read-inline ctx2 it)
-        | Circle  -> circled style (read-inline ctx2 it)
+        | Rect    -> rectify style body
+        | Circle  -> circled style body
+    in let node = 
+          if style#phantom
+          then 
+            (
+              let (w,h,d) = get-natural-metrics node0
+              in inline-graphics w 0pt 0pt (fun _ -> []) 
+            )
+          else node0
     in (node, style)
 
   let process-node ctx cfg (Node node) = process-node-raw ctx cfg node
@@ -503,7 +518,7 @@ end = struct
               , DList.empty, DList.empty
               )
           )
-      | Arrow(src, tgt) -> (TreeMap.empty, DList.singleton (src, tgt), DList.empty, DList.empty)
+      | Arrow(opt, src, tgt) -> (TreeMap.empty, DList.singleton (opt, src, tgt), DList.empty, DList.empty)
       | LineSegments(pts) -> (TreeMap.empty, DList.empty, DList.singleton pts, DList.empty)
       | CatmullRomSpline(sp) -> (TreeMap.empty, DList.empty, DList.empty, DList.singleton sp)
 
@@ -521,8 +536,9 @@ end = struct
           (TreeMap.to-list env)
         )
 
-  let draw-arrow ctx cfg node-dic (src, tgt) =
+  let draw-arrow ctx cfg node-dic (styler, src, tgt) =
     let src-pt = get-dir-of cfg#path-offset node-dic src
+    in let style = styler cfg#default-path-style
     in let tgt-pt = get-dir-of cfg#path-offset node-dic tgt
     in let theta = atan2-pt (sub-pt tgt-pt src-pt)
     in let drawer = Arrow.read (Arrow.solid (|line-width = 0.05; head-size = 0.3|)) ctx
@@ -609,4 +625,30 @@ end = struct
   let-inline ctx \tikzy ?:cfg0 elems =
     let cfg = Option.unwrap-or default cfg0
     in make-tikzy ctx cfg elems
+  
+  let override-node targs stylers nodes =
+        let styler = Utils.apps stylers in
+        let targs = TreeSet.of-list String.ord targs in
+        let go-node (Node raw) = Node 
+              (|raw with style = fun x ->
+                  (let style0 = raw#style x in
+                    if Option.map-or false (TreeSet.mem String.ord targs) style0#name
+                    then styler style0
+                    else style0
+                  )
+              |)
+        in let-rec 
+          go | (ANode raw) = 
+                ANode (|raw with style = fun x ->
+                    (let style0 = raw#style x in
+                      if Option.map-or false (TreeSet.mem String.ord targs) style0#name
+                      then styler style0
+                      else style0
+                    )
+                |)
+             | (Matrix (name, rows)) = Matrix (name, List.map (List.map go-node) rows)
+             | (LineSegments a) = LineSegments a
+             | (CatmullRomSpline a) = CatmullRomSpline a
+             | (Arrow a) = Arrow a
+        in List.map go nodes
 end
