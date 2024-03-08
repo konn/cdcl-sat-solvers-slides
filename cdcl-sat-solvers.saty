@@ -778,56 +778,63 @@ document '<
         * 矛盾した二つの節の矛盾リテラルに導出規則を適用
         * 単位節になるまで、仮学習節の中で「一番最後に真偽が確定した命題変数」を選び、その真偽を確定させた節と導出規則を適用
           \listing{* 「単位節になる」＝最後の場合分け以後の命題変数が一つになる}
+        * 学習節の導出の例：
+          \fig-on-right(
+            textbox {
+              \small{
+                  \tikzy?:
+                    (|  default with 
+                        default-node-style = default-node-style |> padding 2pt
+                      ; path-offset = -7.5mm
+                      ; unit-length = 6mm
+                    |)(open DPLL in [
+                    matrix
+                      [ [node?:[named `-12`] {${\cnf![[lit (-2); lit (-10); lit (-12)]]}}]
+                      ; [ empty; empty; empty
+                        ; node?:[named `res-1`] {${\cnf![[lit (-2); lit (-10); lit (-11)]]}}
+                        ; node?:[lc slydifi-cfg#color-bg; rect; fc slydifi-cfg#color-bg
+                                ; padding 2pt; named `stop`; distance 2.5mm] {\hskip(2cm);}
+                        ; node?:[named `res-2`] {${\cnf![[lit (-2); lit (-10)]]}}
+                        ]
+                      ; [node?:[named `12`] {${\cnf![[lit (-11); lit 12]]}}]
+                      ]
+                  ; arrow (east-of `-12`) (north-west-of `res-1`)
+                  ; arrow (east-of  `12`) (south-west-of `res-1`)
+                  ; arrow (east-of  `res-1`) (west-of `res-2`)
+                  ; node-at (north-of `stop`)
+                      {\x-small{${\cnf![[lit (-10); lit 11]]}}}
+                  ]);
+                      
+                }
+          })<
+            +xx-small<
+              +centering{\tikzy?:(|
+              large-graph-cfg
+              with
+              default-node-style =
+                large-graph-cfg#default-node-style
+                |> padding 3pt
+                |> distance 4pt
+              ; unit-length = 0.75cm
+              |)(
+                let cut = fun xs -> xs |> pc Colors.purple |> lw 2pt in
+                let cut-label = fun xs -> xs |> plain
+                      |> style [set-text-color Colors.purple; set-font-size 15pt] in
+                large-graph-nodes
+              );
+              }
+            >
+          >
       }
-      +fig-on-right(
-        textbox {
-          \small{
-              \tikzy?:
-                (|  default with 
-                    default-node-style = default-node-style |> padding 2pt
-                  ; path-offset = -7.5mm
-                  ; unit-length = 6mm
-                |)(open DPLL in [
-                matrix
-                  [ [node?:[named `-12`] {${\cnf![[lit (-2); lit (-10); lit (-12)]]}}]
-                  ; [ empty; empty; empty
-                    ; node?:[named `res-1`] {${\cnf![[lit (-2); lit (-10); lit (-11)]]}}
-                    ; node?:[lc slydifi-cfg#color-bg; rect; fc slydifi-cfg#color-bg
-                            ; padding 2pt; named `stop`; distance 2.5mm] {\hskip(2cm);}
-                    ; node?:[named `res-2`] {${\cnf![[lit (-2); lit (-10)]]}}
-                    ]
-                  ; [node?:[named `12`] {${\cnf![[lit (-11); lit 12]]}}]
-                  ]
-              ; arrow (east-of `-12`) (north-west-of `res-1`)
-              ; arrow (east-of  `12`) (south-west-of `res-1`)
-              ; arrow (east-of  `res-1`) (west-of `res-2`)
-              ; node-at (north-of `stop`)
-                  {\x-small{${\cnf![[lit (-10); lit 11]]}}}
-              ]);
-                  
-            }
-      })<
-        +xx-small<
-          +centering{\tikzy?:(|
-          large-graph-cfg
-          with
-          default-node-style =
-            large-graph-cfg#default-node-style
-            |> padding 3pt
-            |> distance 4pt
-          ; unit-length = 0.75cm
-          |)(
-            let cut = fun xs -> xs |> pc Colors.purple |> lw 2pt in
-            let cut-label = fun xs -> xs |> plain
-                  |> style [set-text-color Colors.purple; set-font-size 15pt] in
-            large-graph-nodes
-          );
-          }
-        >
-      >
+      +listing{
+        * 根拠となる節で導出を繰り返す事が、「原因」を手繰っていく事に対応
+      }
     >
 
     +frame-nofooter({同じ例の CDCL の動作})(open DPLL in '< 
+      +centering {
+        長い例で学習節ありの Backjump がどう振る舞うか見てみよう
+      }
       +xx-small<
         +derive
           [ [lit (-1); lit (-2); lit (-3); lit (-4); lit 5]
