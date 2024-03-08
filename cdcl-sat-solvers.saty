@@ -65,6 +65,8 @@ let-inline ctx \x-small arg =
   read-inline (ctx |> set-font-size 15pt) arg
 let-block ctx +xx-small arg = 
   read-block (ctx |> set-font-size 12pt) arg
+let-inline ctx \xx-small arg = 
+  read-inline (ctx |> set-font-size 12pt) arg
 let-math \SAT = ${\mathrm{SAT}}
 let-math \CNF = ${\mathrm{CNF}}
 let-math \NP = ${\mathrm{NP}}
@@ -777,43 +779,52 @@ document '<
         * 単位節になるまで、仮学習節の中で「一番最後に真偽が確定した命題変数」を選び、その真偽を確定させた節と導出規則を適用
           \listing{* 「単位節になる」＝最後の場合分け以後の命題変数が一つになる}
       }
-      +centering{
-        \tikzy?:
-          (|  default with 
-              unit-length = 1cm
-            ; default-node-style = default-node-style |> padding 0pt
-                |> distance 0cm
-            ; path-offset = -1.25cm
-          |)(open DPLL in [
-          matrix
-            [ [node?:[named `-12`] {${\cnf![[lit (-2); lit (-10); lit (-12)]]}}; node?:[named`l`]{}; node?:[named `r`]{}]
-            ; [ empty; empty; empty
-              ; node?:[named `res-1`] {${\cnf![[lit (-2); lit (-10); lit (-11)]]}}
-              ; node?:[named `res-2`] {${\cnf![[lit (-2); lit (-10)]]}}
-              ]
-            ; [node?:[named `12`] {${\cnf![[lit (-11); lit 12]]}}]
-            ]
-        ; arrow (east-of `-12`) (west-of `res-1`)
-        ]);
-            
-      }
-      +xx-small< +centering{
-        \tikzy?:(|
-            large-graph-cfg
-            with
-            default-node-style =
-              large-graph-cfg#default-node-style
-              |> padding 3pt
-              |> distance 4pt
+      +fig-on-right(
+        textbox {
+          \small{
+              \tikzy?:
+                (|  default with 
+                    default-node-style = default-node-style |> padding 2pt
+                  ; path-offset = -7.5mm
+                  ; unit-length = 6mm
+                |)(open DPLL in [
+                matrix
+                  [ [node?:[named `-12`] {${\cnf![[lit (-2); lit (-10); lit (-12)]]}}]
+                  ; [ empty; empty; empty
+                    ; node?:[named `res-1`] {${\cnf![[lit (-2); lit (-10); lit (-11)]]}}
+                    ; node?:[lc slydifi-cfg#color-bg; rect; fc slydifi-cfg#color-bg
+                            ; padding 2pt; named `stop`; distance 2.5mm] {\hskip(2cm);}
+                    ; node?:[named `res-2`] {${\cnf![[lit (-2); lit (-10)]]}}
+                    ]
+                  ; [node?:[named `12`] {${\cnf![[lit (-11); lit 12]]}}]
+                  ]
+              ; arrow (east-of `-12`) (north-west-of `res-1`)
+              ; arrow (east-of  `12`) (south-west-of `res-1`)
+              ; arrow (east-of  `res-1`) (west-of `res-2`)
+              ; node-at (north-of `stop`)
+                  {\x-small{${\cnf![[lit (-10); lit 11]]}}}
+              ]);
+                  
+            }
+      })<
+        +xx-small<
+          +centering{\tikzy?:(|
+          large-graph-cfg
+          with
+          default-node-style =
+            large-graph-cfg#default-node-style
+            |> padding 3pt
+            |> distance 4pt
           ; unit-length = 0.75cm
           |)(
-          let cut = fun xs -> xs |> pc Colors.purple |> lw 2pt in
-          let cut-label = fun xs -> xs |> plain
-                |> style [set-text-color Colors.purple; set-font-size 15pt] in
-          large-graph-nodes
+            let cut = fun xs -> xs |> pc Colors.purple |> lw 2pt in
+            let cut-label = fun xs -> xs |> plain
+                  |> style [set-text-color Colors.purple; set-font-size 15pt] in
+            large-graph-nodes
           );
-      }>
-      
+          }
+        >
+      >
     >
 
     +frame-nofooter({同じ例の CDCL の動作})(open DPLL in '< 
