@@ -832,14 +832,14 @@ document '<
                     )
                   |> override-node [`2`; `10`; `11`]
                     (if 3 <= n && n <= 4 then 
-                        [fc Colors.red
-                        ; style [set-text-color Colors.white]
+                        [fc Colors.yellow
+                        ; style [set-text-color Colors.black]
                         ]
                     else []
                     )
                   |> override-node [`2`; `10`]
                     (if n >= 5 then 
-                        [fc Colors.red
+                        [fc Colors.orange
                         ; style [set-text-color Colors.white]
                         ]
                     else []
