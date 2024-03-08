@@ -39,13 +39,15 @@ type node-style = (|
 type config = (|
     unit-length: length;
     default-node-style : node-style;
-    default-path-style: path-style
+    default-path-style: path-style;
+    path-offset: length;
     |)
 type matrix-config = (|
   unit-length: length;
   matrix-name: string;
   default-node-style : node-style;
-  default-path-style: path-style
+  default-path-style: path-style;
+  path-offset: length;
 |)
 
 % A line determined by ax + by + c = 0
@@ -135,12 +137,13 @@ end = struct
           then Lt
           else if x >' y then Gt else Eq)
         )
-  let default : config = (|unit-length = 1cm ; default-node-style = default-node-style; default-path-style = default-path-style |)
+  let default : config = (|unit-length = 1cm ; default-node-style = default-node-style; default-path-style = default-path-style; path-offset = -2pt |)
 
   let fc c = fun x -> (| x with fill-color = c |)
   let lc c = fun x -> (| x with stroke-color = c |)
   let pc c = fun x -> (| x with stroke-color = c|)
   let lw l = fun x -> (| x with line-width = l|)
+  let path-offset l = fun x -> (| x with path-offset = l|)
   let circle = fun x -> (| x with shape = Circle|)
   let rect = fun x -> (| x with shape = Rect|)
   let plain = fun x -> (| x with shape = Plain|)
@@ -374,6 +377,7 @@ end = struct
       ; default-path-style = cfg#default-path-style
       ; unit-length = cfg#unit-length
       ; matrix-name = nam
+      ; path-offset = cfg#path-offset
       |)
   let default-matrix = as-matrix-config `mat` default
 
@@ -518,17 +522,15 @@ end = struct
         )
 
   let draw-arrow ctx cfg node-dic (src, tgt) =
-    let cfg2 = (|cfg with unit-length = -5pt|)
-    in let src-pt = get-dir-of -2pt node-dic src
-    in let tgt-pt = get-dir-of -2pt node-dic tgt
+    let src-pt = get-dir-of cfg#path-offset node-dic src
+    in let tgt-pt = get-dir-of cfg#path-offset node-dic tgt
     in let theta = atan2-pt (sub-pt tgt-pt src-pt)
     in let drawer = Arrow.read (Arrow.solid (|line-width = 0.05; head-size = 0.3|)) ctx
     in DList.of-list (drawer#draw src-pt tgt-pt)
 
   let draw-line-segments ctx cfg node-dic raw =
-    let cfg2 = (|cfg with unit-length = -5pt|)
-    in let src-pt = get-dir-of -2pt node-dic raw#start
-    in let pts = List.map (get-dir-of -2pt node-dic) raw#points
+    let src-pt = get-dir-of cfg#path-offset node-dic raw#start
+    in let pts = List.map (get-dir-of cfg#path-offset node-dic) raw#points
     in let style = raw#style cfg#default-path-style
     in stroke style#line-width style#stroke-color (poly-line src-pt pts)
 
