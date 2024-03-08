@@ -4,9 +4,12 @@
 @require: annot
 @import: presets
 
-let-inline ctx \url url = 
-  read-inline (ctx |> use-code-font |> set-font-size (bib-size *' 0.8)) {\href(url)(embed-string url);}
-let bibs =
+module Referenecs : sig
+  val bibs: (string * bibyfi-item) list
+end = struct
+  let-inline ctx \url url = 
+    read-inline (ctx |> use-code-font |> set-font-size (bib-size *' 0.8)) {\href(url)(embed-string url);} 
+  let bibs =
   [ 
     (`Zeljic:2019`,
       WildCard {Aleksandar Zeljić, "CS357: Advanced Topics in Computer Science". Course Material. Stanford University. 2019. \url(`https://web.stanford.edu/class/cs357/`);.}
@@ -127,4 +130,17 @@ let bibs =
       ; year = `2001`
       |)
     )
+  ; (`MiniSat`
+    , WildCard {Niklas Eén and Niklas Sörensson. MiniSat. \url(`http://minisat.se/`);.}
+    )
+  ; (`herbrand`
+    , WildCard {Hiromi ISHII. `herbrand`. \url(`https://github.com/konn/herbrand`);.}
+    )
+  ; (`CVC4`
+    , WildCard {Clark W. Barrett, et al. "CVC4". in \textit{Computer Aided Verification - 23rd International Conference, CAV
+    2011}, Snowbird, UT, USA, July 14-20, 2011. Proceedings. pp. 171-177. \url(`https://doi.org/10.1007/978-3-642-22110-1_14`);. \url(`https://cvc4.github.io/publications.html`);.}
+    )
   ]
+end
+
+open Referenecs

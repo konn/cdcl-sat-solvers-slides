@@ -21,9 +21,9 @@ let use-code-font = fun ctx ->
       ctx |> set-main-font `system:JetBrainsMono-Medium`
           |> set-font Latin (`system:JetBrainsMono-Medium`, 1., 0.)
 
-let use-code-font = fun ctx ->
-      ctx |> set-main-font `system:JetBrainsMono-Medium`
-          |> set-font Latin (`system:JetBrainsMono-Medium`, 1., 0.)
+let use-italic-font = fun ctx ->
+      ctx |> set-main-font `system:HiraMinProN-W4`
+          |> set-font Latin (`Junicode-it`, 1., 0.)
 
 let use-italic-code-font = fun ctx ->
       ctx |> set-main-font `system:JetBrainsMono-MediumItalic`
@@ -34,6 +34,7 @@ let use-bold-code-font = fun ctx ->
           |> set-font Latin (`system:JetBrainsMono-Bold`, 1., 0.)
 
 let-inline ctx \texttt tt = read-inline (ctx |> use-code-font) tt
+let-inline ctx \textit tt = read-inline (ctx |> use-italic-font) tt
 
 let preset-math-font = `lmodern`
 
@@ -141,6 +142,9 @@ let haskell = default-code-printer
 
 let lang x = default-code-printer|> CodePrinter.set-syntax x 
 
-let bib-size = 12pt
+let bib-size = 10pt
 
 open CodePrinter
+
+let-inline ctx \url url = 
+  read-inline (ctx |> use-code-font |> set-font-size (get-font-size ctx *' 0.8)) {\href(url)(embed-string url);}
