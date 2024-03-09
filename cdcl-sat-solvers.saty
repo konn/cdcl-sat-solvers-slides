@@ -103,7 +103,13 @@ let sudoku ctx =
             )
         )))
       ]
-
+let-block ctx +item ?:cond it blk =
+  read-block ctx
+  (match cond with
+    | Some(cond) -> 
+      '< +phantom(cond)< +item{#it;}<#blk;> > >
+    | None -> '<+item{#it;}<#blk;>>
+  )
 
 in 
 document '<
@@ -115,28 +121,30 @@ document '<
   |);
 
   +section{|自己紹介|}<
-    +frame{自己紹介}<
-      +listing{
-        * \ruby[`いし`; `い`; `ひろ`; `み`]{|石|井|大|海|}
-        * 2018年度 筑波大学数学専攻博士後期課程修了（照井研）
-        * 計算機合宿には2014年から参加
-        * 現職：Haskell製大規模数値計算ベンチャー研究開発職
-        * 宣伝：今年 05/11, 12 に横浜でお芝居をするので興味のある方は是非観にきてください
-      }
+    +frame?:(5){自己紹介}<
+      +itemize<
+        +item{\ruby[`いし`; `い`; `ひろ`; `み`]{|石|井|大|海|}}<>
+        +item?:(from 2){2018年度 筑波大学数学専攻博士後期課程修了（照井研）}<>
+        +item?:(from 3){計算機合宿には2014年から参加}<>
+        +item?:(from 4){現職：Haskell製大規模数値計算ベンチャー研究開発職}<>
+        +item?:(from 5){宣伝：今年 05/11, 12 に横浜でお芝居をするので興味のある方は是非観にきてください}<>
+      >
     >
   >
 
   +section{|充足可能性ソルバ（SATソルバ）の原理|}<
-    +frame{本日の話題：充足可能性問題とSATソルバ}<
-      +listing{
-        * \emph{充足可能性問題}：与えられた\emph{命題論理式}が\emph{（古典的に）充足可能}かどうかを判定する問題
-          ** \emph{古典命題論理式}：\emph{命題変数}${P_1, \ldots, Q_1, \ldots,} を${\land}（かつ）、${\lor}（または）、${\to}（ならば）、${¬}（でない）で結んで得られる論理式
-          ** \emph{古典的充足可能性}: 与えられた式を真とするような、命題変数への真偽値${\circ}（真）または${\times}（偽）の割り当てが存在するか？
-        * 充足可能性（\emph{SAT}isfiability）を略して SAT と呼ぶ。
-        * \emph{NP-完全}：総当たりで解けるような任意の問題が SAT に帰着できる
-          ** 本来 ${\SAT} は判定問題だが、具体的な求解まで含めて${\SAT}と呼ぶ事が多い
-        * 色々な問題が SAT （やその拡張である SMTソルバ）で解け、実用上も重要
-      }
+    +frame?:(6){本日の話題：充足可能性問題とSATソルバ}<
+      +itemize<
+        +item{\emph{充足可能性問題}：与えられた\emph{命題論理式}が\emph{（古典的に）充足可能}かどうかを判定する問題}<
+          +item?:(from 2){\emph{古典命題論理式}：\emph{命題変数}${P_1, \ldots, Q_1, \ldots,} を${\land}（かつ）、${\lor}（または）、${\to}（ならば）、${¬}（でない）で結んで得られる論理式}<>
+          +item?:(from 3){\emph{古典的充足可能性}: 与えられた式を真とするような、命題変数への真偽値${\circ}（真）または${\times}（偽）の割り当てが存在するか？}<>
+        >
+        +item?:(from 4){充足可能性（\emph{SAT}isfiability）を略して SAT と呼ぶ。}<>
+        +item?:(from 5){\emph{NP-完全}：総当たりで解けるような任意の問題が SAT に帰着できる}<
+          +item{本来 ${\SAT} は判定問題だが、具体的な求解まで含めて${\SAT}と呼ぶ事が多い}<>
+        >
+        +item?:(from 6){色々な問題が SAT （やその拡張である SMTソルバ）で解け、実用上も重要}<>
+      >
     >
 
     +frame{SATで解ける問題の例：論理パズル}<
@@ -152,21 +160,22 @@ document '<
       }
     >
 
-    +frame{三人の島民：回答}<
-      +listing{
-        * ${A, B, C}を「Aが正直者」「Bが正直者」「Cが正直者」を表す命題変数とする
-        * 情報を命題論理式に変換して${\eqrefm!(`q1-cond1`) \land \eqrefm!(`q1-cond2`)}を充足する解を求めればよい：
+    +frame?:(5){三人の島民：回答}<
+      +itemize<
+        +item{${A, B, C}を「Aが正直者」「Bが正直者」「Cが正直者」を表す命題変数とする}<>
+        +item?:(from 2){情報を命題論理式に変換して${\eqrefm!(`q1-cond1`) \land \eqrefm!(`q1-cond2`)}を充足する解を求めればよい：
           
-          \align(${
+          \phantom(from 3){\align(${
             | A | \longleftrightarrow B \land C \label!(`q1-cond1`)
             | B | \longleftrightarrow \lnot A \land C \label!(`q1-cond2`)
             |
-          });
-        * 真理表を書いてみると、\emph{全員嘘吐き}だとわかる。
-      }
+          });}
+        }<>
+        +item?:(from 4){真理表を書いてみると、\emph{全員嘘吐き}だとわかる。}<>
+      >
 
 
-      +x-small< +centering(
+      +phantom(from 5)< +x-small< +centering(
         let show p = if p then {${\circ}} else {${\times}} in
         let iff p q = (p && q) || ((not p) && (not q)) in
         let mkRow a b c = 
@@ -192,68 +201,76 @@ document '<
         \quad;
         \easytable?:[t; b; m 1; bg-r (Color.rgb 0.4 1.0 0.6) 4 5][c;c;c;c;c;c]
           (mkTable [false] [true; false] [true; false]);
-      });>
+      });> >
     >
 
-    +frame{SATで解ける問題の例：数独}<
+    +frame?:(3){SATで解ける問題の例：数独}<
       +fig-on-right(from-graphics-given-context (150pt, 150pt) sudoku)<
-        +listing{
-          * 簡単な例として、 ${4 \times 4} の小さな数独の問題を SAT で解くことを考える。
-          * ${i, j, k \leq 4} に対し命題変数 ${P^{=k}_{ij}} を用意する（${d_{ij} = k} というきもち）。
-
-        }
+        +itemize<
+          +item{簡単な例として、 ${4 \times 4} の小さな数独の問題を SAT で解くことを考える。}<>
+          +item?:(from 2){${i, j, k \leq 4} に対し命題変数 ${P^{=k}_{ij}} を用意する（${d_{ij} = k} というきもち）。}<>
+        >
       >
-      +listing{
-        * 各マスには ${1, 2, 3, 4} のいずれかの数字一つを入れる。
+      +itemize<
+        +item?:(from 3){各マスには ${1, 2, 3, 4} のいずれかの数字一つを入れる。
               
         \gather(${|
          \bigwedge_{i \leq 4} \bigwedge_{j \leq 4} \pb{
            \p{P^{=1}_{ij} \vee P^{=2}_{ij} \vee P^{=3}_{ij} \vee P^{=4}_{ij}} \land
            \bigwedge_{k \leq 4} \bigwedge_{l \neq k} \paren{P^{=k}_{ij} \longrightarrow \lnot P^{=l}_{ij}}
            }
-        |});
-      }
+        |});}<>
+      >
     >
 
-    +frame{SATで解ける問題の例：数独（続）}<
-        +listing{
-          * 各行、各列、各 ${2 \times 2} の小ブロックには各数字 ${1, \ldots, 4} が一つずつ入る。
-            ** 「各行」は次のように書ける（「各列」も${i,j}の役割を入れ換え同様）：
+    +frame?:(5){SATで解ける問題の例：数独（続）}<
+      +itemize<
+        +item{各行、各列、各 ${2 \times 2} の小ブロックには各数字 ${1, \ldots, 4} が一つずつ入る。}<
+          +item?:(from 2){「各行」は次のように書ける（「各列」も${i,j}の役割を入れ換え同様）：
 
-              \eqn(${
-              \bigwedge_{i \leq 4} \bigwedge_{k \leq 4} (P^{=k}_{i1} \vee P^{=k}_{i2} \vee P^{=k}_{i3} \vee P^{=k}_{i4})
-              });
-            ** \emph{演習問題}：「一意性」の条件が要らない理由を考えてみよう。
-            ** \emph{演習問題}：「各ブロック」の条件を書き下してみよう。
-          * あとは盤面の情報を個別に ${P_{ij}^{=k}} で与えてやれば、個別の問題を SAT で解ける！
-        }
+          \eqn(${
+          \bigwedge_{i \leq 4} \bigwedge_{k \leq 4} (P^{=k}_{i1} \vee P^{=k}_{i2} \vee P^{=k}_{i3} \vee P^{=k}_{i4})
+          });
+          }<>
+          +item?:(from 3){\emph{演習問題}：「一意性」の条件が要らない理由を考えてみよう。}<>
+          +item?:(from 4){\emph{演習問題}：「各ブロック」の条件を書き下してみよう。}<>
+        >
+        +item?:(from 5){あとは盤面の情報を${P_{ij}^{=k}}のandで与えれば個別の問題を解ける！}<>
+      >
     >
 
-    +frame{SATで解ける問題の例：命題論理の定理自動証明}<
-      +thm?:({古典命題論理の完全性定理および健全性定理 (Gödel)}){
+    +frame?:(4){SATで解ける問題の例：命題論理の定理自動証明}<
+      +itemize<
+        +item{SATソルバは定理の自動証明にも使える}<>
+      >
+      +phantom(from 2)<+thm?:({古典命題論理の完全性定理および健全性定理 (Gödel)}){
         任意の古典命題論理式 ${\phi} に対し、${\phi} がどんな真偽値の割り当てに対しても真であることと、${\phi} が証明可能であることは同値である。
-      }
+      }>
 
-      +cor{
+      +phantom(from 3)<+cor{
         任意の古典命題論理式 ${\phi} が証明可能である必要十分条件は、${\lnot \phi} が充足可能でないことである。
-      }
+      }>
 
-      +listing{
-        * ${\lnot \phi} が充足可能でない事がわかれば、${\phi} が証明できたことになる！
-      }
+      +itemize<
+        +item?:(from 4){${\lnot \phi} が充足可能でない事がわかれば、${\phi} が証明できたことになる！}<>
+      >
     >
 
-    +frame{SATで解ける問題の例：SMTソルバへ}<
-      +listing{
-        * SATだけでも強力だが、更に\emph{述語論理}（${\forall}とか${\exists}とかを入れたやつ）に拡張した \emph{SMT （SAT Modulo Theories）ソルバ}の研究も盛んに行われている
-          ** 代表的なソルバ：Z3, CvC5, etc.
-        * SMT で扱える理論の例：線型計画法、整数計画問題、同値関係、配列、etc.
-          ** 数独なんかは配列の理論とかを使ったほうが綺麗
-          ** \emph{工学的}にもこれらはかなり重要
-          ** 定理証明系で人間が手で書きたくない補題の自動証明にも使える
-        * SMT は SAT ソルバを外部の理論ソルバと協業させこれらの問題を解く
-          ** \emph{SAT を如何に速く解くか}が SMT の実装にも重要
-      }
+    +frame?:(9){SATで解ける問題の例：SMTソルバへ}<
+      +itemize<
+        +item{SATだけでも強力だが、更に\emph{述語論理}（${\forall}とか${\exists}とかを入れたやつ）に拡張した \emph{SMT （SAT Modulo Theories）ソルバ}の研究も盛んに行われている}<
+          +item?:(from 2){代表的なソルバ：Z3, CvC5, etc.}<>
+        >
+        +item?:(from 3){SMT で扱える理論の例：線型計画法、整数計画問題、同値関係、配列、etc.}<
+          +item?:(from 4){数独なんかは配列の理論とかを使ったほうが綺麗}<>
+          +item?:(from 5){\emph{工学的}にもこれらはかなり重要}<>
+          +item?:(from 6){定理証明系で人間が手で書きたくない補題の自動証明にも使える}<>
+        >
+        +item?:(from 7){SMT は SAT ソルバを外部の理論ソルバと協業させこれらの問題を解く}<
+          +item?:(from 8){\emph{SAT を如何に速く解くか}が SMT の実装にも重要}<>
+        >
+        +item?:(from 9){Disclaimer: 今回は SMT の話はしません}<>
+      >
     >
   >
 
