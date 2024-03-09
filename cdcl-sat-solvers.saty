@@ -617,15 +617,18 @@ document '<
       >
     >);
 
-    +frame{CDCL: Conflict-Driven Clause Learning}<
-      +listing{
-        * 単純総当たりよりDPLLは賢いが、Backtrack で得られる情報が少ない
-          ** 折角 Backtrack でいったん真偽値が確定しても、更に Backtrack すればその情報は消えてしまう
-        * Backtrack は一段階ずつしか戻らない
-          ** \emph{場合分けが入れ子}になっている場合、実は直近の場合分けより\emph{もっと早くに}矛盾が起きていても延々と\emph{一段階ずつ} Backtrack してしまう
-        * 矛盾からに過程を辿っていって矛盾の原因となった「理由」を見付け。\emph{学習節}としてCNFに追加してそこまで\emph{一気に巻き戻そう} (\emph{Backjump})！
-          ** これが\emph{矛盾からの節学習}(Conflict-Driven Clause Learning, \emph{CDCL})
-      }
+    +frame?:(6){CDCL: Conflict-Driven Clause Learning}<
+      +itemize<
+        +item{単純総当たりよりDPLLは賢いが、Backtrack で得られる情報が少ない}<
+          +item?:(from 2){折角 Backtrack でいったん真偽値が確定しても、更に Backtrack すればその情報は消えてしまう}<>
+        >
+        +item?:(from 3){Backtrack は一段階ずつしか戻らない}<
+          +item?:(from 4){\emph{場合分けが入れ子}になっている場合、実は直近の場合分けより\emph{もっと早くに}矛盾が起きていても延々と\emph{一段階ずつ} Backtrack してしまう}<>
+        >
+        +item?:(from 5){矛盾からに過程を辿っていって矛盾の原因となった「理由」を見付け。\emph{学習節}としてCNFに追加してそこまで\emph{一気に巻き戻そう} (\emph{Backjump})！}<
+          +item?:(from 6){これが\emph{矛盾からの節学習}(Conflict-Driven Clause Learning, \emph{CDCL})}<>
+        >
+      >
     >
 
     +frame{CDCL: どういう学習節が望ましいか？}<
