@@ -689,17 +689,17 @@ document '<
       >
     >
 
-    +frame?:(5){CDCL：含意グラフと学習節1 - カットと矛盾原因}<
+    +frame?:(6){CDCL：含意グラフと学習節1 - カットと矛盾原因}<
       +itemize<
-        +item{含意グラフを以下の二つの集合に\emph{カット}すると、矛盾への\emph{原因}が得られる}<
-          +item?:(from 2){\emph{conflict side}: 直接矛盾した頂点をどちらも含む}<>
-          +item?:(from 3){\emph{reason side}: 現在の場合分けの起点と以前の場合分け対象全部を含む}<>
+        +item{含意グラフを\emph{conflict side}と\emph{reason side}の二つの集合に\emph{カット}すると、矛盾への\emph{原因}が得られる}<
+          +item?:(from 2){直接矛盾した頂点は必ず\emph{conflict side}に入れる}<>
+          +item?:(from 3){現在の場合分けの起点以前のものは全て\emph{reason side}に入れる}<>
+          +item?:(from 4){それ以外のリテラルはどちらに割り当ててもいい}<>
         >
-        +item?:(from 4){このとき、\emph{reason side}のリテラルはconflict side の\emph{原因}になっている}<
-          +item?:(from 5){特に\emph{conflict sideに向かう辺を持つreason sideの頂点}があれば十分}<>
+        +item?:(from 5){このとき、\emph{reason side}のリテラルはconflict side の\emph{原因}になっている}<
+          +item?:(from 6){特に\emph{conflict sideに向かう辺を持つreason sideの頂点}があれば十分}<>
         >
       >
-      +vskip(15pt);
       +centering(
         let prev ctx = ctx 
                 |> fc Colors.black 
@@ -736,8 +736,6 @@ document '<
                   ; pc Colors.purple; lw 2pt
                   ]
                 [ between (north-west-of `5`) (north-east-of `6`)
-                % ; between (south-west-of `5`) (south-east-of `2`)
-                % ; between  (south-east-of `3`) (north-east-of `5`)
                 ; between (south-east-of `1`) (south-west-of `2`)
                 ]
               ];
@@ -828,17 +826,19 @@ document '<
       });
     >
 
-    +frame{単位節とUIP}<
-      +listing(open DPLL in{
-        * Cutに対応する学習節が\emph{単位節}になるのは、\emph{一意相互作用点}（Unique Interaction Point, \emph{UIP}）と呼ばれる頂点の直後でCutした時
-          ** 頂点${l}が\emph{UIP}である${\Longleftrightarrow}グラフから${l}を取り除くと、直近の決定リテラルから少なくとも一方の矛盾頂点へのパスが消える（「\emph{必ず通る点}」）
-        * 前の例では${4, 7, 10}が\emph{UIP}で、Cut ${A, C}が頂点${4, 10} の直後のCutに相当
-        * 「学習節が単位節になる」ためには UIP で切ればよい（逆もまた真）
-          ** \emph{決定リテラル自身もUIP}なので、少なくとも一つUIPは存在する
-          ** \emph{矛盾に一番近いUIP}、\emph{1-UIP}のCutがよいことが経験的に知られている\cite[`Zhang:2001`];
-          ** 前の例では、${\cnf![[lit (-2);lit (-10)]]}に対応する${10}で切ったCut ${C}が1-UIP
-          ** conflicting side が増えるほど必要な仮定も増えそうなので、直感的ではある
-      });
+    +frame?:(8){単位節とUIP}<
+      +itemize(open DPLL in '<
+        +item{Cutに対応する学習節が\emph{単位節}になるのは、\emph{一意相互作用点}（Unique Interaction Point, \emph{UIP}）と呼ばれる頂点の直後でCutした時}<
+          +item?:(from 2){頂点${l}が\emph{UIP}である${\Longleftrightarrow}グラフから${l}を取り除くと、直近の決定リテラルから少なくとも一方の矛盾頂点へのパスが消える（「\emph{必ず通る点}」）}<>
+        >
+        +item?:(from 3){前の例では${4, 7, 10}が\emph{UIP}で、Cut ${A, C}が頂点${4, 10} の直後のCutに相当}<>
+        +item?:(from 4){「学習節が単位節になる」ためには UIP で切ればよい（逆もまた真）}<
+          +item?:(from 5){\emph{決定リテラル自身もUIP}なので、少なくとも一つUIPは存在する}<>
+          +item?:(from 6){\emph{矛盾に一番近いUIP}、\emph{1-UIP}のCutがよいことが経験的に知られている\cite[`Zhang:2001`];}<>
+          +item?:(from 7){前の例では、${\cnf![[lit (-2);lit (-10)]]}に対応する${10}で切ったCut ${C}が1-UIP}<>
+          +item?:(from 8){conflicting side が増えるほど必要な仮定も増えそうなので、直感的ではある}<>
+        >
+      >);
     >
 
     +frame{1-UIP学習節の生成と導出規則}<
