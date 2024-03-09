@@ -1190,30 +1190,22 @@ document '<
         >
       >
     >
-    +namedframe(`まとめ`){\select(from 10){Any Questions?}{まとめ}}<
+    +namedframe(`まとめ`){\select(from 2){Any Questions?}{まとめ}}<
       +itemize<
         +item{SATソルバは古典命題論理式の充足可能性を判定するプログラム}<
-          +item?:(from 2){NP-完全なので本質的に難しい}<>
-          +item?:(from 3){\emph{CDCL}: 矛盾するごとに\emph{学習節}を作り、必要なところまで一気に巻き戻す}<>
-          +item?:(from 4){監視リテラルや Restart など、色々なヒューリスティクスが提案されている}<>
+          +item{NP-完全なので本質的に難しい}<>
+          +item{\emph{CDCL}: 矛盾するごとに\emph{学習節}を作り、必要なところまで一気に巻き戻す}<>
+          +item{監視リテラルや Restart など、色々なヒューリスティクスが提案されている}<>
         >
-        +item?:(from 5){CDCL は述語論理上の理論に一般化した\emph{SMT} ソルバの基礎でもある}<
-          +item?:(from 6){私の動機：Presburger 算術（整数計画法）と未解釈関数つき同値関係の理論の組合せソルバを実装したい}<>
-          +item?:(from 7){整数計画法のインクリメンタルでバックトラック可能で完全なソルバが必要}<
-            +item?:(from 8){CVC4 \cite[`CVC4`]; のサイトなどを見てみたがパッと見付からず}<>
-            +item?:(from 9){よい文献をご存知の方おしえてください}<>
+        +item{CDCL は述語論理上の理論に一般化した\emph{SMT} ソルバの基礎でもある}<
+          +item{私の動機：Presburger 算術（整数計画法）と未解釈関数つき同値関係の理論の組合せソルバを実装したい}<>
+          +item{整数計画法のインクリメンタルでバックトラック可能で完全なソルバが必要}<
+            +item{CVC4 \cite[`CVC4`]; のサイトなどを見てみたがパッと見付からず}<>
+            +item{よい文献をご存知の方おしえてください}<>
           >
         >
       >
     >
-    +againframe(`まとめ`);
-    +againframe(`まとめ`);
-    +againframe(`まとめ`);
-    +againframe(`まとめ`);
-    +againframe(`まとめ`);
-    +againframe(`まとめ`);
-    +againframe(`まとめ`);
-    +againframe(`まとめ`);
 
     +frame-nofooter{参考文献}<
       +tighten<+font-style[font-size bib-size]<
