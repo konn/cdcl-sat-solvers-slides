@@ -631,29 +631,33 @@ document '<
       >
     >
 
-    +frame{CDCL: どういう学習節が望ましいか？}<
-      +listing{
-        * 学習節が\emph{元々の入力の帰結}であること
-          ** 任意のタイミングで Backjump が起き得る
-          ** いつでも使えるように、仮定が本質的には増えていてはならない
-        * 「\emph{すぐに使える}」学習節であること
-          ** Backjump した直後に、\emph{新しい情報}が得られないと意味がない
-          ** 特に、\emph{巻き戻した段階で単位節になっている}ようにしたい
-        * なるべく\emph{小さい}ほうがよい
-          ** 単位節や矛盾が比較的すぐ出るようにしたい
-        * \emph{含意グラフ}を考えるとこれらを満たす学習節を得られる
-      }
+    +frame?:(9){CDCL: どういう学習節が望ましいか？}<
+      +itemize<
+        +item{学習節が\emph{元々の入力の帰結}であること}<
+          +item?:(from 2){任意のタイミングで Backjump が起き得る}<>
+          +item?:(from 3){いつでも使えるように、仮定が本質的には増えていてはならない}<>
+        >
+        +item?:(from 4){「\emph{すぐに使える}」学習節であること}<
+          +item?:(from 5){Backjump した直後に、\emph{新しい情報}が得られないと意味がない}<>
+          +item?:(from 6){特に、\emph{巻き戻した段階で単位節になっている}ようにしたい}<>
+        >
+        +item?:(from 7){なるべく\emph{小さい}ほうがよい}<
+          +item?:(from 8){単位節や矛盾が比較的すぐ出るようにしたい}<>
+        >
+        +item?:(from 9){\emph{含意グラフ}を考えるとこれらを満たす学習節を得られる}<>
+      >
     >
 
-    +frame{CDCL：\emph{含意グラフ}}<
-      +listing{
-        * これまでに\emph{真偽を割り当てたリテラルを頂点}として持つ有向グラフ
-        * 単位伝播で真になったリテラルへ、\emph{根拠となったリテラルから辺}を伸ばす
-          ** 単位伝播＝「他のリテラルが真にならなかったので最後の一つを真にする」
-          ** 「根拠」：つまり、\emph{真偽を確定させた節}に含まれる\emph{他のリテラルの否定}
-          ** ただ一つのリテラルを持つ単位節のリテラルや、場合分けリテラルの場合入次数はゼロ
-        * 以下は最初の ${\cnf!(open DPLL in [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]])} に対する含意グラフの例
-      }
+    +frame?:(7){CDCL：\emph{含意グラフ}}<
+      +itemize<
+        +item{これまでに\emph{真偽を割り当てたリテラルを頂点}として持つ有向グラフ}<>
+        +item?:(from 2){単位伝播で真になったリテラルへ、\emph{根拠となったリテラルから辺}を伸ばす}<
+          +item?:(from 3){単位伝播＝「他のリテラルが真にならなかったので最後の一つを真にする」}<>
+          +item?:(from 4){「根拠」：つまり、\emph{真偽を確定させた節}に含まれる\emph{他のリテラルの否定}}<>
+          +item?:(from 5){ただ一つのリテラルを持つ単位節のリテラルや、場合分けリテラルの場合入次数はゼロ}<>
+        >
+        +item?:(from 6){以下は最初の ${\cnf!(open DPLL in [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]])} に対する含意グラフの例}<>
+      >
       +fig-on-right(
           let prev ctx = ctx 
                 |> fc Colors.black 
@@ -665,7 +669,7 @@ document '<
                       default-node-style = default-node-style |> circle |> padding 5pt;
                       unit-length = 1.25cm;
                     |) 
-          in textbox-with-width 5cm {\x-small{
+          in textbox-with-width 5cm {\phantom(from 7){\x-small{
                 \tikzy?:(cfg)[
                   matrix
                     [ [node?:[prev] {${3}}; node?:[named`5`] {${5}}; node?:[contra; named`6`] {${6}}; ]
@@ -676,12 +680,12 @@ document '<
                 ; arrow (north-east-of `2`) (south-west-of `6`)
                 ; arrow (east-of `2`) (west-of `-6`)
                 ];
-          }}
+          }}}
       )<
-        +listing{
-          * 黒丸はこれよりも前の場合分けで仮置きされたリテラル
-          * 赤丸は互いに矛盾したリテラル
-        }
+        +itemize<
+          +item?:(from 7){黒丸はこれよりも前の場合分けで仮置きされたリテラル}<>
+          +item?:(from 7){赤丸は互いに矛盾したリテラル}<>
+        >
       >
     >
 
