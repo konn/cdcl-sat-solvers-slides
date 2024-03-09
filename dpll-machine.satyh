@@ -2,6 +2,7 @@
 @require: base/list-ext
 @require: azmath/azmath
 @require: uline/uline
+@require: class-slydifi/overlay
 @import: colors
 @import: utils
 @import: math-deco
@@ -37,9 +38,9 @@ module DPLL : sig
   type row
   val from-stack : literal list -> math
   type derivation
-  val render-derivs: (literal list) list -> (rule * (literal list) list * literal list) list -> inline-text
-  direct \derive: [(literal list) list; (rule * (literal list) list * literal list) list] inline-cmd
-  direct +derive: [(literal list) list; (rule * (literal list) list * literal list) list] block-cmd
+  val render-derivs: int option -> (literal list) list -> (rule * (literal list) list * literal list) list -> inline-text
+  direct \derive: [int?; (literal list) list; (rule * (literal list) list * literal list) list] inline-cmd
+  direct +derive: [int?; (literal list) list; (rule * (literal list) list * literal list) list] block-cmd
 end = struct
   type rule  =
     | UnitProp of int
@@ -155,14 +156,26 @@ end = struct
           in let back1 = backsp 0.2
           in let back2 = backsp 0.5
           in ${\mathsize!(MathRel)!(fun p -> p *' 0.75){-#back1\p{#reason}#back2\longrightarrow}}
- 
-  let derivation-to-maths =
-        Utils.concat-map
-          (fun (r, l, stack) -> [ from-some-rule r; from-cnf l ; ${}; let s =  from-stack stack in ${\mid #s} ])
-  let render-derivs start ds = 
-        {\alignat(2)(derivation-to-maths ((None, start, []) :: List.map (fun (x,y,z) -> (Some x, y, z)) ds));}
-  let-inline \derive start ds = render-derivs start ds
-  let-block ctx +derive start ds = read-block ctx '<
-    +alignat(2)(derivation-to-maths ((None, start, []) :: List.map (fun (x,y,z) -> (Some x, y, z)) ds));
+
+  let math-phantom mi m = 
+      match mi with
+      | None -> m
+      | Some(i) -> 
+          text-in-math MathOrd (fun ctx -> read-inline ctx {\phantom(SlydifiOverlay.from i){${#m}}})
+  let derivation-to-maths mstart =
+        Utils.concat-mapi
+          (fun i (r, l, stack) -> 
+            List.map (math-phantom (Option.map (fun n -> n + i) mstart))
+              [ from-some-rule r
+              ; from-cnf l 
+              ; ${}
+              ; let s =  from-stack stack in ${\mid #s} 
+              ]
+          )
+  let render-derivs mstart start ds = 
+        {\alignat(2)(derivation-to-maths mstart ((None, start, []) :: List.map (fun (x,y,z) -> (Some x, y, z)) ds));}
+  let-inline ctx \derive ?:mstart start ds = read-inline ctx (render-derivs mstart start ds)
+  let-block ctx +derive ?:mstart start ds = read-block ctx '<
+    +alignat(2)(derivation-to-maths mstart ((None, start, []) :: List.map (fun (x,y,z) -> (Some x, y, z)) ds));
     >
 end

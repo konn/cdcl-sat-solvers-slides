@@ -375,34 +375,33 @@ document '<
       >
     >
 
-    +frame-nofooter{DPLL: CDCL の祖先}<
-      +listing{
-        * CDCL はDavis–Putnam–Logemann–Loveland (\emph{DPLL}) を基礎としている
-        * 基本的な考え方：CNFの節やリテラルを\emph{削れるまで削ってから}場合分け
-          ** 充足された節は削除できる→節が一つもなくなれば充足可能！
-          ** 偽なリテラルがあれば、節から削除できる→空な節ができたら充足不能！
-        * 以下の規則に従ってCNFを変形する：
-          \enumerate{
-            * \emph{単位節伝播}：リテラル一つだけの節${\pb{l}}があれば${l\equiv\top}とし${\lnot l}を削除
-            * \emph{純リテラル}：肯定または否定のみ出現するリテラル${l}があれば${l\equiv\top}としそのリテラルを含む節を削除（コスト面から\emph{実装しない}事が多い）
-            * \emph{Decide}：他規則が適用できないならリテラルを一つ選び\emph{場合分け}
-              \listing{
-                * 真偽を仮決めし継続。失敗したら巻き戻し (\emph{Backtrack}) 否定で確定し継続
-              }
-          }
-      }
+    +frame-nofooter?:(9){DPLL: CDCL の祖先}<
+      +itemize<
+        +item{CDCLの基礎はDavis–Putnam–Logemann–Loveland (\emph{DPLL})アルゴリズム}<>
+        +item?:(from 2){基本的な考え方：CNFの節やリテラルを\emph{削れるまで削ってから}場合分け}<
+          +item?:(from 3){充足された節は削除できる→節が一つもなくなれば充足可能！}<>
+          +item?:(from 4){偽なリテラルがあれば、節から削除できる→空な節ができたら充足不能！}<>
+        >
+        +item?:(from 5){以下の規則に従ってCNFを変形する：}<
+          +item?:(from 6){\emph{単位節伝播}：リテラル一つだけの節${\pb{l}}があれば${l\equiv\top}とし${\lnot l}を削除}<>
+          +item?:(from 7){\emph{純リテラル}：肯定または否定のみ出現するリテラル${l}があれば${l\equiv\top}としそのリテラルを含む節を削除（コスト面から\emph{実装しない}事が多い）}<>
+          +item?:(from 8){\emph{Decide}：他規則が適用できないならリテラルを一つ選び\emph{場合分け}}<
+            +item?:(from 9){真偽を仮決めし継続。失敗したら巻き戻し (\emph{Backtrack}) 否定で確定し継続}<>
+          >
+        >
+      >
     >
 
-    +frame({DPLL の動作例})(
+    +frame?:(9)({DPLL の動作例})(
       open DPLL in 
       let cnf = [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]] in
     '< 
-      +listing{
-        * ${\pretty-cnf!(cnf)} を DPLL で解いてみよう（\cite[`Zeljic:2019`];の例）。
-        * 今後は CNF しか出て来ないので、${\cnf!(cnf)}と略記する
-      }
+      +itemize<
+        +item{${\pretty-cnf!(cnf)} を DPLL で解いてみよう（\cite[`Zeljic:2019`];の例）。}<>
+        +item?:(from 2){今後は CNF しか出て来ないので、${\cnf!(cnf)}と略記する}<>
+      >
       +small<
-        +derive
+        +derive?:(3)
           [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]]
           [ ( dec 1
             , [ [ff (-1); pos 2]; [pos 3; pos 4]
@@ -445,9 +444,9 @@ document '<
     >);
 
 
-    +frame-nofooter({Backtrack しまくる DPLL の動作例})(open DPLL in '< 
+    +frame-nofooter?:(13)({Backtrack しまくる DPLL の動作例})(open DPLL in '< 
       +x-small<
-        +derive
+        +derive?:(1)
           [ [lit (-1); lit (-2); lit (-3); lit (-4); lit 5]
           ; [lit (-3); lit (-4); lit (-6)]
           ; [lit (-5); lit 6; lit (-1); lit 7]

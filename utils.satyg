@@ -13,6 +13,7 @@ module Utils : sig
   val biap : ('a -> 'b -> 'c) -> ('d -> 'e -> 'f) -> 'a * 'd -> 'b * 'e -> 'c * 'f
   val generate : int -> (int -> 'a) -> 'a list
   val concat-map: ('a -> 'b list) -> 'a list -> 'b list
+  val concat-mapi: (int -> 'a -> 'b list) -> 'a list -> 'b list
   val concat-maths: math list -> math
 end = struct
   open Algorithms
@@ -27,5 +28,6 @@ end = struct
         if i < n then f i :: generate-aux (i + 1) n f else []
   let generate i f = generate-aux 0 i f
   let concat-map f xs = List.concat (List.map f xs)
+  let concat-mapi f xs = List.concat (List.mapi f xs)
   let concat-maths = List.fold-left (fun x y -> ${#x#y}) ${}
 end
