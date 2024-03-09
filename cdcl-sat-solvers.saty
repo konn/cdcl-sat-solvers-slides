@@ -689,16 +689,60 @@ document '<
       >
     >
 
-    +frame{CDCL：含意グラフと学習節1 - カットと矛盾原因}<
-      +listing{
-        * 含意グラフを以下の二つの集合に\emph{カット}すると、矛盾への\emph{原因}が得られる
-          \enumerate{
-            * \emph{conflict side}: 直接矛盾した頂点をどちらも含む
-            * \emph{reason side}: 現在の場合分けの起点と以前の場合分け対象全部を含む
-          }
-        * このとき、\emph{reason side}のリテラルはconflict side の\emph{原因}になっている
-          ** 特に\emph{conflict sideに向かう辺を持つreason sideの頂点}があれば十分
-      }
+    +frame?:(5){CDCL：含意グラフと学習節1 - カットと矛盾原因}<
+      +itemize<
+        +item{含意グラフを以下の二つの集合に\emph{カット}すると、矛盾への\emph{原因}が得られる}<
+          +item?:(from 2){\emph{conflict side}: 直接矛盾した頂点をどちらも含む}<>
+          +item?:(from 3){\emph{reason side}: 現在の場合分けの起点と以前の場合分け対象全部を含む}<>
+        >
+        +item?:(from 4){このとき、\emph{reason side}のリテラルはconflict side の\emph{原因}になっている}<
+          +item?:(from 5){特に\emph{conflict sideに向かう辺を持つreason sideの頂点}があれば十分}<>
+        >
+      >
+      +vskip(15pt);
+      +centering(
+        let prev ctx = ctx 
+                |> fc Colors.black 
+                |> tc Colors.white
+        in let contra ctx = ctx 
+              |> fc Colors.red 
+              |> tc Colors.white
+        in  let cfg = (|default with 
+                    default-node-style = default-node-style |> circle |> padding 5pt;
+                    unit-length = 2cm;
+                  |) 
+        in {\x-small{
+              \tikzy?:(cfg)[
+                matrix
+                  [ [ node?:[named `3`; prev] {${3}}
+                    ; node?:[named`5`] {${5}}
+                    ; node?:[contra; named`6`] {${6}}; 
+                    ]
+                  ; [ node?:[named `1`; prev] {${1}}
+                    ; node?:[named `2`] {${2}}
+                    ; node?:[named `-6`; contra] {${\widebar{6}}}
+                    ]
+                  ]
+              ; arrow (east-of `5`) (west-of `6`)
+              ; arrow (east-of `1`) (west-of `2`)
+              ; arrow (north-east-of `2`) (south-west-of `6`)
+              ; arrow (east-of `2`) (west-of `-6`)
+              ; node-at?:[plain] (between (south-east-of `6`) (north-east-of `-6`))
+                {\xx-small{conflict side}}
+              ; node-at?:[plain] (between (south-west-of `3`) (north-west-of `1`))
+                {\xx-small{reason side}}
+              ; polyline
+                ?:[ phantom (SlydifiParam.get layer < 2)
+                  ; pc Colors.purple; lw 2pt
+                  ]
+                [ between (north-west-of `5`) (north-east-of `6`)
+                % ; between (south-west-of `5`) (south-east-of `2`)
+                % ; between  (south-east-of `3`) (north-east-of `5`)
+                ; between (south-east-of `1`) (south-west-of `2`)
+                ]
+              ];
+        }}
+      );
     >
 
     +frame-nofooter{Cutと学習節の例：多段Backtrackの例の序盤}<
