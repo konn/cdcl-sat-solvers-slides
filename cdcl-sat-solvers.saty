@@ -25,6 +25,7 @@
 @import: diagrams
 @import: dpll-machine
 
+let bw = SlydifiOverlay.between
 open LatexCmds
 open SlydifiOverlay
 open FigBox
@@ -110,7 +111,8 @@ let-block ctx +item ?:cond it blk =
       '< +phantom(cond)< +item{#it;}<#blk;> > >
     | None -> '<+item{#it;}<#blk;>>
   )
-
+let override-node-when cond names f =
+    select-from-two cond (override-node names f) Fn.id
 in 
 document '<
   +set-config(slydifi-cfg);
@@ -275,46 +277,61 @@ document '<
   >
 
   +section{|SATソルバの原理|}<
-    +frame{SATは「難しい」}<
-      +listing{
-        * 論理パズルの解法で見たように、すべての命題変数の有り得る真偽値の割り当てを\emph{総当たり}して、\emph{真理表}をつくれば原理的には解ける
-          ** これは命題変数の数を ${n} とすると \emph{${2^n} 通りの場合分けが必要}になる
-          ** もっと効率的な方法はないか？
-        * 実は\emph{「総当たりで解ける問題」は全て SAT に帰着できる}（${\SAT}は\emph{${\NP}-完全}である）ことが知られている
-          ** ${P \neq \NP} 予想が正しければ、\emph{本質的に効率的な解法は存在しない}
-        * 本質的に速くなくても\emph{実用的な問題に対し十分速い}手法が研究されている
-          ** 以下ではその中でも主流な\emph{CDCL 法}の原理を簡単に紹介（参考文献\cite[`Zeljic:2019`; `鍋島:2010`; `岩沼:2010`; `Torlak:2003`];）
-      }
+    +frame?:(7){SATは「難しい」}<
+      +itemize<
+        +item{論理パズルの解法で見たように、すべての命題変数の有り得る真偽値の割り当てを\emph{総当たり}して、\emph{真理表}をつくれば原理的には解ける}<
+          +item?:(from 2){これは命題変数の数を ${n} とすると \emph{${2^n} 通りの場合分けが必要}になる}<>
+          +item?:(from 3){もっと効率的な方法はないか？}<>
+        >
+        +item?:(from 4){実は\emph{「総当たりで解ける問題」は全て SAT に帰着できる}（${\SAT}は\emph{${\NP}-完全}である）ことが知られている}<
+          +item?:(from 5){${P \neq \NP} 予想が正しければ、\emph{本質的に効率的な解法は存在しない}}<>
+        >
+        +item?:(from 6){本質的に速くなくても\emph{実用的な問題に対し十分速い}手法が研究されている}<
+          +item?:(from 7){以下ではその中でも主流な\emph{CDCL 法}の原理を簡単に紹介（参考文献\cite[`Zeljic:2019`; `鍋島:2010`; `岩沼:2010`; `Torlak:2003`];）}<>
+        >
+      >
     >
 
-    +frame{連言標準形（CNF）}<
-      +listing{
-        * SAT ソルバは\emph{連言標準形} (CNF) と呼ばれる形の論理式を扱うことが多い
-      }
+    +frame-nofooter{連言標準形（CNF）}<
+      +itemize<
+        +item{SAT ソルバは\emph{連言標準形} (CNF) と呼ばれる形の論理式を扱うことが多い}<
+          +item{CNF: ${(P \lor \lnot Q \lor R) \land (Q \lor \lnot R) \land (R) \land (S \lor \lnot T)}みたいな論理式}<>
+        >
+      >
 
-      +defn{
+      +x-small<+defn{
         \enumerate{
-          * 命題変数${P_i}およびその否定${\lnot P_i}を合わせて\emph{リテラル}と呼ぶ。以下、リテラルを表すメタ変数を${l, l_i}などと書く。
+          * 命題変数${P_i}とその否定${\lnot P_i}を合わせて\emph{リテラル}と呼ぶ。以下、リテラルを表すメタ変数を${l, l_i}などと書く。
           * 0個以上のリテラルを「または」で繋いだもの ${l_1 \lor \ldots \lor l_k}を\emph{節}と呼ぶ。以下、節を表すメタ変数を${C, C_i}などと書く。
           * 0個以上の節を「かつ」で繋いだ${C_1 \land \ldots \land C_m}の形の論理式を\emph{連言標準形}（Conjunctive Normal Form, \emph{CNF}）と呼ぶ。
         }
 
         \emph{注意}：空の節は\emph{矛盾}に、空のCNFは\emph{恒真}に対応する。
-      }
+      }>
     >
 
-    +frame{任意の命題論理式はCNFで表せる}<
+    +frame-nofooter?:(10){任意の命題論理式はCNFで表せる}<
       +thm?:({命題論理式のCNFへの変換}){
         任意の命題論理式 ${\phi}は同値なCNF ${\phi_{\CNF}}を持つ。
       }
-      +listing{
-        * de Morgan 則と分配則を使って変換すればよいが、自乗のオーダーかかる
-        * 充足可能性だけを考えればよいのなら、結合子ごとに追加の命題変数${n_i}を導入し、各節のサイズが高々 ${3} のCNF（\emph{${3\text!{-}\CNF}}）に変換できる
-      }
+      +itemize<
+        +item?:(from 2){de Morgan 則と分配則を使って変換すればよいが、自乗のオーダーかかる}<>
+        +item?:(from 3){充足可能性だけを考えればよいのなら、結合子ごとに追加の命題変数${n_i}を導入し、各節のサイズが高々 ${3} のCNF（\emph{${3\text!{-}\CNF}}）に変換できる}<>
+      >
 
       +fig-on-right(
-        let diag = 
-              { \tikzy?:(|
+        let overrider ctx = 
+              ctx
+              |> override-node-when (bw 6 7) [`root`] 
+                  [fc Colors.red; tc Colors.white]
+              |> override-node-when (only 8) [`l`] 
+                  [fc Colors.red; tc Colors.white]
+              |> override-node-when (only 9) [`ld`] 
+                  [fc Colors.red; tc Colors.white]
+              |> override-node-when (only 10) [`r`] 
+                  [fc Colors.red; tc Colors.white]
+        in let diag = 
+              { \phantom(from 5){\tikzy?:(|
                   default with
                   default-node-style = 
                     (|default-node-style with padding=2pt|) 
@@ -323,7 +340,7 @@ document '<
                 |)
                 (
                 let label ctx = ctx |> plain |> distance 3pt |> style [set-font-size 10pt]
-                in 
+                in overrider
                 [ node-at?:[named `root`] (coord (0pt, 0pt)) {${\lor}}
                 ; node-at?:[label] (north-of `root`) {${n_0}}
                 ; node-at?:[named `l`] (south-west-of `root`) {${\lnot}}
@@ -339,21 +356,22 @@ document '<
                 ; arrow (south-west-of `ld`) (north-of `P`)
                 ; arrow (south-east-of `ld`) (north-of `Q`)
                 ]);
-              }
+              }}
         in textbox-with-width 6cm diag
       )<
-        +listing{
-          * 論理式 ${\lnot (P \land Q) \lor (R \land S)} のCNFへの変換例：
+        +itemize<
+          +item?:(from 4){論理式 ${\lnot (P \land Q) \lor (R \land S)} のCNFへの変換例：
 
-            \x-small{\align?:(AZMathEquation.notag)(${
-              | n_0 | \land (\lnot n_0 \lor n_1 \lor R) \land (\lnot n_1 \lor n_0) \land (\lnot R \lor n_0)
-              |     | \land (\lnot n_1 \lor \lnot n_2) \land (n_1 \lor n_2)
-              |     | \land (\lnot n_2 \lor P) \land (\lnot n_2 \lor Q) \land (\lnot P \lor \lnot Q \lor n_2)
+            \phantom(from 5){\x-small{\align?:(AZMathEquation.notag)(${
+              | \math-color?:!(only 6)!(Colors.red){n_0} 
+              | \land \math-color?:!(only 7)!(Colors.red){(\lnot n_0 \lor n_1 \lor R) \land (\lnot n_1 \lor n_0) \land (\lnot R \lor n_0)}
+              |     | \land \math-color?:!(only 8)!(Colors.red){(\lnot n_1 \lor \lnot n_2) \land (n_1 \lor n_2)}
+              |     | \land \math-color?:!(only 9)!(Colors.red){(\lnot n_2 \lor P) \land (\lnot n_2 \lor Q) \land (\lnot P \lor \lnot Q \lor n_2)}
               |});
-            }
-          
-          * \emph{演習問題}：他の結合子の変換規則を考えてみよう。
-        }
+            }}
+          }<>
+          +item?:(from 10){\emph{演習問題}：他の結合子の変換規則を考えてみよう。}<>
+        >
       >
     >
 
@@ -637,10 +655,10 @@ document '<
       +fig-on-right(
           let prev ctx = ctx 
                 |> fc Colors.black 
-                |> style [set-text-color Colors.white]
+                |> tc Colors.white
           in let contra ctx = ctx 
                 |> fc Colors.red 
-                |> style [set-text-color Colors.white]
+                |> tc Colors.white
           in  let cfg = (|default with 
                       default-node-style = default-node-style |> circle |> padding 5pt;
                       unit-length = 1.25cm;
@@ -704,7 +722,8 @@ document '<
           |)(
           let cut = fun xs -> xs |> pc Colors.purple |> lw 2pt in
           let cut-label = fun xs -> xs |> plain
-                |> style [set-text-color Colors.purple; set-font-size 15pt] in
+                |> tc Colors.purple
+                |> style [set-font-size 15pt] in
           List.append
           large-graph-nodes
           [ % Cut 1
@@ -838,29 +857,19 @@ document '<
                 |> distance 4pt
               ; unit-length = 0.75cm
               |)(
-                let n = SlydifiParam.get layer in
                 let overrider sty = sty
-                  |> override-node [`-12`; `12`] 
-                    (if n >= 3 then 
-                        [fc Colors.white
-                        ; style [set-text-color Colors.black]
-                        ]
-                    else []
-                    )
-                  |> override-node [`2`; `10`; `11`]
-                    (if 3 <= n && n <= 4 then 
-                        [fc Colors.yellow
-                        ; style [set-text-color Colors.black]
-                        ]
-                    else []
-                    )
-                  |> override-node [`2`; `10`]
-                    (if n >= 5 then 
-                        [fc Colors.orange
-                        ; style [set-text-color Colors.white]
-                        ]
-                    else []
-                    )
+                  |> override-node-when (until 2) [`-12`; `12`] 
+                      [ fc Colors.white
+                      ; tc Colors.black
+                      ]
+                  |> override-node-when (only 3) [`2`; `10`; `11`]
+                      [ fc Colors.yellow
+                      ; tc Colors.black
+                      ]
+                  |> override-node-when (from 4) [`2`; `10`]
+                      [ fc Colors.orange
+                      ; tc Colors.white
+                      ]
                 in overrider large-graph-nodes
               );
               }

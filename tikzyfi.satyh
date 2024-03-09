@@ -76,6 +76,8 @@ module TikZyFi : sig
   val empty: node
   val node: (node-style -> node-style) list ?-> inline-text -> node
   val pc: color -> path-style -> path-style
+  val tc: color -> 'a -> 'a 
+          constraint 'a :: (|style : context -> context|) 
   val lw: length -> path-style -> path-style
   val fc: color -> node-style -> node-style
   val lc: color -> node-style -> node-style
@@ -148,12 +150,13 @@ end = struct
   let fc c = fun x -> (| x with fill-color = c |)
   let lc c = fun x -> (| x with stroke-color = c |)
   let pc c = fun x -> (| x with stroke-color = c|)
+  let tc c = fun x -> (| x with style = fun ctx -> x#style ctx |> set-text-color c|)
   let lw l = fun x -> (| x with line-width = l|)
   let path-offset l = fun x -> (| x with path-offset = l|)
   let circle = fun x -> (| x with shape = Circle|)
   let rect = fun x -> (| x with shape = Rect|)
   let plain = fun x -> (| x with shape = Plain|)
-  let style xs = fun x -> (| x with style = Utils.apps xs |)
+  let style xs = fun x -> (| x with style = fun ctx -> Utils.apps xs (x#style ctx) |)
 
   let graphics-extent grs = 
     let ((min-x, min-y), (max-x, max-y)) = 

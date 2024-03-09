@@ -156,3 +156,12 @@ let-inline ctx \url url =
 let bib-size = 11pt
 let-block ctx +tighten b = 
   read-block (ctx |> set-min-gap-of-lines 0pt |> set-paragraph-margin 6pt 6pt) b
+let-math \math-color ?:dcf clr mt =
+  let dcf = Option.from (fun _ -> true) dcf in
+  SlydifiOverlay.select-from-two dcf
+    (text-in-math MathOrd (fun ctx -> (
+			read-inline (set-text-color clr ctx) {${#mt}}
+      ))
+    )
+    mt
+  
