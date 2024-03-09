@@ -909,15 +909,15 @@ document '<
               ; unit-length = 0.75cm
               |)(
                 let overrider sty = sty
-                  |> override-node-when (until 2) [`-12`; `12`] 
+                  |> override-node-when (from 3) [`-12`; `12`] 
                       [ fc Colors.white
                       ; tc Colors.black
                       ]
-                  |> override-node-when (only 3) [`2`; `10`; `11`]
+                  |> override-node-when (bw 3 4) [`2`; `10`; `11`]
                       [ fc Colors.yellow
                       ; tc Colors.black
                       ]
-                  |> override-node-when (from 4) [`2`; `10`]
+                  |> override-node-when (from 5) [`2`; `10`]
                       [ fc Colors.orange
                       ; tc Colors.white
                       ]
