@@ -841,22 +841,23 @@ document '<
       >);
     >
 
-    +frame{1-UIP学習節の生成と導出規則}<
-      +listing{
-        * 含意グラフは概念上でわかりやすいが、直接実装する必要はない
-          ** 矛盾節に\emph{導出}規則 (\emph{Resolution}) を単位節になるまで繰り返し適用すればよい
-      }
-      +thm?:({導出規則}){
+    +frame?:(5){1-UIP学習節の生成と導出規則}<
+      +itemize<
+        +item{含意グラフは概念上でわかりやすいが、直接実装する必要はない}<
+          +item?:(from 2){矛盾節に\emph{導出}規則 (\emph{Resolution}) を単位節になるまで繰り返し適用すればよい}<>
+        >
+      >
+      +phantom(from 3)<+thm?:({導出規則}){
         以下の導出規則は古典論理の派生規則：
 
         \eqn?:(AZMathEquation.notag)(
           ${\frac{c \lor \Phi, \mquad \lnot c \lor \Psi}{\Phi \lor \Psi}}
         );
-      }
-      +listing{
-        * 古典的に${c \lor \Phi}は${\lnot c \rightarrow \Phi}と、${\lnot c \lor \Psi}は${c \rightarrow \Psi}とそれぞれ同値
-        * 更に排中律があるので${c \lor \lnot c}が成り立つから、結局${\Phi \lor \Psi}が結論できる
-      }
+      }>
+      +itemize<
+        +item?:(from 4){古典的に${c \lor \Phi}は${\lnot c \rightarrow \Phi}と、${\lnot c \lor \Psi}は${c \rightarrow \Psi}とそれぞれ同値}<>
+        +item?:(from 5){更に排中律があるので${c \lor \lnot c}が成り立つから、結局${\Phi \lor \Psi}が結論できる}<>
+      >
     >
 
     +frame?:(6){導出の繰り返しで1-UIP学習節を作る}<
