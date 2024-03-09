@@ -1122,14 +1122,14 @@ document '<
       }
     >
     +frame-nofooter{参考文献}<
-      +font-style[font-size bib-size]<
+      +tighten<+font-style[font-size bib-size]<
         +makebibliography 
           ?:(|sort-references=true; 
               citestyle=CiteAsNumber;
               name-shrink=true;
             |)
           (bibyfi-theme)(bibs);
-      >
+      >>
     >
   >
 >

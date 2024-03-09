@@ -142,9 +142,17 @@ let haskell = default-code-printer
 
 let lang x = default-code-printer|> CodePrinter.set-syntax x 
 
-let bib-size = 10pt
 
 open CodePrinter
 
 let-inline ctx \url url = 
-  read-inline (ctx |> use-code-font |> set-font-size (get-font-size ctx *' 0.8)) {\href(url)(embed-string url);}
+  read-inline 
+    (ctx 
+      |> use-code-font 
+      |> set-font-size (get-font-size ctx *' 0.8)
+      |> set-min-gap-of-lines -12pt
+    ) 
+    {\href(url)(embed-string url);}
+let bib-size = 11pt
+let-block ctx +tighten b = 
+  read-block (ctx |> set-min-gap-of-lines 0pt |> set-paragraph-margin 6pt 6pt) b

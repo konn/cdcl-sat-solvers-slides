@@ -8,7 +8,14 @@ module Referenecs : sig
   val bibs: (string * bibyfi-item) list
 end = struct
   let-inline ctx \url url = 
-    read-inline (ctx |> use-code-font |> set-font-size (bib-size *' 0.8)) {\href(url)(embed-string url);} 
+    read-inline 
+      (ctx
+        |> use-code-font 
+        |> set-font-size (bib-size *' 0.8)
+        |> set-min-gap-of-lines -6pt
+        |> set-paragraph-margin 0pt 0pt
+      ) 
+      {\href(url)(embed-string url);} 
   let bibs =
   [ 
     (`Zeljic:2019`,
