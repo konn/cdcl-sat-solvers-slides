@@ -144,7 +144,7 @@ document '<
     >
 
     +frame{SATで解ける問題の例：論理パズル}<
-      +question?:({三人の島民 \cite[`Smullyan:2008`];}){
+      +question?:({三人の島民 \cite[`Smullyan:2008`];})?:(false){
         常に嘘だけをいう嘘吐きと、本当のことだけをいう正直者だけが住む島で、A, B, C三人の島民に出会った。彼らのいうことには：
 
         \listing{
@@ -162,8 +162,8 @@ document '<
         +item?:(from 2){情報を命題論理式に変換して${\eqrefm!(`q1-cond1`) \land \eqrefm!(`q1-cond2`)}を充足する解を求めればよい：
           
           \phantom(from 3){\align(${
-            | A | \longleftrightarrow B \land C \label!(`q1-cond1`)
-            | B | \longleftrightarrow \lnot A \land C \label!(`q1-cond2`)
+            | A | \longleftrightarrow B \land C \label?:!(`PA`)!(`q1-cond1`)
+            | B | \longleftrightarrow \lnot A \land C \label?:!(`PB`)!(`q1-cond2`)
             |
           });}
         }<>
@@ -210,7 +210,7 @@ document '<
       +itemize<
         +item?:(from 3){各マスには ${1, 2, 3, 4} のいずれかの数字一つを入れる。
               
-        \gather(${|
+        \gather?:(AZMathEquation.notag)(${|
          \bigwedge_{i \leq 4} \bigwedge_{j \leq 4} \pb{
            \p{P^{=1}_{ij} \vee P^{=2}_{ij} \vee P^{=3}_{ij} \vee P^{=4}_{ij}} \land
            \bigwedge_{k \leq 4} \bigwedge_{l \neq k} \paren{P^{=k}_{ij} \longrightarrow \lnot P^{=l}_{ij}}
@@ -224,7 +224,7 @@ document '<
         +item{各行、各列、各 ${2 \times 2} の小ブロックには各数字 ${1, \ldots, 4} が一つずつ入る。}<
           +item?:(from 2){「各行」は次のように書ける（「各列」も${i,j}の役割を入れ換え同様）：
 
-          \eqn(${
+          \eqn?:(AZMathEquation.notag)(${
           \bigwedge_{i \leq 4} \bigwedge_{k \leq 4} (P^{=k}_{i1} \vee P^{=k}_{i2} \vee P^{=k}_{i3} \vee P^{=k}_{i4})
           });
           }<>
@@ -239,11 +239,11 @@ document '<
       +itemize<
         +item{SATソルバは定理の自動証明にも使える}<>
       >
-      +phantom(from 2)<+thm?:({古典命題論理の完全性定理および健全性定理 (Gödel)}){
+      +phantom(from 2)<+thm?:({古典命題論理の完全性定理および健全性定理 (Gödel)})?:(false){
         任意の古典命題論理式 ${\phi} に対し、${\phi} がどんな真偽値の割り当てに対しても真であることと、${\phi} が証明可能であることは同値である。
       }>
 
-      +phantom(from 3)<+cor{
+      +phantom(from 3)<+cor?:({証明可能性の特徴付け})?:(false){
         任意の古典命題論理式 ${\phi} が証明可能である必要十分条件は、${\lnot \phi} が充足可能でないことである。
       }>
 
@@ -293,7 +293,7 @@ document '<
         >
       >
 
-      +x-small<+defn{
+      +x-small<+defn?:({CNFの定義})?:(false){
         \enumerate{
           * 命題変数${P_i}とその否定${\lnot P_i}を合わせて\emph{リテラル}と呼ぶ。以下、リテラルを表すメタ変数を${l, l_i}などと書く。
           * 0個以上のリテラルを「または」で繋いだもの ${l_1 \lor \ldots \lor l_k}を\emph{節}と呼ぶ。以下、節を表すメタ変数を${C, C_i}などと書く。
@@ -305,7 +305,7 @@ document '<
     >
 
     +frame-nofooter?:(10){任意の命題論理式はCNFで表せる}<
-      +thm?:({命題論理式のCNFへの変換}){
+      +thm?:({命題論理式のCNFへの変換})?:(false){
         任意の命題論理式 ${\phi}は同値なCNF ${\phi_{\CNF}}を持つ。
       }
       +itemize<
@@ -841,7 +841,7 @@ document '<
           +item?:(from 2){矛盾節に\emph{導出}規則 (\emph{Resolution}) を単位節になるまで繰り返し適用すればよい}<>
         >
       >
-      +phantom(from 3)<+thm?:({導出規則}){
+      +phantom(from 3)<+thm?:({導出規則})?:(false){
         以下の導出規則は古典論理の派生規則：
 
         \eqn?:(AZMathEquation.notag)(

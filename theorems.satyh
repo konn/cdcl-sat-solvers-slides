@@ -8,13 +8,16 @@ open Colorbox
 let-mutable theorem-number <- 0
 
 
-let make-theorem ctx header ?:title ?:tag ?:opts blk = 
-  let () = theorem-number <- !theorem-number + 1 in
-  let txt-header = header ^ arabic !theorem-number in
-  let () = match tag with
+let make-theorem ctx header ?:title ?:number ?:tag ?:opts blk = 
+  let number = Option.unwrap-or true number in
+  let () = if number then theorem-number <- !theorem-number + 1 else () in
+  let txt-header = if number then header ^ arabic !theorem-number else header in
+  let () = if number 
+      then match tag with
             | None -> ()
             | Some(tag) -> 
               register-cross-reference tag txt-header
+      else ()
   in
   let str-title = embed-string txt-header in
   let ib-title =
