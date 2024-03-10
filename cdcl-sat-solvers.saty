@@ -25,6 +25,7 @@
 @import: diagrams
 @import: dpll-machine
 
+let final = false
 let bw = SlydifiOverlay.between
 open LatexCmds
 open SlydifiOverlay
@@ -869,63 +870,65 @@ document '<
       +listing{
           * 学習節の導出の例：
       }
-      +phantom(from 2)<+fig-on-right(
-        let n = SlydifiParam.get layer in
-            textbox {
-              \small{
-                  \tikzy?:
-                    (|  default with 
-                        default-node-style = default-node-style |> padding 2pt
-                      ; path-offset = -7.5mm
-                      ; unit-length = 6mm
-                    |)(open DPLL in [
-                    matrix
-                      [ [node?:[named `-12`] {${\cnf![[lit (-2); lit (-10); lit (-12)]]}}]
-                      ; [ empty; empty; empty
-                        ; node?:[named `res-1`; phantom (n < 3)] {${\cnf![[lit (-2); lit (-10); lit (-11)]]}}
-                        ; node?:[lc slydifi-cfg#color-bg; rect; fc slydifi-cfg#color-bg
-                                ; padding 2pt; named `stop`; distance 2.5mm] {\hskip(2cm);}
-                        ; node?:[named `res-2`; phantom (n < 5)] {${\cnf![[lit (-2); lit (-10)]]}}
-                        ]
-                      ; [node?:[named `12`] {${\cnf![[lit (-11); lit 12]]}}]
-                      ]
-                  ; arrow?:[phantom (n < 3)] (east-of `-12`) (north-west-of `res-1`)
-                  ; arrow?:[phantom (n < 3)] (east-of  `12`) (south-west-of `res-1`)
-                  ; arrow?:[phantom (n < 4)] (east-of  `res-1`) (west-of `res-2`)
-                  ; node-at?:[phantom (n<4)] (north-of `stop`)
-                      {\x-small{${\cnf![[lit (-10); lit 11]]}}}
-                  ]);
-                      
-                }
-          })<
-            +xx-small<
-              +centering{\tikzy?:(|
-              large-graph-cfg
-              with
-              default-node-style =
-                large-graph-cfg#default-node-style
-                |> padding 3pt
-                |> distance 4pt
-              ; unit-length = 0.75cm
-              |)(
-                let overrider sty = sty
-                  |> override-node-when (from 3) [`-12`; `12`] 
-                      [ fc Colors.white
-                      ; tc Colors.black
-                      ]
-                  |> override-node-when (bw 3 4) [`2`; `10`; `11`]
-                      [ fc Colors.yellow
-                      ; tc Colors.black
-                      ]
-                  |> override-node-when (from 5) [`2`; `10`]
-                      [ fc Colors.orange
-                      ; tc Colors.white
-                      ]
-                in overrider large-graph-nodes
-              );
-              }
-            >
-          >>
+      +phantom(from 2)<
+        +fig-center(
+          hconcat
+          [ textbox {\xx-small{\tikzy?:(|
+            large-graph-cfg
+            with
+            default-node-style =
+              large-graph-cfg#default-node-style
+              |> padding 3pt
+              |> distance 4pt
+            ; unit-length = 0.75cm
+            |)(
+              let overrider sty = sty
+                |> override-node-when (from 3) [`-12`; `12`] 
+                    [ fc Colors.white
+                    ; tc Colors.black
+                    ]
+                |> override-node-when (bw 3 4) [`2`; `10`; `11`]
+                    [ fc Colors.yellow
+                    ; tc Colors.black
+                    ]
+                |> override-node-when (from 5) [`2`; `10`]
+                    [ fc Colors.orange
+                    ; tc Colors.white
+                    ]
+              in overrider large-graph-nodes
+            );
+            }}
+          ; gap 1cm
+          ; let n = SlydifiParam.get layer in
+          textbox {
+            \small{
+              \tikzy?:
+                (|  default with 
+                    default-node-style = default-node-style |> padding 2pt
+                  ; path-offset = -7.5mm
+                  ; unit-length = 6mm
+                |)(open DPLL in [
+                matrix
+                  [ [node?:[named `-12`] {${\cnf![[lit (-2); lit (-10); lit (-12)]]}}]
+                  ; [ empty; empty; empty
+                    ; node?:[named `res-1`; phantom (n < 3)] {${\cnf![[lit (-2); lit (-10); lit (-11)]]}}
+                    ; node?:[lc slydifi-cfg#color-bg; rect; fc slydifi-cfg#color-bg
+                            ; padding 2pt; named `stop`; distance 2.5mm] {\hskip(2cm);}
+                    ; node?:[named `res-2`; phantom (n < 5)] {${\cnf![[lit (-2); lit (-10)]]}}
+                    ]
+                  ; [node?:[named `12`] {${\cnf![[lit (-11); lit 12]]}}]
+                  ]
+              ; arrow?:[phantom (n < 3)] (east-of `-12`) (north-west-of `res-1`)
+              ; arrow?:[phantom (n < 3)] (east-of  `12`) (south-west-of `res-1`)
+              ; arrow?:[phantom (n < 4)] (east-of  `res-1`) (west-of `res-2`)
+              ; node-at?:[phantom (n<4)] (north-of `stop`)
+                  {\x-small{${\cnf![[lit (-10); lit 11]]}}}
+              ]);
+                  
+            }
+          }
+        ]
+      );>
       +phantom(from 6)<+listing{
         * 根拠となる節で導出を繰り返す事が、「原因」を手繰っていく事に対応
       }>
