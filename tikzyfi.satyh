@@ -558,8 +558,8 @@ end = struct
     let src-pt = get-dir-of cfg#path-offset node-dic raw#start
     in let pts = List.map (get-dir-of cfg#path-offset node-dic) raw#points
     in let style = raw#style cfg#default-path-style
-    in let wrap = if style#phantom then List.map phantom-gr else Fn.id
-    in stroke style#line-width style#stroke-color (poly-line src-pt pts)
+    in let wrap = if style#phantom then phantom-gr else Fn.id
+    in wrap (stroke style#line-width style#stroke-color (poly-line src-pt pts))
 
   let extend-spline p0 p1 p2 p3 =
       let v0 = add-pt (scale-pt (sub-pt p2 p0) (1.0 /. 6.0)) p1 in

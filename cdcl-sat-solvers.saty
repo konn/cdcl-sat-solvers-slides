@@ -36,6 +36,8 @@ open EasyTableAlias
 open TikZyFi
 
 let math-int i = math-char MathInner (arabic i)
+type 'a phantomer = 'a -> 'a constraint 'a :: (|phantom: bool|)
+let phantom: 'a phantomer = fun dcf -> phantom (select-from-two dcf true false)
 let-math \dec lit = ${#lit^\mathrm{d}}
 let-math \Dec lit = ${\mathop{\mathrm{Decide}} #lit}
 let-math \UP lit = ${\mathop{\mathrm{UnitProp}} #lit}
@@ -690,18 +692,18 @@ document '<
       >
     >
 
-    +frame?:(6){CDCL：含意グラフと学習節1 - カットと矛盾原因}<
+    +frame?:(7){CDCL：含意グラフと学習節1 - カットと矛盾原因}<
       +itemize<
         +item{含意グラフを\emph{conflict side}と\emph{reason side}の二つの集合に\emph{カット}すると、矛盾への\emph{原因}が得られる}<
-          +item?:(from 2){直接矛盾した頂点は必ず\emph{conflict side}に入れる}<>
-          +item?:(from 3){現在の場合分けの起点以前のものは全て\emph{reason side}に入れる}<>
-          +item?:(from 4){それ以外のリテラルはどちらに割り当ててもいい}<>
+          +item?:(from 3){直接矛盾した頂点は必ず\emph{conflict side}に入れる}<>
+          +item?:(from 4){現在の場合分けの起点以前のものは全て\emph{reason side}に入れる}<>
+          +item?:(from 5){それ以外のリテラルはどちらに割り当ててもいい}<>
         >
-        +item?:(from 5){このとき、\emph{reason side}のリテラルはconflict side の\emph{原因}になっている}<
-          +item?:(from 6){特に\emph{conflict sideに向かう辺を持つreason sideの頂点}があれば十分}<>
+        +item?:(from 6){このとき、\emph{reason side}のリテラルはconflict side の\emph{原因}になっている}<
+          +item?:(from 7){特に\emph{conflict sideに向かう辺を持つreason sideの頂点}があれば十分}<>
         >
       >
-      +centering(
+      +fig-center(
         let prev ctx = ctx 
                 |> fc Colors.black 
                 |> tc Colors.white
@@ -712,7 +714,7 @@ document '<
                     default-node-style = default-node-style |> circle |> padding 5pt;
                     unit-length = 2cm;
                   |) 
-        in {\x-small{
+        in textbox {\x-small{
               \tikzy?:(cfg)[
                 matrix
                   [ [ node?:[named `3`; prev] {${3}}
@@ -733,8 +735,8 @@ document '<
               ; node-at?:[plain] (between (south-west-of `3`) (north-west-of `1`))
                 {\xx-small{reason side}}
               ; polyline
-                ?:[ phantom (SlydifiParam.get layer < 2)
-                  ; pc Colors.purple; lw 2pt
+                ?:[ pc Colors.purple; lw 2pt
+                  ; phantom (until 1)
                   ]
                 [ between (north-west-of `5`) (north-east-of `6`)
                 ; between (south-east-of `1`) (south-west-of `2`)
@@ -899,8 +901,7 @@ document '<
             );
             }}
           ; gap 1cm
-          ; let n = SlydifiParam.get layer in
-          textbox {
+          ; textbox {
             \small{
               \tikzy?:
                 (|  default with 
@@ -911,17 +912,17 @@ document '<
                 matrix
                   [ [node?:[named `-12`] {${\cnf![[lit (-2); lit (-10); lit (-12)]]}}]
                   ; [ empty; empty; empty
-                    ; node?:[named `res-1`; phantom (n < 3)] {${\cnf![[lit (-2); lit (-10); lit (-11)]]}}
+                    ; node?:[named `res-1`; phantom (until 2)] {${\cnf![[lit (-2); lit (-10); lit (-11)]]}}
                     ; node?:[lc slydifi-cfg#color-bg; rect; fc slydifi-cfg#color-bg
                             ; padding 2pt; named `stop`; distance 2.5mm] {\hskip(2cm);}
-                    ; node?:[named `res-2`; phantom (n < 5)] {${\cnf![[lit (-2); lit (-10)]]}}
+                    ; node?:[named `res-2`; phantom (until 4)] {${\cnf![[lit (-2); lit (-10)]]}}
                     ]
                   ; [node?:[named `12`] {${\cnf![[lit (-11); lit 12]]}}]
                   ]
-              ; arrow?:[phantom (n < 3)] (east-of `-12`) (north-west-of `res-1`)
-              ; arrow?:[phantom (n < 3)] (east-of  `12`) (south-west-of `res-1`)
-              ; arrow?:[phantom (n < 4)] (east-of  `res-1`) (west-of `res-2`)
-              ; node-at?:[phantom (n<4)] (north-of `stop`)
+              ; arrow?:[phantom (until 2)] (east-of `-12`) (north-west-of `res-1`)
+              ; arrow?:[phantom (until 2)] (east-of  `12`) (south-west-of `res-1`)
+              ; arrow?:[phantom (until 3)] (east-of  `res-1`) (west-of `res-2`)
+              ; node-at?:[phantom (until 2)] (north-of `stop`)
                   {\x-small{${\cnf![[lit (-10); lit 11]]}}}
               ]);
                   
