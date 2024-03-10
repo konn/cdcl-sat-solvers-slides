@@ -25,7 +25,6 @@
 @import: diagrams
 @import: dpll-machine
 
-let final = false
 let bw = SlydifiOverlay.between
 open LatexCmds
 open SlydifiOverlay
@@ -120,24 +119,16 @@ in
 document '<
   +set-config(slydifi-cfg);
   +make-title(|
-    title = {|充足可能性ソルバ（SATソルバ）の原理|};
+    title = {|充足可能性ソルバ (SATソルバ) の原理|};
     author = {|Hiromi ISHII|};
-    date = {|2024-03-10|Tsukuba Computer Mathematics Seminar 2024|};
+    date = {
+      |2024-03-10
+      |Tsukuba Computer Mathematics Seminar 2024
+      |\small{Slides available on \url(`https://konn-san.com/math/cdcl-sat-solvers.pdf`);}
+      |};
   |);
 
-  +section{|自己紹介|}<
-    +frame?:(5){自己紹介}<
-      +itemize<
-        +item{\ruby[`いし`; `い`; `ひろ`; `み`]{|石|井|大|海|}}<>
-        +item?:(from 2){2018年度 筑波大学数学専攻博士後期課程修了（照井研）}<>
-        +item?:(from 3){計算機合宿には2014年から参加}<>
-        +item?:(from 4){現職：Haskell製大規模数値計算ベンチャー研究開発職}<>
-        +item?:(from 5){宣伝：今年 05/11, 12 に横浜でお芝居をするので興味のある方は是非観にきてください}<>
-      >
-    >
-  >
-
-  +section{|充足可能性ソルバ（SATソルバ）の原理|}<
+  +section{|充足可能性ソルバ (SATソルバ) の原理|}<
     +frame?:(6){本日の話題：充足可能性問題とSATソルバ}<
       +itemize<
         +item{\emph{充足可能性問題}：与えられた\emph{命題論理式}が\emph{（古典的に）充足可能}かどうかを判定する問題}<
