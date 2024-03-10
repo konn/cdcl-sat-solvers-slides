@@ -129,17 +129,17 @@ document '<
   |);
 
   +section{|充足可能性ソルバ (SATソルバ) の原理|}<
-    +frame?:(6){本日の話題：充足可能性問題とSATソルバ}<
+    +frame{本日の話題：充足可能性問題とSATソルバ}<
       +itemize<
         +item{\emph{充足可能性問題}：与えられた\emph{命題論理式}が\emph{（古典的に）充足可能}かどうかを判定する問題}<
-          +item?:(from 2){\emph{古典命題論理式}：\emph{命題変数}${P_1, \ldots, Q_1, \ldots,} を${\land}（かつ）、${\lor}（または）、${\to}（ならば）、${¬}（でない）で結んで得られる論理式}<>
-          +item?:(from 3){\emph{古典的充足可能性}: 与えられた式を真とするような、命題変数への真偽値${\circ}（真）または${\times}（偽）の割り当てが存在するか？}<>
+          +item{\emph{古典命題論理式}：\emph{命題変数}${P_1, \ldots, Q_1, \ldots,} を${\land}（かつ）、${\lor}（または）、${\to}（ならば）、${¬}（でない）で結んで得られる論理式}<>
+          +item{\emph{古典的充足可能性}: 与えられた式を真とするような、命題変数への真偽値${\circ}（真）または${\times}（偽）の割り当てが存在するか？}<>
         >
-        +item?:(from 4){充足可能性（\emph{SAT}isfiability）を略して SAT と呼ぶ。}<>
-        +item?:(from 5){\emph{NP-完全}：総当たりで解けるような任意の問題が SAT に帰着できる}<
+        +item{充足可能性（\emph{SAT}isfiability）を略して SAT と呼ぶ。}<>
+        +item{\emph{NP-完全}：総当たりで解けるような任意の問題が SAT に帰着できる}<
           +item{本来 ${\SAT} は判定問題だが、具体的な求解まで含めて${\SAT}と呼ぶ事が多い}<>
         >
-        +item?:(from 6){色々な問題が SAT （やその拡張である SMTソルバ）で解け、実用上も重要}<>
+        +item{色々な問題が SAT （やその拡張である SMTソルバ）で解け、実用上も重要}<>
       >
     >
 
@@ -156,22 +156,22 @@ document '<
       }
     >
 
-    +frame?:(5){三人の島民：回答}<
+    +frame{三人の島民：回答}<
       +itemize<
         +item{${A, B, C}を「Aが正直者」「Bが正直者」「Cが正直者」を表す命題変数とする}<>
-        +item?:(from 2){情報を命題論理式に変換して${\eqrefm!(`q1-cond1`) \land \eqrefm!(`q1-cond2`)}を充足する解を求めればよい：
+        +item{情報を命題論理式に変換して${\eqrefm!(`q1-cond1`) \land \eqrefm!(`q1-cond2`)}を充足する解を求めればよい：
           
-          \phantom(from 3){\align(${
+          \align(${
             | A | \longleftrightarrow B \land C \label?:!(`PA`)!(`q1-cond1`)
             | B | \longleftrightarrow \lnot A \land C \label?:!(`PB`)!(`q1-cond2`)
             |
-          });}
+          });
         }<>
-        +item?:(from 4){真理表を書いてみると、\emph{全員嘘吐き}だとわかる。}<>
+        +item{真理表を書いてみると、\emph{全員嘘吐き}だとわかる。}<>
       >
 
 
-      +phantom(from 5)< +x-small< +centering(
+      +x-small< +centering(
         let show p = if p then {${\circ}} else {${\times}} in
         let iff p q = (p && q) || ((not p) && (not q)) in
         let mkRow a b c = 
@@ -197,18 +197,18 @@ document '<
         \quad;
         \easytable?:[t; b; m 1; bg-r (Color.rgb 0.4 1.0 0.6) 4 5][c;c;c;c;c;c]
           (mkTable [false] [true; false] [true; false]);
-      });> >
+      });>
     >
 
-    +frame?:(3){SATで解ける問題の例：数独}<
+    +frame{SATで解ける問題の例：数独}<
       +fig-on-right(from-graphics-given-context (150pt, 150pt) sudoku)<
         +itemize<
           +item{簡単な例として、 ${4 \times 4} の小さな数独の問題を SAT で解くことを考える。}<>
-          +item?:(from 2){${i, j, k \leq 4} に対し命題変数 ${P^{=k}_{ij}} を用意する（${d_{ij} = k} というきもち）。}<>
+          +item{${i, j, k \leq 4} に対し命題変数 ${P^{=k}_{ij}} を用意する（${d_{ij} = k} というきもち）。}<>
         >
       >
       +itemize<
-        +item?:(from 3){各マスには ${1, 2, 3, 4} のいずれかの数字一つを入れる。
+        +item{各マスには ${1, 2, 3, 4} のいずれかの数字一つを入れる。
               
         \gather?:(AZMathEquation.notag)(${|
          \bigwedge_{i \leq 4} \bigwedge_{j \leq 4} \pb{
@@ -219,69 +219,69 @@ document '<
       >
     >
 
-    +frame?:(5){SATで解ける問題の例：数独（続）}<
+    +frame{SATで解ける問題の例：数独（続）}<
       +itemize<
         +item{各行、各列、各 ${2 \times 2} の小ブロックには各数字 ${1, \ldots, 4} が一つずつ入る。}<
-          +item?:(from 2){「各行」は次のように書ける（「各列」も${i,j}の役割を入れ換え同様）：
+          +item{「各行」は次のように書ける（「各列」も${i,j}の役割を入れ換え同様）：
 
           \eqn?:(AZMathEquation.notag)(${
           \bigwedge_{i \leq 4} \bigwedge_{k \leq 4} (P^{=k}_{i1} \vee P^{=k}_{i2} \vee P^{=k}_{i3} \vee P^{=k}_{i4})
           });
           }<>
-          +item?:(from 3){\emph{演習問題}：「一意性」の条件が要らない理由を考えてみよう。}<>
-          +item?:(from 4){\emph{演習問題}：「各ブロック」の条件を書き下してみよう。}<>
+          +item{\emph{演習問題}：「一意性」の条件が要らない理由を考えてみよう。}<>
+          +item{\emph{演習問題}：「各ブロック」の条件を書き下してみよう。}<>
         >
-        +item?:(from 5){あとは盤面の情報を${P_{ij}^{=k}}のandで与えれば個別の問題を解ける！}<>
+        +item{あとは盤面の情報を${P_{ij}^{=k}}のandで与えれば個別の問題を解ける！}<>
       >
     >
 
-    +frame?:(4){SATで解ける問題の例：命題論理の定理自動証明}<
+    +frame{SATで解ける問題の例：命題論理の定理自動証明}<
       +itemize<
         +item{SATソルバは定理の自動証明にも使える}<>
       >
-      +phantom(from 2)<+thm?:({古典命題論理の完全性定理および健全性定理 (Gödel)})?:(false){
+      +thm?:({古典命題論理の完全性定理および健全性定理 (Gödel)})?:(false){
         任意の古典命題論理式 ${\phi} に対し、${\phi} がどんな真偽値の割り当てに対しても真であることと、${\phi} が証明可能であることは同値である。
-      }>
+      }
 
-      +phantom(from 3)<+cor?:({証明可能性の特徴付け})?:(false){
+      +cor?:({証明可能性の特徴付け})?:(false){
         任意の古典命題論理式 ${\phi} が証明可能である必要十分条件は、${\lnot \phi} が充足可能でないことである。
-      }>
+      }
 
       +itemize<
-        +item?:(from 4){${\lnot \phi} が充足可能でない事がわかれば、${\phi} が証明できたことになる！}<>
+        +item{${\lnot \phi} が充足可能でない事がわかれば、${\phi} が証明できたことになる！}<>
       >
     >
 
-    +frame?:(9){SATで解ける問題の例：SMTソルバへ}<
+    +frame{SATで解ける問題の例：SMTソルバへ}<
       +itemize<
         +item{SATだけでも強力だが、更に\emph{述語論理}（${\forall}とか${\exists}とかを入れたやつ）に拡張した \emph{SMT （SAT Modulo Theories）ソルバ}の研究も盛んに行われている}<
-          +item?:(from 2){代表的なソルバ：Z3, CvC5, etc.}<>
+          +item{代表的なソルバ：Z3, CvC5, etc.}<>
         >
-        +item?:(from 3){SMT で扱える理論の例：線型計画法、整数計画問題、同値関係、配列、etc.}<
-          +item?:(from 4){数独なんかは配列の理論とかを使ったほうが綺麗}<>
-          +item?:(from 5){\emph{工学的}にもこれらはかなり重要}<>
-          +item?:(from 6){定理証明系で人間が手で書きたくない補題の自動証明にも使える}<>
+        +item{SMT で扱える理論の例：線型計画法、整数計画問題、同値関係、配列、etc.}<
+          +item{数独なんかは配列の理論とかを使ったほうが綺麗}<>
+          +item{\emph{工学的}にもこれらはかなり重要}<>
+          +item{定理証明系で人間が手で書きたくない補題の自動証明にも使える}<>
         >
-        +item?:(from 7){SMT は SAT ソルバを外部の理論ソルバと協業させこれらの問題を解く}<
-          +item?:(from 8){\emph{SAT を如何に速く解くか}が SMT の実装にも重要}<>
+        +item{SMT は SAT ソルバを外部の理論ソルバと協業させこれらの問題を解く}<
+          +item{\emph{SAT を如何に速く解くか}が SMT の実装にも重要}<>
         >
-        +item?:(from 9){Disclaimer: 今回は SMT の話はしません}<>
+        +item{Disclaimer: 今回は SMT の話はしません}<>
       >
     >
   >
 
   +section{|SATソルバの原理|}<
-    +frame?:(7){SATは「難しい」}<
+    +frame{SATは「難しい」}<
       +itemize<
         +item{論理パズルの解法で見たように、すべての命題変数の有り得る真偽値の割り当てを\emph{総当たり}して、\emph{真理表}をつくれば原理的には解ける}<
-          +item?:(from 2){これは命題変数の数を ${n} とすると \emph{${2^n} 通りの場合分けが必要}になる}<>
-          +item?:(from 3){もっと効率的な方法はないか？}<>
+          +item{これは命題変数の数を ${n} とすると \emph{${2^n} 通りの場合分けが必要}になる}<>
+          +item{もっと効率的な方法はないか？}<>
         >
-        +item?:(from 4){実は\emph{「総当たりで解ける問題」は全て SAT に帰着できる}（${\SAT}は\emph{${\NP}-完全}である）ことが知られている}<
-          +item?:(from 5){${P \neq \NP} 予想が正しければ、\emph{本質的に効率的な解法は存在しない}}<>
+        +item{実は\emph{「総当たりで解ける問題」は全て SAT に帰着できる}（${\SAT}は\emph{${\NP}-完全}である）ことが知られている}<
+          +item{${P \neq \NP} 予想が正しければ、\emph{本質的に効率的な解法は存在しない}}<>
         >
-        +item?:(from 6){本質的に速くなくても\emph{実用的な問題に対し十分速い}手法が研究されている}<
-          +item?:(from 7){以下ではその中でも主流な\emph{CDCL 法}の原理を簡単に紹介（参考文献\cite[`Zeljic:2019`; `鍋島:2010`; `岩沼:2010`; `Torlak:2003`];）}<>
+        +item{本質的に速くなくても\emph{実用的な問題に対し十分速い}手法が研究されている}<
+          +item{以下ではその中でも主流な\emph{CDCL 法}の原理を簡単に紹介（参考文献\cite[`Zeljic:2019`; `鍋島:2010`; `岩沼:2010`; `Torlak:2003`];）}<>
         >
       >
     >
@@ -304,28 +304,28 @@ document '<
       }>
     >
 
-    +frame-nofooter?:(10){任意の命題論理式はCNFで表せる}<
+    +frame-nofooter?:(7){任意の命題論理式はCNFで表せる}<
       +thm?:({命題論理式のCNFへの変換})?:(false){
         任意の命題論理式 ${\phi}は同値なCNF ${\phi_{\CNF}}を持つ。
       }
       +itemize<
-        +item?:(from 2){de Morgan 則と分配則を使って変換すればよいが、自乗のオーダーかかる}<>
-        +item?:(from 3){充足可能性だけを考えればよいのなら、結合子ごとに追加の命題変数${n_i}を導入し、各節のサイズが高々 ${3} のCNF（\emph{${3\text!{-}\CNF}}）に変換できる}<>
+        +item{de Morgan 則と分配則を使って変換すればよいが、自乗のオーダーかかる}<>
+        +item{充足可能性だけを考えればよいのなら、結合子ごとに追加の命題変数${n_i}を導入し、各節のサイズが高々 ${3} のCNF（\emph{${3\text!{-}\CNF}}）に変換できる}<>
       >
 
       +fig-on-right(
         let overrider ctx = 
               ctx
-              |> override-node-when (bw 6 7) [`root`] 
+              |> override-node-when (bw 3 4) [`root`] 
                   [fc Colors.red; tc Colors.white]
-              |> override-node-when (only 8) [`l`] 
+              |> override-node-when (only 5) [`l`] 
                   [fc Colors.red; tc Colors.white]
-              |> override-node-when (only 9) [`ld`] 
+              |> override-node-when (only 6) [`ld`] 
                   [fc Colors.red; tc Colors.white]
-              |> override-node-when (only 10) [`r`] 
+              |> override-node-when (only 7) [`r`] 
                   [fc Colors.red; tc Colors.white]
         in let diag = 
-              { \phantom(from 5){\tikzy?:(|
+              { \phantom(from 2){\tikzy?:(|
                   default with
                   default-node-style = 
                     (|default-node-style with padding=2pt|) 
@@ -354,48 +354,48 @@ document '<
         in textbox-with-width 6cm diag
       )<
         +itemize<
-          +item?:(from 4){論理式 ${\lnot (P \land Q) \lor (R \land S)} のCNFへの変換例：
+          +item?:(from 1){論理式 ${\lnot (P \land Q) \lor (R \land S)} のCNFへの変換例：
 
-            \phantom(from 5){\x-small{\align?:(AZMathEquation.notag)(${
-              | \math-color?:!(only 6)!(Colors.red){n_0} 
-              | \land \math-color?:!(only 7)!(Colors.red){(\lnot n_0 \lor n_1 \lor R) \land (\lnot n_1 \lor n_0) \land (\lnot R \lor n_0)}
-              |     | \land \math-color?:!(only 8)!(Colors.red){(\lnot n_1 \lor \lnot n_2) \land (n_1 \lor n_2)}
-              |     | \land \math-color?:!(only 9)!(Colors.red){(\lnot n_2 \lor P) \land (\lnot n_2 \lor Q) \land (\lnot P \lor \lnot Q \lor n_2)}
+            \phantom(from 2){\x-small{\align?:(AZMathEquation.notag)(${
+              | \math-color?:!(only 3)!(Colors.red){n_0} 
+              | \land \math-color?:!(only 4)!(Colors.red){(\lnot n_0 \lor n_1 \lor R) \land (\lnot n_1 \lor n_0) \land (\lnot R \lor n_0)}
+              |     | \land \math-color?:!(only 5)!(Colors.red){(\lnot n_1 \lor \lnot n_2) \land (n_1 \lor n_2)}
+              |     | \land \math-color?:!(only 6)!(Colors.red){(\lnot n_2 \lor P) \land (\lnot n_2 \lor Q) \land (\lnot P \lor \lnot Q \lor n_2)}
               |});
             }}
           }<>
-          +item?:(from 10){\emph{演習問題}：他の結合子の変換規則を考えてみよう。}<>
+          +item?:(from 7){\emph{演習問題}：他の結合子の変換規則を考えてみよう。}<>
         >
       >
     >
 
-    +frame-nofooter?:(9){DPLL: CDCL の祖先}<
+    +frame-nofooter{DPLL: CDCL の祖先}<
       +itemize<
         +item{CDCLの基礎はDavis–Putnam–Logemann–Loveland (\emph{DPLL})アルゴリズム}<>
-        +item?:(from 2){基本的な考え方：CNFの節やリテラルを\emph{削れるまで削ってから}場合分け}<
-          +item?:(from 3){充足された節は削除できる→節が一つもなくなれば充足可能！}<>
-          +item?:(from 4){偽なリテラルがあれば、節から削除できる→空な節ができたら充足不能！}<>
+        +item{基本的な考え方：CNFの節やリテラルを\emph{削れるまで削ってから}場合分け}<
+          +item{充足された節は削除できる→節が一つもなくなれば充足可能！}<>
+          +item{偽なリテラルがあれば、節から削除できる→空な節ができたら充足不能！}<>
         >
-        +item?:(from 5){以下の規則に従ってCNFを変形する：}<
-          +item?:(from 6){\emph{単位節伝播}：リテラル一つだけの節${\pb{l}}があれば${l\equiv\top}とし${\lnot l}を削除}<>
-          +item?:(from 7){\emph{純リテラル}：肯定または否定のみ出現するリテラル${l}があれば${l\equiv\top}としそのリテラルを含む節を削除（コスト面から\emph{実装しない}事が多い）}<>
-          +item?:(from 8){\emph{Decide}：他規則が適用できないならリテラルを一つ選び\emph{場合分け}}<
-            +item?:(from 9){真偽を仮決めし継続。失敗したら巻き戻し (\emph{Backtrack}) 否定で確定し継続}<>
+        +item{以下の規則に従ってCNFを変形する：}<
+          +item{\emph{単位節伝播}：リテラル一つだけの節${\pb{l}}があれば${l\equiv\top}とし${\lnot l}を削除}<>
+          +item{\emph{純リテラル}：肯定または否定のみ出現するリテラル${l}があれば${l\equiv\top}としそのリテラルを含む節を削除（コスト面から\emph{実装しない}事が多い）}<>
+          +item{\emph{Decide}：他規則が適用できないならリテラルを一つ選び\emph{場合分け}}<
+            +item{真偽を仮決めし継続。失敗したら巻き戻し (\emph{Backtrack}) 否定で確定し継続}<>
           >
         >
       >
     >
 
-    +frame?:(9)({DPLL の動作例})(
+    +frame?:(7)({DPLL の動作例})(
       open DPLL in 
       let cnf = [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]] in
     '< 
       +itemize<
         +item{${\pretty-cnf!(cnf)} を DPLL で解いてみよう（\cite[`Zeljic:2019`];の例）。}<>
-        +item?:(from 2){今後は CNF しか出て来ないので、${\cnf!(cnf)}と略記する}<>
+        +item{今後は CNF しか出て来ないので、${\cnf!(cnf)}と略記する}<>
       >
       +small<
-        +derive?:(3)
+        +derive?:(2)
           [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]]
           [ ( dec 1
             , [ [ff (-1); pos 2]; [pos 3; pos 4]
@@ -438,9 +438,9 @@ document '<
     >);
 
 
-    +frame-nofooter?:(13)({Backtrack しまくる DPLL の動作例})(open DPLL in '< 
+    +frame-nofooter({Backtrack しまくる DPLL の動作例})(open DPLL in '< 
       +x-small<
-        +derive?:(1)
+        +derive
           [ [lit (-1); lit (-2); lit (-3); lit (-4); lit 5]
           ; [lit (-3); lit (-4); lit (-6)]
           ; [lit (-5); lit 6; lit (-1); lit 7]
@@ -611,46 +611,46 @@ document '<
       >
     >);
 
-    +frame?:(6){CDCL: Conflict-Driven Clause Learning}<
+    +frame{CDCL: Conflict-Driven Clause Learning}<
       +itemize<
         +item{単純総当たりよりDPLLは賢いが、Backtrack で得られる情報が少ない}<
-          +item?:(from 2){折角 Backtrack でいったん真偽値が確定しても、更に Backtrack すればその情報は消えてしまう}<>
+          +item{折角 Backtrack でいったん真偽値が確定しても、更に Backtrack すればその情報は消えてしまう}<>
         >
-        +item?:(from 3){Backtrack は一段階ずつしか戻らない}<
-          +item?:(from 4){\emph{場合分けが入れ子}になっている場合、実は直近の場合分けより\emph{もっと早くに}矛盾が起きていても延々と\emph{一段階ずつ} Backtrack してしまう}<>
+        +item{Backtrack は一段階ずつしか戻らない}<
+          +item{\emph{場合分けが入れ子}になっている場合、実は直近の場合分けより\emph{もっと早くに}矛盾が起きていても延々と\emph{一段階ずつ} Backtrack してしまう}<>
         >
-        +item?:(from 5){矛盾からに過程を辿っていって矛盾の原因となった「理由」を見付け。\emph{学習節}としてCNFに追加してそこまで\emph{一気に巻き戻そう} (\emph{Backjump})！}<
-          +item?:(from 6){これが\emph{矛盾からの節学習}(Conflict-Driven Clause Learning, \emph{CDCL})}<>
+        +item{矛盾からに過程を辿っていって矛盾の原因となった「理由」を見付け。\emph{学習節}としてCNFに追加してそこまで\emph{一気に巻き戻そう} (\emph{Backjump})！}<
+          +item{これが\emph{矛盾からの節学習}(Conflict-Driven Clause Learning, \emph{CDCL})}<>
         >
       >
     >
 
-    +frame?:(9){CDCL: どういう学習節が望ましいか？}<
+    +frame{CDCL: どういう学習節が望ましいか？}<
       +itemize<
         +item{学習節が\emph{元々の入力の帰結}であること}<
-          +item?:(from 2){任意のタイミングで Backjump が起き得る}<>
-          +item?:(from 3){いつでも使えるように、仮定が本質的には増えていてはならない}<>
+          +item{任意のタイミングで Backjump が起き得る}<>
+          +item{いつでも使えるように、仮定が本質的には増えていてはならない}<>
         >
-        +item?:(from 4){「\emph{すぐに使える}」学習節であること}<
-          +item?:(from 5){Backjump した直後に、\emph{新しい情報}が得られないと意味がない}<>
-          +item?:(from 6){特に、\emph{巻き戻した段階で単位節になっている}ようにしたい}<>
+        +item{「\emph{すぐに使える}」学習節であること}<
+          +item{Backjump した直後に、\emph{新しい情報}が得られないと意味がない}<>
+          +item{特に、\emph{巻き戻した段階で単位節になっている}ようにしたい}<>
         >
-        +item?:(from 7){なるべく\emph{小さい}ほうがよい}<
-          +item?:(from 8){単位節や矛盾が比較的すぐ出るようにしたい}<>
+        +item{なるべく\emph{小さい}ほうがよい}<
+          +item{単位節や矛盾が比較的すぐ出るようにしたい}<>
         >
-        +item?:(from 9){\emph{含意グラフ}を考えるとこれらを満たす学習節を得られる}<>
+        +item{\emph{含意グラフ}を考えるとこれらを満たす学習節を得られる}<>
       >
     >
 
-    +frame?:(7){CDCL：\emph{含意グラフ}}<
+    +frame{CDCL：\emph{含意グラフ}}<
       +itemize<
         +item{これまでに\emph{真偽を割り当てたリテラルを頂点}として持つ有向グラフ}<>
-        +item?:(from 2){単位伝播で真になったリテラルへ、\emph{根拠となったリテラルから辺}を伸ばす}<
-          +item?:(from 3){単位伝播＝「他のリテラルが真にならなかったので最後の一つを真にする」}<>
-          +item?:(from 4){「根拠」：つまり、\emph{真偽を確定させた節}に含まれる\emph{他のリテラルの否定}}<>
-          +item?:(from 5){ただ一つのリテラルを持つ単位節のリテラルや、場合分けリテラルの場合入次数はゼロ}<>
+        +item{単位伝播で真になったリテラルへ、\emph{根拠となったリテラルから辺}を伸ばす}<
+          +item{単位伝播＝「他のリテラルが真にならなかったので最後の一つを真にする」}<>
+          +item{「根拠」：つまり、\emph{真偽を確定させた節}に含まれる\emph{他のリテラルの否定}}<>
+          +item{ただ一つのリテラルを持つ単位節のリテラルや、場合分けリテラルの場合入次数はゼロ}<>
         >
-        +item?:(from 6){以下は最初の ${\cnf!(open DPLL in [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]])} に対する含意グラフの例}<>
+        +item{以下は最初の ${\cnf!(open DPLL in [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]])} に対する含意グラフの例}<>
       >
       +fig-on-right(
           let prev ctx = ctx 
@@ -663,7 +663,7 @@ document '<
                       default-node-style = default-node-style |> circle |> padding 5pt;
                       unit-length = 1.25cm;
                     |) 
-          in textbox-with-width 5cm {\phantom(from 7){\x-small{
+          in textbox-with-width 5cm {\x-small{
                 \tikzy?:(cfg)[
                   matrix
                     [ [node?:[prev] {${3}}; node?:[named`5`] {${5}}; node?:[contra; named`6`] {${6}}; ]
@@ -674,24 +674,24 @@ document '<
                 ; arrow (north-east-of `2`) (south-west-of `6`)
                 ; arrow (east-of `2`) (west-of `-6`)
                 ];
-          }}}
+          }}
       )<
         +itemize<
-          +item?:(from 7){黒丸はこれよりも前の場合分けで仮置きされたリテラル}<>
-          +item?:(from 7){赤丸は互いに矛盾したリテラル}<>
+          +item{黒丸はこれよりも前の場合分けで仮置きされたリテラル}<>
+          +item{赤丸は互いに矛盾したリテラル}<>
         >
       >
     >
 
-    +frame?:(7){CDCL：含意グラフと学習節1 - カットと矛盾原因}<
+    +frame{CDCL：含意グラフと学習節1 - カットと矛盾原因}<
       +itemize<
         +item{含意グラフを\emph{conflict side}と\emph{reason side}の二つの集合に\emph{カット}すると、矛盾への\emph{原因}が得られる}<
-          +item?:(from 3){直接矛盾した頂点は必ず\emph{conflict side}に入れる}<>
-          +item?:(from 4){現在の場合分けの起点以前のものは全て\emph{reason side}に入れる}<>
-          +item?:(from 5){それ以外のリテラルはどちらに割り当ててもいい}<>
+          +item{直接矛盾した頂点は必ず\emph{conflict side}に入れる}<>
+          +item{現在の場合分けの起点以前のものは全て\emph{reason side}に入れる}<>
+          +item{それ以外のリテラルはどちらに割り当ててもいい}<>
         >
-        +item?:(from 6){このとき、\emph{reason side}のリテラルはconflict side の\emph{原因}になっている}<
-          +item?:(from 7){特に\emph{conflict sideに向かう辺を持つreason sideの頂点}があれば十分}<>
+        +item{このとき、\emph{reason side}のリテラルはconflict side の\emph{原因}になっている}<
+          +item{特に\emph{conflict sideに向かう辺を持つreason sideの頂点}があれば十分}<>
         >
       >
       +fig-center(
@@ -726,9 +726,7 @@ document '<
               ; node-at?:[plain] (between (south-west-of `3`) (north-west-of `1`))
                 {\xx-small{reason side}}
               ; polyline
-                ?:[ pc Colors.purple; lw 2pt
-                  ; phantom (until 1)
-                  ]
+                ?:[ pc Colors.purple; lw 2pt ]
                 [ between (north-west-of `5`) (north-east-of `6`)
                 ; between (south-east-of `1`) (south-west-of `2`)
                 ]
@@ -820,37 +818,37 @@ document '<
       });
     >
 
-    +frame?:(8){単位節とUIP}<
+    +frame{単位節とUIP}<
       +itemize(open DPLL in '<
         +item{Cutに対応する学習節が\emph{単位節}になるのは、\emph{一意相互作用点}（Unique Interaction Point, \emph{UIP}）と呼ばれる頂点の直後でCutした時}<
-          +item?:(from 2){頂点${l}が\emph{UIP}である${\Longleftrightarrow}グラフから${l}を取り除くと、直近の決定リテラルから少なくとも一方の矛盾頂点へのパスが消える（「\emph{必ず通る点}」）}<>
+          +item{頂点${l}が\emph{UIP}である${\Longleftrightarrow}グラフから${l}を取り除くと、直近の決定リテラルから少なくとも一方の矛盾頂点へのパスが消える（「\emph{必ず通る点}」）}<>
         >
-        +item?:(from 3){前の例では${4, 7, 10}が\emph{UIP}で、Cut ${A, C}が頂点${4, 10} の直後のCutに相当}<>
-        +item?:(from 4){「学習節が単位節になる」ためには UIP で切ればよい（逆もまた真）}<
-          +item?:(from 5){\emph{決定リテラル自身もUIP}なので、少なくとも一つUIPは存在する}<>
-          +item?:(from 6){\emph{矛盾に一番近いUIP}、\emph{1-UIP}のCutがよいことが経験的に知られている\cite[`Zhang:2001`];}<>
-          +item?:(from 7){前の例では、${\cnf![[lit (-2);lit (-10)]]}に対応する${10}で切ったCut ${C}が1-UIP}<>
-          +item?:(from 8){conflicting side が増えるほど必要な仮定も増えそうなので、直感的ではある}<>
+        +item{前の例では${4, 7, 10}が\emph{UIP}で、Cut ${A, C}が頂点${4, 10} の直後のCutに相当}<>
+        +item{「学習節が単位節になる」ためには UIP で切ればよい（逆もまた真）}<
+          +item{\emph{決定リテラル自身もUIP}なので、少なくとも一つUIPは存在する}<>
+          +item{\emph{矛盾に一番近いUIP}、\emph{1-UIP}のCutがよいことが経験的に知られている\cite[`Zhang:2001`];}<>
+          +item{前の例では、${\cnf![[lit (-2);lit (-10)]]}に対応する${10}で切ったCut ${C}が1-UIP}<>
+          +item{conflicting side が増えるほど必要な仮定も増えそうなので、直感的ではある}<>
         >
       >);
     >
 
-    +frame?:(5){1-UIP学習節の生成と導出規則}<
+    +frame{1-UIP学習節の生成と導出規則}<
       +itemize<
         +item{含意グラフは概念上でわかりやすいが、直接実装する必要はない}<
-          +item?:(from 2){矛盾節に\emph{導出}規則 (\emph{Resolution}) を単位節になるまで繰り返し適用すればよい}<>
+          +item{矛盾節に\emph{導出}規則 (\emph{Resolution}) を単位節になるまで繰り返し適用すればよい}<>
         >
       >
-      +phantom(from 3)<+thm?:({導出規則})?:(false){
+      +thm?:({導出規則})?:(false){
         以下の導出規則は古典論理の派生規則：
 
         \eqn?:(AZMathEquation.notag)(
           ${\frac{c \lor \Phi, \mquad \lnot c \lor \Psi}{\Phi \lor \Psi}}
         );
-      }>
+      }
       +itemize<
-        +item?:(from 4){古典的に${c \lor \Phi}は${\lnot c \rightarrow \Phi}と、${\lnot c \lor \Psi}は${c \rightarrow \Psi}とそれぞれ同値}<>
-        +item?:(from 5){更に排中律があるので${c \lor \lnot c}が成り立つから、結局${\Phi \lor \Psi}が結論できる}<>
+        +item{古典的に${c \lor \Phi}は${\lnot c \rightarrow \Phi}と、${\lnot c \lor \Psi}は${c \rightarrow \Psi}とそれぞれ同値}<>
+        +item{更に排中律があるので${c \lor \lnot c}が成り立つから、結局${\Phi \lor \Psi}が結論できる}<>
       >
     >
 
@@ -913,7 +911,7 @@ document '<
               ; arrow?:[phantom (until 2)] (east-of `-12`) (north-west-of `res-1`)
               ; arrow?:[phantom (until 2)] (east-of  `12`) (south-west-of `res-1`)
               ; arrow?:[phantom (until 3)] (east-of  `res-1`) (west-of `res-2`)
-              ; node-at?:[phantom (until 2)] (north-of `stop`)
+              ; node-at?:[phantom (until 3)] (north-of `stop`)
                   {\x-small{${\cnf![[lit (-10); lit 11]]}}}
               ]);
                   
@@ -1138,36 +1136,36 @@ document '<
     >);
 
 
-    +frame-nofooter?:(9){CDCL：更なる最適化手法}<
+    +frame-nofooter{CDCL：更なる最適化手法}<
       +p{
         現代のCDCLでは以下のようなテクニックで効率化が図られている：
       }
       +itemize<
-        +item?:(from 2){\emph{監視リテラル}：単位節または矛盾節の検出方法の効率化}<
-          +item?:(from 3){観察：単位節・矛盾節確定するのは、リテラル数が\emph{2以下}になったときだけ}<>
-          +item?:(from 4){そこで、節ごとに\emph{最大2つのリテラルを監視リテラル}として指定}<>
-          +item?:(from 5){監視リテラルの真偽が確定したときだけ、その節の状態を確かめて単位節・矛盾節の検出を行えばよい！}<>
+        +item{\emph{監視リテラル}：単位節または矛盾節の検出方法の効率化}<
+          +item{観察：単位節・矛盾節確定するのは、リテラル数が\emph{2以下}になったときだけ}<>
+          +item{そこで、節ごとに\emph{最大2つのリテラルを監視リテラル}として指定}<>
+          +item{監視リテラルの真偽が確定したときだけ、その節の状態を確かめて単位節・矛盾節の検出を行えばよい！}<>
         >
-        +item?:(from 6){\emph{変数選択ヒューリスティクス}：場合分けする変数と真偽には任意性がある}<
-          +item?:(from 7){どのリテラル、値を選ぶかで\emph{性能が大きく変わる}}<>
-          +item?:(from 8){時間減衰する優先度をつかう\emph{VSIDS} など変数選択の指標が提案されている}<>
-          +item?:(from 9){選択の指標に関しては、例えば Liangらの論文\cite[`Liang:2015`]; が詳しい}<>
+        +item{\emph{変数選択ヒューリスティクス}：場合分けする変数と真偽には任意性がある}<
+          +item{どのリテラル、値を選ぶかで\emph{性能が大きく変わる}}<>
+          +item{時間減衰する優先度をつかう\emph{VSIDS} など変数選択の指標が提案されている}<>
+          +item{選択の指標に関しては、例えば Liangらの論文\cite[`Liang:2015`]; が詳しい}<>
         >
       >
     >
 
-    +frame?:(9){CDCL：更なる最適化手法（続）}<
+    +frame{CDCL：更なる最適化手法（続）}<
       +itemize<
-        +item?:(from 1){\emph{リスタート}：履歴の破棄}<
-          +item?:(from 2){辿った履歴によって簡単にとけたり、逆に永遠に解けなかったりする}<>
-          +item?:(from 3){そこで矛盾が起きたら一定間隔で状態を破棄し、\emph{ゼロから解きなおす}}<>
-          +item?:(from 4){学習節は捨てず、間隔はだんだん長くするので、完全性は担保される}<>
-          +item?:(from 5){リスタート間隔のヒューリスティクスは Wu らの論文\cite[`Wu:2006`]; が詳しい}<>
+        +item{\emph{リスタート}：履歴の破棄}<
+          +item{辿った履歴によって簡単にとけたり、逆に永遠に解けなかったりする}<>
+          +item{そこで矛盾が起きたら一定間隔で状態を破棄し、\emph{ゼロから解きなおす}}<>
+          +item{学習節は捨てず、間隔はだんだん長くするので、完全性は担保される}<>
+          +item{リスタート間隔のヒューリスティクスは Wu らの論文\cite[`Wu:2006`]; が詳しい}<>
         >
-        +item?:(from 6){\emph{忘却}：増えすぎた節の枝刈りをする}<
-          +item?:(from 7){矛盾のたびに学習節が増えるので、節数が爆発しがち}<>
-          +item?:(from 8){そこで、適切な指標の下で優先度の低い学習節を定期的に削除}<>
-          +item?:(from 9){削除するのは学習節だけなので、完全性に影響しない}<>
+        +item{\emph{忘却}：増えすぎた節の枝刈りをする}<
+          +item{矛盾のたびに学習節が増えるので、節数が爆発しがち}<>
+          +item{そこで、適切な指標の下で優先度の低い学習節を定期的に削除}<>
+          +item{削除するのは学習節だけなので、完全性に影響しない}<>
         >
       >
     >
@@ -1177,32 +1175,32 @@ document '<
     let matome = '<
           +itemize<
             +item{SATソルバは古典命題論理式の充足可能性を判定するプログラム}<
-              +item?:(from 2){NP-完全なので本質的に難しい}<>
-              +item?:(from 3){\emph{CDCL}: 矛盾するごとに\emph{学習節}を作り、必要なところまで一気に巻き戻す}<>
-              +item?:(from 4){監視リテラルや Restart など、色々なヒューリスティクスが提案されている}<>
+              +item{NP-完全なので本質的に難しい}<>
+              +item{\emph{CDCL}: 矛盾するごとに\emph{学習節}を作り、必要なところまで一気に巻き戻す}<>
+              +item{監視リテラルや Restart など、色々なヒューリスティクスが提案されている}<>
             >
-            +item?:(from 5){CDCL は述語論理上の理論に一般化した\emph{SMT} ソルバの基礎でもある}<
-              +item?:(from 6){私の動機：Presburger 算術（整数計画法）と未解釈関数つき同値関係の理論の組合せソルバを実装したい}<>
-              +item?:(from 7){整数計画法のインクリメンタルでバックトラック可能で完全なソルバが必要}<
-                +item?:(from 8){CVC4 \cite[`CVC4`]; のサイトなどを見てみたがパッと見付からず}<>
-                +item?:(from 9){よい文献をご存知の方おしえてください}<>
+            +item{CDCL は述語論理上の理論に一般化した\emph{SMT} ソルバの基礎でもある}<
+              +item{私の動機：Presburger 算術（整数計画法）と未解釈関数つき同値関係の理論の組合せソルバを実装したい}<>
+              +item{整数計画法のインクリメンタルでバックトラック可能で完全なソルバが必要}<
+                +item{CVC4 \cite[`CVC4`]; のサイトなどを見てみたがパッと見付からず}<>
+                +item{よい文献をご存知の方おしえてください}<>
               >
             >
           >
         >
     in '<
-      +frame?:(6){CDCL型 SAT ソルバの実装}<
+      +frame{CDCL型 SAT ソルバの実装}<
         +itemize<
           +item{MiniSat\cite[`MiniSat`]; (\url(`http://minisat.se`);) がシンプルかつ高速で、実装の参考になる}<>
-          +item?:(from 2){herbrand\cite[`herbrand`];: MiniSATや参考文献を基に私が Haskell で実装してみたもの}<
-            +item?:(from 3){\url(`https://github.com/konn/herbrand`);}<>
-            +item?:(from 4){Haskell を使って実装}<>
-            +item?:(from 5){それでも GC は無効化されないのでまだまだ遅い}<>
-            +item?:(from 6){メモリまわりの管理をMiniSatを参考に改築したい}<>
+          +item{herbrand\cite[`herbrand`];: MiniSATや参考文献を基に私が Haskell で実装してみたもの}<
+            +item{\url(`https://github.com/konn/herbrand`);}<>
+            +item{Haskell を使って実装}<>
+            +item{それでも GC は無効化されないのでまだまだ遅い}<>
+            +item{メモリまわりの管理をMiniSatを参考に改築したい}<>
           >
         >
       >
-      +frame?:(9)({まとめ})(matome);
+      +frame({まとめ})(matome);
 
       +frame-nofooter{参考文献}<
         +tighten<+font-style[font-size bib-size]<
