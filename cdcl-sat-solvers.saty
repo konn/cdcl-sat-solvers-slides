@@ -1214,9 +1214,5 @@ document '<
             (bibyfi-theme)(bibs);
         >>
       >
-
-      +frame({Any Questions?})('<
-        +with-layer(10)(matome);
-      >);
     >);
 >
