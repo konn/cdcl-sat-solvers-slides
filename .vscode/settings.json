@@ -1,0 +1,12 @@
+{
+  "satysfi-workshop.typecheck.when": "onSave",
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": "cdcl-sat-solvers-2025-body.satyh$",
+        "cmd": "satysfi cdcl-sat-solvers-2025-handout.saty; satysfi cdcl-sat-solvers-2025.saty",
+        "isAsync": true
+      }
+    ]
+  }
+}

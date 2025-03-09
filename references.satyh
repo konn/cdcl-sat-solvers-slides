@@ -143,6 +143,9 @@ end = struct
   ; (`herbrand`
     , WildCard {Hiromi ISHII. `herbrand`. \url(`https://github.com/konn/herbrand`);.}
     )
+  ; (`skolem`
+    , WildCard {Hiromi ISHII. `skolem`. \url(`https://github.com/konn/skolem-rs`);.}
+    )
   ; (`CVC4`
     , WildCard {Clark W. Barrett, et al. "CVC4". in \textit{Computer Aided Verification - 23rd International Conference, CAV
     2011}, Snowbird, UT, USA, July 14-20, 2011. Proceedings. pp. 171-177. \url(`https://doi.org/10.1007/978-3-642-22110-1_14`);. \url(`https://cvc4.github.io/publications.html`);.}

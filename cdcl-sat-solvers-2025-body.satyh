@@ -1,0 +1,1280 @@
+@require: class-slydifi/theme/arctic
+@require: ruby/ruby
+@require: easytable/easytable
+@require: bibyfi/bibyfi
+@require: bibyfi/bibyfi-IEEETran
+@require: azmath/azmath
+@require: matrix/matrix
+@require: colorbox/colorbox
+@require: arrows/arrows
+@require: arrows/commands
+@require: fss/fss
+@require: fss/fonts
+@require: latexcmds/latexcmds
+@require: fss/style
+@require: base/list-ext
+@require: base/set
+@require: enumitem/enumitem
+
+@import: Colors
+@import: tikzyfi
+@import: references
+@import: presets
+@import: theorems
+@import: mymath
+@import: utils
+@import: diagrams
+@import: dpll-machine
+
+type mode = Slide | Handout | Public
+
+module Document: sig
+  val make-doc: mode -> document
+end = struct
+
+let-mutable doc-mode <- Slide
+let-block ctx +nopublic body =
+  match !doc-mode with
+  | Public -> read-block ctx '<> 
+  | _ -> read-block ctx body
+let-block ctx +slide-only body =
+  match !doc-mode with
+  | Slide -> read-block ctx body
+  | _ -> read-block ctx '<>
+let sfrom i = 
+  match !doc-mode with | Slide -> from i | _ -> (fun x -> true)
+let slide-only n =
+  match !doc-mode with
+  | Slide -> n
+  | _ -> 1
+let bw = SlydifiOverlay.between
+open LatexCmds
+open SlydifiOverlay
+open FigBox
+open ArrowCommands
+open MyMath
+open EasyTableAlias
+open TikZyFi
+
+let math-int i = math-char MathInner (arabic i)
+type 'a phantomer = 'a -> 'a constraint 'a :: (|phantom: bool|)
+let phantom: 'a phantomer = fun dcf -> phantom (select-from-two dcf true false)
+let-math \dec lit = ${#lit^\mathrm{d}}
+let-mutable visited <- Set.empty
+let-math \Dec lit = ${\mathop{\mathrm{Decide}} #lit}
+let-math \UP lit = ${\mathop{\mathrm{UnitProp}} #lit}
+let-math \Bt lit = ${\mathop{\mathrm{Backtrack}} #lit}
+let-math \Bj lit = ${\mathop{\mathrm{Backjump}} #lit}
+let-math \true args = math-color Colors.green args
+let-math \conflict args = math-color Colors.red args
+let-math \false args = math-color (Colors.gray 0.6) args
+let-math \leads-to = math-char MathRel `⤳`
+let-inline ctx \link-slide tag body = 
+  let lab = `slide:` ^ tag ^ `:ref` in
+  inline-frame-breakable (2pt, 2pt, 2pt, 2pt) (Annot.link-to-location-frame lab (Some(2pt, Colors.green)))
+      (read-inline ctx body)
+let-block ctx +label-slide str body = 
+  let lab = `slide:` ^ str ^ `:ref` in 
+  let with-target = (
+      if Set.mem String.eq lab !visited
+      then read-block ctx body
+      else
+          let () = visited <- Set.insert lab !visited in
+          block-frame-breakable ctx (0pt, 0pt, 0pt, 0pt) (Annot.register-location-frame lab) (fun ctx -> read-block ctx body)
+      )
+  in with-target
+let-math \rewrites-to reason = 
+  let backsp r = text-in-math MathOrd 
+        (fun ctx -> inline-skip (get-font-size ctx *' (0. -. r)))
+  in let back1 = backsp 0.2
+  in let back2 = backsp 0.5
+  in ${-#back1\p{#reason}#back2\longrightarrow}
+let-inline ctx \eqref key = 
+  match get-cross-reference (`eq:` ^ key ^ `:num`) with
+    | Some(label) -> 
+      read-inline ctx (embed-string (`(` ^ label ^ `)`))
+    | None -> read-inline ctx { (??) }
+let-math \eqrefm key = ${\text!{\eqref(key);}}
+let-block ctx +small arg = 
+  read-block (ctx |> set-font-size 18pt) arg
+let-inline ctx \small arg = 
+  read-inline (ctx |> set-font-size 18pt) arg
+let-block ctx +x-small arg = 
+  read-block (ctx |> set-font-size 15pt) arg
+let-inline ctx \x-small arg = 
+  read-inline (ctx |> set-font-size 15pt) arg
+let-block ctx +xx-small arg = 
+  read-block (ctx |> set-font-size 12pt) arg
+let-inline ctx \xx-small arg = 
+  read-inline (ctx |> set-font-size 12pt) arg
+let-math \SAT = ${\mathrm{SAT}}
+let-math \CNF = ${\mathrm{CNF}}
+let-math \NP = ${\mathrm{NP}}
+let sudoku ctx = 
+  let dx = 36pt
+   in List.concat
+      [ [ stroke 2.5pt Color.black
+            (Gr.line (dx *' 2., 0pt) (dx *' 2., dx *' 4.))
+        ; stroke 2.5pt Color.black
+            (Gr.line (0pt, dx *' 2.) (dx *' 4., dx *' 2.))
+        ]
+      ; List.concat 
+        (Utils.generate 4 
+        (fun j ->
+          List.concat (Utils.generate 4 
+            (fun i -> 
+              
+              (
+                let imath = math-int (i + 1) in
+                let jmath = math-int (j + 1) in
+                let name = read-inline ctx {${d_{#imath#jmath}}} in
+                let (w, h, d) = get-natural-metrics name in
+              [ draw-text 
+                  ( dx *' float i +' (dx -' w) *' 0.5 
+                  , dx *' float j +' (dx -' h) *' 0.5 
+                  )
+                   name
+              ; stroke 1pt Color.black 
+                (Gr.rectangle 
+                (dx *' float i , dx *' float j)
+                (dx *' float (i+1) , dx *' float (j+1))
+                )
+              ])
+            )
+        )))
+      ]
+let-block ctx +item ?:cond it blk =
+  read-block ctx
+  (match cond with
+    | Some(cond) -> 
+      '< +phantom(cond)< +item{#it;}<#blk;> > >
+    | None -> '<+item{#it;}<#blk;>>
+  )
+let override-node-when cond names f =
+    select-from-two cond (override-node names f) Fn.id
+let make-doc new-mode = (
+  let () = doc-mode <- new-mode in
+  document '<
+  +set-config(slydifi-cfg);
+  +make-title(|
+    title = {|充足可能性ソルバ (SATソルバ) の原理|リターンズ|\small{2025-03-09}|};
+    author = {|Hiromi ISHII|};
+    date = {
+      |Tsukuba Computer Mathematics Seminar 2025
+      |\small{Slides available on \url(`https://u.konn-san.com/cdcl25`);}
+      |};
+  |);
+
+  +section{|充足可能性ソルバ (SATソルバ) の原理|}<
+    +frame?:(slide-only 5){本日の話題：充足可能性問題とSATソルバ}<
+      +itemize<
+        +item?:(sfrom 1){\emph{充足可能性問題}：与えられた\emph{命題論理式}が\emph{充足可能}か判定する問題}<
+          +item?:(sfrom 2){\emph{命題論理式}：\emph{命題変数}${P_1, \ldots, Q_1, \ldots,} を${\land}（かつ）、${\lor}（または）、${\to}（ならば）、${¬}（でない）で結んで得られる論理式}<>
+          +item?:(sfrom 2){\emph{（古典的）充足可能性}: 与えられた式を真とするような、命題変数への真偽値${1}（真）または${0}（偽）の割り当てが存在するか？}<>
+        >
+        +item?:(sfrom 3){充足可能性（\emph{SAT}isfiability）を略して SAT と呼ぶ。}<>
+        +item?:(sfrom 4){\emph{NP-完全}：総当たりで解ける任意の問題が SAT に帰着できる}<
+          +item?:(sfrom 4){本来 ${\SAT} は判定問題だが、具体的な求解まで含めて${\SAT}と呼ぶ事が多い}<>
+        >
+        +item?:(sfrom 5){色々な問題が SAT （やその拡張である SMTソルバ）で解け、実用上も重要}<
+          +item?:(sfrom 5){数理最適化ソルバにも応用されている}<>
+        >
+      >
+    >
+
+    +frame{SATで解ける問題の例：論理パズル}<
+      +question?:({三人の島民 \cite[`Smullyan:2008`];})?:(false){
+        常に嘘だけをいう嘘吐きと、真実だけをいう正直者だけが住む島で、A, B, C三人の島民に出会った。彼らのいうことには：
+
+        \listing{
+          * A：「BとCはどちらも正直者だ」
+          * B：「Aは嘘吐きで、Cは正直者だ」
+        }
+
+        A, B, C はそれぞれ正直者か、嘘吐きか？
+      }
+    >
+
+    +frame{三人の島民：回答}<
+      +itemize<
+        +item{${A, B, C}を「Aが正直者」「Bが正直者」「Cが正直者」を表す命題変数とする}<>
+        +item{命題論理式に変換して${(\mathrm{PA}) \land (\mathrm{PB})}を充足する解を求めればよい：
+          
+          \eqn?:(AZMathEquation.notag)(${
+            (\mathrm{PA}): A \longleftrightarrow B \land C, \mqquad
+            (\mathrm{PB}): B \longleftrightarrow \lnot A \land C.
+          });
+        }<>
+        +item{真理表を書いてみると、\emph{全員嘘吐き}だとわかる。}<
+          +x-small< +centering(
+            let show p = if p then {${1}} else {${0}} in
+            let iff p q = (p && q) || ((not p) && (not q)) in
+            let mkRow a b c = 
+                (let one = iff a (b && c) in
+                let two = iff b (not a && c) in
+                  List.map show [a; b; c; one; two; one && two]
+                ) in
+            let mkTable as0 bs cs =
+                  List.append
+                  {| ${A} | ${B} | ${C} | ${(\mathrm{PA})} | ${(\mathrm{PB})}
+                  | ${(\mathrm{PA}) \land (\mathrm{PB})}
+                  |}
+                  (Utils.concat-map 
+                    (fun a -> 
+                      Utils.concat-map 
+                        (fun b -> Utils.concat-map (mkRow a b) cs) 
+                        bs
+                    )
+                    as0
+                  )
+            in {
+            \easytable[c;c;c;c;c;c](mkTable [true] [true; false] [true; false]);
+            \quad;
+            \easytable?:[t; b; m 1; bg-r (Color.rgb 0.4 1.0 0.6) 4 5][c;c;c;c;c;c]
+              (mkTable [false] [true; false] [true; false]);
+          });>
+        >
+        +item{他にも数独などのパズルも${\SAT}で解ける（\link-slide(`sudoku`){おまけ参照}）}<>
+      >
+    >
+
+    +frame{SATで解ける問題の例：命題論理の定理自動証明}<
+      +itemize<
+        +item{SATソルバは定理の自動証明にも使える}<>
+      >
+      +thm?:({古典命題論理の完全性定理および健全性定理 (Gödel)})?:(false){
+        任意の古典命題論理式 ${\phi} に対し、${\phi} がどんな真偽値の割り当てに対しても真であることと、${\phi} が証明可能であることは同値である。
+      }
+
+      +cor?:({証明可能性の特徴付け})?:(false){
+        任意の古典命題論理式 ${\phi} が証明可能である必要十分条件は、${\lnot \phi} が充足可能でないことである。
+      }
+
+      +itemize<
+        +item{${\lnot \phi} が充足可能でない事がわかれば、${\phi} が証明できたことになる！}<>
+      >
+    >
+
+    +frame?:(slide-only 3){SATで解ける問題の例：SMTソルバへ}<
+      +itemize<
+        +item?:(sfrom 1){SATだけでも強力だが、更に\emph{述語論理}（${\forall}とか${\exists}とかを入れたやつ）に拡張した \emph{SMT （SAT Modulo Theories）ソルバ}の研究も盛んに行われている}<
+          +item?:(sfrom 1){代表的なソルバ：Z3, CvC5, etc.}<>
+        >
+        +item?:(sfrom 2){SMT で扱える理論の例：線型計画法、整数計画問題、同値関係、配列、etc.}<
+          +item?:(sfrom 2){数独なんかは配列の理論とかを使ったほうが綺麗}<>
+          +item?:(sfrom 2){\emph{工学的}にもこれらはかなり重要（数理最適化への応用も関連）}<>
+          +item?:(sfrom 2){定理証明系で人間が手で書きたくない補題の自動証明にも使える}<>
+        >
+        +item?:(sfrom 3){SMT は SAT ソルバを外部の理論ソルバと協業させこれらの問題を解く}<
+          +item?:(sfrom 3){\emph{SAT を如何に速く解くか}が SMT の実装にも重要}<>
+        >
+        +item?:(sfrom 3){Disclaimer: 今回は SMT の話はしません}<>
+      >
+    >
+  >
+
+  +section{|SATソルバの原理|}<
+    +frame?:(slide-only 3){SATは「難しい」}<
+      +itemize<
+        +item?:(sfrom 1){論理パズルの解法で見たように、すべての命題変数の有り得る真偽値の割り当てを\emph{総当たり}して、\emph{真理表}をつくれば原理的には解ける}<
+          +item?:(sfrom 1){これは命題変数の数を ${n} とすると \emph{${2^n} 通りの場合分けが必要}になる}<>
+        >
+        +item?:(sfrom 2){実は\emph{「総当たりで解ける問題」は全て SAT に帰着できる}（${\SAT}は\emph{${\NP}-完全}である）ことが知られている}<
+          +item?:(sfrom 2){${P \neq \NP} 予想が正しければ、\emph{本質的に効率的な解法は存在しない}}<>
+        >
+        +item?:(sfrom 3){本質的に速くなくても\emph{実用的な問題に対し十分速い}手法が研究されている}<
+          +item?:(sfrom 3){以下ではその中でも主流な\emph{CDCL 法}の原理を簡単に紹介（参考文献\cite[`Zeljic:2019`; `鍋島:2010`; `岩沼:2010`; `Torlak:2003`];）}<>
+        >
+      >
+    >
+
+    +frame-nofooter{連言標準形（CNF）}<
+      +itemize<
+        +item{SAT ソルバは\emph{連言標準形} (CNF) と呼ばれる形の論理式を扱うことが多い}<
+          +item{CNF: 命題変数・その否定を「または」で繋いだ節を、「かつ」で繋いだもの}<>
+          +item{例：${(P \lor \lnot Q \lor R) \land (Q \lor \lnot R) \land (R) \land (S \lor \lnot T)}}<>
+        >
+      >
+
+      +x-small<+defn?:({CNFの定義})?:(false){
+        \enumerate{
+          * 命題変数${P_i}とその否定${\lnot P_i}を合わせて\emph{リテラル}と呼ぶ。
+          * 0個以上のリテラル${l_i}を「または」で繋いだもの ${l_0 \lor \ldots \lor l_{k-1}}を\emph{節}（\emph{clause}）と呼ぶ。
+          * 0個以上の節${C_i}を「かつ」で繋いだ${C_0 \land \ldots \land C_{m-1}}の形の論理式を\emph{連言標準形}（Conjunctive Normal Form, \emph{CNF}）と呼ぶ。
+        }
+
+        \emph{注意}：空の節は\emph{矛盾}に、空のCNFは\emph{恒真}に対応する。
+      }>
+      +itemize<
+        +item{任意の古典命題論理式は\link-slide(`cnf-equiv`){CNFと同値}。以下CNFのSATのみ考える}<>
+      >
+    >
+
+    +frame-nofooter?:(slide-only 6){DPLL: CDCL の祖先}<
+      +itemize<
+        +item?:(sfrom 1){CDCLの基礎はDavis–Putnam–Logemann–Loveland (\emph{DPLL})アルゴリズム}<>
+        +item?:(sfrom 2){基本的な考え方：CNFの節やリテラルを\emph{削れるまで削ってから}場合分け}<
+          +item?:(sfrom 2){充足された節は削除できる→節が一つもなくなれば充足可能！}<>
+          +item?:(sfrom 2){偽なリテラルがあれば、節から削除できる→空な節ができたら充足不能！}<>
+        >
+        +item?:(sfrom 3){以下の規則に従ってCNFを変形する：}<
+          +item?:(sfrom 4){\emph{単位節伝播}：リテラル一つだけの節${\pb{l}}があれば${l\equiv 1}とし${\lnot l}を削除}<>
+          +item?:(sfrom 5){\emph{Decide}：他規則が適用できないならリテラルを一つ選び\emph{場合分け}}<
+            +item?:(sfrom 5){真偽を仮決めし継続。失敗したら巻き戻し (\emph{Backtrack}) 否定で確定し継続}<>
+          >
+          +item?:(sfrom 6){\emph{純リテラル}：肯定または否定のみ出現するリテラル${l}があれば${l\equiv 1}としそのリテラルを含む節を削除（コスト面から\emph{実装しない}事が多い）}<>
+        >
+      >
+    >
+
+    +frame-nofooter?:(9)({DPLL の動作例})(
+      open DPLL in 
+      let cnf = [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]] in
+    '< 
+      +itemize<
+        +item{${\pretty-cnf!(cnf)} を DPLL で解いてみよう（\cite[`Zeljic:2019`];の例）。}<>
+        +item{今後は CNF しか出て来ないので、${\cnf!(cnf)}と略記する}<
+          +small<
+        +derive?:(2)
+          [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]]
+          [ ( dec 1
+            , [ [ff (-1); pos 2]; [pos 3; pos 4]
+              ; [neg 5; neg 6]; [neg 2; neg 5; pos 6]
+              ]
+            , [dd 1]
+            )
+          ; ( unit-prop 2
+            , [ [ff (-1); tt 2]; [pos 3; pos 4]
+              ; [neg 5; neg 6]; [neg 2; neg 5; pos 6]
+              ]
+            , [dd 1; lit 2]
+            )
+          ; ( dec 3
+            , [ [ff (-1); tt 2]; [tt 3; pos 4]
+              ; [neg 5; neg 6]; [ff (-2); neg 5; pos 6]
+              ]
+            , [dd 1; lit 2; dd 3]
+            )
+          ; ( dec 5
+            , [ [ff (-1); tt 2]; [tt 3; pos 4]
+              ; [ff (-5); neg 6]; [ff (-2); ff (-5); pos 6]
+              ]
+            , [dd 1; lit 2; dd 3; dd 5]
+            )
+          ; ( unit-prop 6
+            , [ [ff (-1); tt 2]; [tt 3; pos 4]
+              ; [ff (-5); xx (-6)]; [ff (-2); ff (-5); tt 6]
+              ]
+            , [dd 1; lit 2; dd 3; dd 5; xx 6]
+            )
+          ; ( bt
+            , [ [ff (-1); tt 2]; [tt 3; pos 4]
+              ; [tt (-5); neg 6]; [ff (-2); tt (-5); pos 6]
+              ]
+            , [dd 1; lit 2; dd 3; lit (-5)]
+            )
+          ];
+        >
+        >
+        +item?:(from 9){${P_2 =  P_3 =  1, P_1 = P_5 =  0}とすれば充足可能！}<>
+      >
+      
+    >);
+
+
+    +frame-nofooter({Backtrack しまくる DPLL の動作例})(open DPLL in '< 
+      +x-small<
+        +derive
+          [ [lit (-1); lit (-2); lit (-3); lit (-4); lit 5]
+          ; [lit (-3); lit (-4); lit (-6)]
+          ; [lit (-5); lit 6; lit (-1); lit 7]
+          ; [lit (-7); lit 8]
+          ; [lit (-2); lit (-7); lit 9]
+          ; [lit (-8); lit (-9); lit 10]
+          ; [lit (-10); lit 11]
+          ; [lit (-11); lit 12]
+          ; [lit (-10); lit (-2); lit (-12)]
+          ]
+          [ (rule ${\Decide[1\text!{-}4]}
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); lit 5]
+              ; [ff (-3); ff (-4); lit (-6)]
+              ; [lit (-5); lit 6; ff (-1); lit 7]
+              ; [lit (-7); lit 8]
+              ; [ff (-2); lit (-7); lit 9]
+              ; [lit (-8); lit (-9); lit 10]
+              ; [lit (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [lit (-10); ff (-2); lit (-12)]
+              ]
+            , [somit; dd 4]
+            )
+          ; (rule ${\UnitProp[5\text!{-}11]}
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
+              ; [ff (-3); ff (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); tt 7]
+              ; [ff (-7); tt 8]
+              ; [ff (-2); ff (-7); tt 9]
+              ; [ff (-8); ff (-9); tt 10]
+              ; [ff (-10); tt 11]
+              ; [ff (-11); lit 12]
+              ; [ff (-10); ff (-2); lit (-12)]
+              ]
+            , [somit; dd 4; somit; lit 11]
+            )
+          ; ( unit-prop 12
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
+              ; [ff (-3); ff (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); tt 7]
+              ; [ff (-7); tt 8]
+              ; [ff (-2); ff (-7); tt 9]
+              ; [ff (-8); ff (-9); tt 10]
+              ; [ff (-10); tt 11]
+              ; [ff (-11); xx 12]
+              ; [ff (-10); ff (-2); xx (-12)]
+              ]
+            , [somit; dd 4; somit; lit 11; xx 12]
+            )
+          ; (bt
+            , [ [ff (-1); ff (-2); ff (-3); tt (-4); lit 5]
+              ; [ff (-3); tt (-4); lit (-6)]
+              ; [lit (-5); lit 6; ff (-1); lit 7]
+              ; [lit (-7); lit 8]
+              ; [ff (-2); lit (-7); lit 9]
+              ; [lit (-8); lit (-9); lit 10]
+              ; [lit (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [lit (-10); ff (-2); lit (-12)]
+              ]
+            , [somit; lit (-4)]
+            )
+          ; (rule ${\Decide[5\text!{-}7]}
+            , [ [ff (-1); ff (-2); ff (-3); tt (-4); tt 5]
+              ; [ff (-3); tt (-4); ff (-6)]
+              ; [ff (-5); tt 6; ff (-1); tt 7]
+              ; [ff (-7); lit 8]
+              ; [ff (-2); ff (-7); lit 9]
+              ; [lit (-8); lit (-9); lit 10]
+              ; [lit (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [lit (-10); ff (-2); lit (-12)]
+              ]
+            , [somit; lit (-4); somit; dd 7]
+            )
+          ; (rule ${\UnitProp[8\text!{-}11]}
+            , [ [ff (-1); ff (-2); ff (-3); tt (-4); tt 5]
+              ; [ff (-3); tt (-4); ff (-6)]
+              ; [ff (-5); tt 6; ff (-1); tt 7]
+              ; [ff (-7); tt 8]
+              ; [ff (-2); ff (-7); tt 9]
+              ; [ff (-8); ff (-9); tt 10]
+              ; [ff (-10); tt 11]
+              ; [ff (-11); xx 12]
+              ; [ff (-10); ff (-2); xx (-12)]
+              ]
+            , [somit; lit (-4); somit; lit 11]
+            )
+          ; ( bt
+            , [ [ff (-1); ff (-2); ff (-3); tt (-4); tt 5]
+              ; [ff (-3); tt (-4); ff (-6)]
+              ; [ff (-5); tt 6; ff (-1); ff 7]
+              ; [tt (-7); lit 8]
+              ; [ff (-2); tt (-7); lit 9]
+              ; [lit (-8); lit (-9); lit 10]
+              ; [lit (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [lit (-10); ff (-2); lit (-12)]
+              ]
+            , [somit; lit (-4); somit; lit (-7)]
+            )
+          ; ( rule ${\cdots}
+            , [ [ff (-1); ff (-2); ff (-3); tt (-4); tt 5]
+              ; [ff (-3); tt (-4); ff (-6)]
+              ; [ff (-5); tt 6; ff (-1); ff 7]
+              ; [tt (-7); tt 8]
+              ; [ff (-2); tt (-7); tt 9]
+              ; [ff (-8); ff (-9); tt 10]
+              ; [ff (-10); tt 11]
+              ; [ff (-11); xx 12]
+              ; [ff (-10); ff (-2); xx (-12)]
+              ]
+            , [somit; lit (-4); somit; lit 11]
+            )
+          ; ( bt
+            , [ [ff (-1); ff (-2); ff (-3); tt (-4); tt 5]
+              ; [ff (-3); tt (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); lit 7]
+              ; [lit (-7); lit 8]
+              ; [ff (-2); lit (-7); lit 9]
+              ; [lit (-8); lit (-9); lit 10]
+              ; [lit (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [lit (-10); ff (-2); lit (-12)]
+              ]
+            , [somit; lit (-4); somit; lit (-6)]
+            )
+          ; ( rule ${\cdots}
+            , [ [ff (-1); ff (-2); ff (-3); tt (-4); tt 5]
+              ; [ff (-3); tt (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); tt 7]
+              ; [ff (-7); tt 8]
+              ; [ff (-2); ff (-7); tt 9]
+              ; [ff (-8); ff (-9); tt 10]
+              ; [ff (-10); tt 11]
+              ; [ff (-11); xx 12]
+              ; [ff (-10); ff (-2); xx (-12)]
+              ]
+            , [somit; lit (-4); somit; lit 11]
+            )
+          ; ( bt
+            , [ [ff (-1); ff (-2); ff (-3); tt (-4); ff 5]
+              ; [ff (-3); tt (-4); lit (-6)]
+              ; [tt (-5); lit 6; ff (-1); lit 7]
+              ; [lit (-7); lit 8]
+              ; [ff (-2); lit (-7); lit 9]
+              ; [lit (-8); lit (-9); lit 10]
+              ; [lit (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [lit (-10); ff (-2); lit (-12)]
+              ]
+            , [somit; lit (-4); somit; lit (-5)]
+            )
+          ; ( rule ${\mathrm{Bt} \mathrel{\text!{ on }} 7,8,10,11}
+            , [ [ff (-1); ff (-2); ff (-3); tt (-4); ff 5]
+              ; [ff (-3); tt (-4); lit (-6)]
+              ; [tt (-5); lit 6; ff (-1); lit 7]
+              ; [tt (-7); lit 8]
+              ; [ff (-2); tt (-7); lit 9]
+              ; [tt (-8); lit (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ]
+            , [somit; lit (-5); lit (-7); lit (-8); lit (-10); lit (-11)]
+            )
+          ];
+      >
+    >);
+
+    +frame?:(slide-only 3){CDCL: Conflict-Driven Clause Learning}<
+      +itemize<
+        +item?:(sfrom 1){単純総当たりよりDPLLは賢いが、Backtrack で得られる情報が少ない}<
+          +item?:(sfrom 1){折角 Backtrack でいったん真偽値が確定しても、更に Backtrack すればその情報は消えてしまう}<>
+        >
+        +item?:(sfrom 2){Backtrack は一段階ずつしか戻らない}<
+          +item?:(sfrom 2){\emph{場合分けが入れ子}になっている場合、実は直近の場合分けより\emph{もっと早くに}矛盾が起きていても延々と\emph{一段階ずつ} Backtrack してしまう}<>
+        >
+        +item?:(sfrom 3){矛盾から逆に辿っていって矛盾の「理由」を見付け、\emph{学習節}としてCNFに追加してそこまで\emph{一気に巻き戻そう} (\emph{Backjump})！}<
+          +item?:(sfrom 3){これが\emph{矛盾からの節学習}(Conflict-Driven Clause Learning, \emph{CDCL})}<>
+        >
+      >
+    >
+
+    +frame?:(slide-only 4){CDCL: どういう学習節が望ましいか？}<
+      +itemize<
+        +item?:(sfrom 1){学習節が\emph{元々の入力の帰結}であること}<
+          +item?:(sfrom 1){任意のタイミングで Backjump が起き得る}<>
+          +item?:(sfrom 1){いつでも使えるように、仮定が本質的には増えていてはならない}<>
+        >
+        +item?:(sfrom 2){「\emph{すぐに使える}」学習節であること}<
+          +item?:(sfrom 2){Backjump した直後に、\emph{新しい情報}が得られないと意味がない}<>
+          +item?:(sfrom 2){特に、\emph{巻き戻した段階で単位節になっている}ようにしたい}<>
+        >
+        +item?:(sfrom 3){なるべく\emph{小さい}ほうがよい}<
+          +item?:(sfrom 3){単位節や矛盾が比較的すぐ出るようにしたい}<>
+        >
+        +item?:(sfrom 4){\emph{含意グラフ}を考えるとこれらを満たす学習節を得られる}<>
+      >
+    >
+
+    +frame{CDCL：\emph{含意グラフ}}<
+      +itemize<
+        +item{これまでに\emph{真偽を割り当てたリテラルを頂点}として持つ有向グラフ}<>
+        +item{単位伝播で真になったリテラルへ、\emph{根拠となったリテラルから辺}を伸ばす}<
+          +item{単位伝播＝「他のリテラルが真にならなかったので最後の一つを真にする」}<>
+          +item{「根拠」：つまり、\emph{真偽を確定させた節}に含まれる\emph{他のリテラルの否定}}<>
+          +item{ただ一つのリテラルを持つ単位節のリテラルや、場合分けリテラルの場合入次数はゼロ}<>
+        >
+        +item{以下は最初の ${\cnf!(open DPLL in [[neg 1; pos 2]; [pos 3; pos 4]; [neg 5; neg 6]; [neg 2; neg 5; pos 6]])} に対する含意グラフの例}<>
+      >
+      +fig-on-right(
+          let prev ctx = ctx 
+                |> fc Colors.black 
+                |> tc Colors.white
+          in let contra ctx = ctx 
+                |> fc Colors.red 
+                |> tc Colors.white
+          in  let cfg = (|default with 
+                      default-node-style = default-node-style |> circle |> padding 5pt;
+                      unit-length = 1.25cm;
+                    |) 
+          in textbox-with-width 5cm {\x-small{
+                \tikzy?:(cfg)[
+                  matrix
+                    [ [node?:[prev] {${3}}; node?:[named`5`] {${5}}; node?:[contra; named`6`] {${6}}; ]
+                    ; [node?:[named `1`; prev] {${1}}; node?:[named `2`] {${2}}; node?:[named `-6`; contra] {${\widebar{6}}}]
+                    ]
+                ; arrow (east-of `5`) (west-of `6`)
+                ; arrow (east-of `1`) (west-of `2`)
+                ; arrow (north-east-of `2`) (south-west-of `6`)
+                ; arrow (east-of `2`) (west-of `-6`)
+                ];
+          }}
+      )<
+        +itemize<
+          +item{黒丸はこれよりも前の場合分けで仮置きされたリテラル}<>
+          +item{赤丸は互いに矛盾したリテラル}<>
+        >
+      >
+    >
+
+    +frame{CDCL：含意グラフと学習節1 - カットと矛盾原因}<
+      +itemize<
+        +item{含意グラフを\emph{conflict side}と\emph{reason side}の二つの集合に\emph{カット}すると、矛盾への\emph{原因}が得られる}<
+          +item{直接矛盾した頂点は必ず\emph{conflict side}に入れる}<>
+          +item{現在の場合分けの起点以前のものは全て\emph{reason side}に入れる}<>
+          +item{それ以外のリテラルはどちらに割り当ててもいい}<>
+        >
+        +item{このとき、\emph{reason side}のリテラルはconflict side の\emph{原因}になっている}<
+          +item{特に\emph{conflict sideに向かう辺を持つreason sideの頂点}があれば十分}<>
+        >
+      >
+      +fig-center(
+        let prev ctx = ctx 
+                |> fc Colors.black 
+                |> tc Colors.white
+        in let contra ctx = ctx 
+              |> fc Colors.red 
+              |> tc Colors.white
+        in  let cfg = (|default with 
+                    default-node-style = default-node-style |> circle |> padding 5pt;
+                    unit-length = 2cm;
+                  |) 
+        in textbox {\x-small{
+              \tikzy?:(cfg)[
+                matrix
+                  [ [ node?:[named `3`; prev] {${3}}
+                    ; node?:[named`5`] {${5}}
+                    ; node?:[contra; named`6`] {${6}}; 
+                    ]
+                  ; [ node?:[named `1`; prev] {${1}}
+                    ; node?:[named `2`] {${2}}
+                    ; node?:[named `-6`; contra] {${\widebar{6}}}
+                    ]
+                  ]
+              ; arrow (east-of `5`) (west-of `6`)
+              ; arrow (east-of `1`) (west-of `2`)
+              ; arrow (north-east-of `2`) (south-west-of `6`)
+              ; arrow (east-of `2`) (west-of `-6`)
+              ; node-at?:[plain] (between (south-east-of `6`) (north-east-of `-6`))
+                {\xx-small{conflict side}}
+              ; node-at?:[plain] (between (south-west-of `3`) (north-west-of `1`))
+                {\xx-small{reason side}}
+              ; polyline
+                ?:[ pc Colors.purple; lw 2pt ]
+                [ between (north-west-of `5`) (north-east-of `6`)
+                ; between (south-east-of `1`) (south-west-of `2`)
+                ]
+              ];
+        }}
+      );
+    >
+
+    +frame-nofooter{Cutと学習節の例：多段Backtrackの例の序盤}<
+      +x-small< +eqn?:(AZMathEquation.notag)(${
+        \cnf!(open DPLL in 
+          [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
+          ; [ff (-3); ff (-4); tt (-6)]
+          ; [ff (-5); ff 6; ff (-1); tt 7]
+          ; [ff (-7); tt 8]
+          ; [ff (-2); ff (-7); tt 9]
+          ; [ff (-8); ff (-9); tt 10]
+          ; [ff (-10); tt 11]
+          ; [ff (-11); xx 12]
+          ; [ff (-10); ff (-2); xx (-12)]
+          ]
+        )
+      });>
+      +xx-small< +centering{
+        \tikzy?:(|
+            large-graph-cfg
+            with
+            default-node-style =
+              large-graph-cfg#default-node-style
+              |> padding 3pt
+              |> distance 4pt
+          ; unit-length = 1cm
+          |)(
+          let cut = fun xs -> xs |> pc Colors.purple |> lw 2pt in
+          let cut-label = fun xs -> xs |> plain
+                |> tc Colors.purple
+                |> style [set-font-size 15pt] in
+          List.append
+          large-graph-nodes
+          [ % Cut 1
+            node-at?:[cut-label; named `cut1`; distance 0.5cm]
+              (proj (between (south-east-of `4`) (south-west-of `-6`)) 
+                (south-of `-6`, south-of `9`)
+              )
+              {Cut ${A}}
+          ; spline?:[cut]
+              [ proj (between (north-of `2`) (north-of `10`)) (north-of `1`, north-of `2`)
+              ; between (center-of `2`) (center-of `8`)
+              ; between (center-of `1`) (center-of `5`)
+              ; proj
+                  (between (center-of `4`) (center-of `5`))
+                  ( between (center-of `2`) (center-of `8`)
+                  , between (center-of `1`) (center-of `5`)
+                  )
+              ; between (center-of `4`) (center-of `5`)
+              ; north-of `cut1`
+              ]
+          % Cut #2
+          ; node-at?:[cut-label; named `cut2`; distance 0.5cm]
+              (proj 
+                (center-of `1`)
+                (south-of `-6`, south-of `9`)
+              )
+              {Cut ${B}}
+          ; spline?:[cut]
+              [ proj (between (north-of `8`) (north-of `-12`)) (north-of `1`, north-of `2`)
+              ; between (north-of `8`) (north-of `-12`)
+              ; between (center-of `8`) (center-of `9`)
+              ; north-of `cut2`
+              ]
+          % Cut #3
+          ; node-at?:[cut-label; named `cut3`; distance 0.5cm] 
+              (between (south-of `9`) (south-of `11`)) {Cut ${C}}
+          ; spline?:[cut]
+            [ proj (center-of `11`) 
+                (north-of `1`, north-of `2`)
+            ; between (center-of `10`) (center-of `-12`)
+            ; north-of `cut3`
+            ]
+          ]
+        );
+      }>
+
+      +listing(open DPLL in {
+        * Cut A: ${\cnf![[lit (-1);lit (-2);lit (-3);lit (-4)]]} → ${3} の場合分け直後へ飛び、${\widebar{4}}が単位節伝播
+        * Cut B: ${\cnf![[lit (-2);lit (-7);lit (-8)]]} → ${2} の場合分け直後へ飛ぶが何もわからない
+        * Cut C: ${\cnf![[lit (-2);lit (-10)]]} → ${2} の場合分け直後へ飛び、${\widebar{10}}が単位節伝播
+        ** 単位節になっているものとなっていないものの違いは何か？
+      });
+    >
+
+    +frame{単位節とUIP}<
+      +itemize(open DPLL in '<
+        +item{Cutに対応する学習節が\emph{単位節}になるのは、\emph{一意相互作用点}（Unique Interaction Point, \emph{UIP}）と呼ばれる頂点の直後でCutした時}<
+          +item{頂点${l}が\emph{UIP}である${\Longleftrightarrow}グラフから${l}を取り除くと、直近の決定リテラルから少なくとも一方の矛盾頂点へのパスが消える（「\emph{必ず通る点}」）}<>
+        >
+        +item{前の例では${4, 7, 10}が\emph{UIP}で、Cut ${A, C}が頂点${4, 10} の直後のCutに相当}<>
+        +item{「学習節が単位節になる」ためには UIP で切ればよい（逆もまた真）}<
+          +item{\emph{決定リテラル自身もUIP}なので、少なくとも一つUIPは存在する}<>
+          +item{\emph{矛盾に一番近いUIP}、\emph{1-UIP}のCutがよいことが経験的に知られている\cite[`Zhang:2001`];}<>
+          +item{前の例では、${\cnf![[lit (-2);lit (-10)]]}に対応する${10}で切ったCut ${C}が1-UIP}<>
+          +item{conflicting side が増えるほど必要な仮定も増えそうなので、直感的ではある}<>
+        >
+      >);
+    >
+
+    +frame{1-UIP学習節の生成と導出規則}<
+      +itemize<
+        +item{含意グラフは概念上でわかりやすいが、直接実装する必要はない}<
+          +item{矛盾節に\emph{導出}規則 (\emph{Resolution}) を単位節になるまで繰り返し適用すればよい}<>
+        >
+      >
+      +thm?:({導出規則})?:(false){
+        以下の導出規則は古典論理の派生規則：
+
+        \eqn?:(AZMathEquation.notag)(
+          ${\frac{c \lor \Phi, \mquad \lnot c \lor \Psi}{\Phi \lor \Psi}}
+        );
+      }
+      +itemize<
+        +item{古典的に${c \lor \Phi}は${\lnot c \rightarrow \Phi}と、${\lnot c \lor \Psi}は${c \rightarrow \Psi}とそれぞれ同値}<>
+        +item{更に排中律があるので${c \lor \lnot c}が成り立つから、結局${\Phi \lor \Psi}が結論できる}<>
+      >
+    >
+
+    +frame?:(6){導出の繰り返しで1-UIP学習節を作る}<
+      +enumerate{
+        * 矛盾した二つの節の矛盾リテラルに導出規則を適用
+        * 単位節になるまで、仮学習節の中で「一番最後に真偽が確定した命題変数」を選び、その真偽を確定させた節と導出規則を適用
+          \listing{* 「単位節になる」＝最後の場合分け以後の命題変数が一つになる}
+      }
+      +listing{
+          * 学習節の導出の例：
+      }
+      +phantom(from 2)<
+        +fig-center(
+          hconcat
+          [ textbox {\xx-small{\tikzy?:(|
+            large-graph-cfg
+            with
+            default-node-style =
+              large-graph-cfg#default-node-style
+              |> padding 3pt
+              |> distance 4pt
+            ; unit-length = 0.75cm
+            |)(
+              let overrider sty = sty
+                |> override-node-when (from 3) [`-12`; `12`] 
+                    [ fc Colors.white
+                    ; tc Colors.black
+                    ]
+                |> override-node-when (bw 3 4) [`2`; `10`; `11`]
+                    [ fc Colors.yellow
+                    ; tc Colors.black
+                    ]
+                |> override-node-when (from 5) [`2`; `10`]
+                    [ fc Colors.orange
+                    ; tc Colors.white
+                    ]
+              in overrider large-graph-nodes
+            );
+            }}
+          ; gap 1cm
+          ; textbox {
+            \small{
+              \tikzy?:
+                (|  default with 
+                    default-node-style = default-node-style |> padding 2pt
+                  ; path-offset = -7.5mm
+                  ; unit-length = 6mm
+                |)(open DPLL in [
+                matrix
+                  [ [node?:[named `-12`] {${\cnf![[lit (-2); lit (-10); lit (-12)]]}}]
+                  ; [ empty; empty; empty
+                    ; node?:[named `res-1`; phantom (until 2)] {${\cnf![[lit (-2); lit (-10); lit (-11)]]}}
+                    ; node?:[lc slydifi-cfg#color-bg; rect; fc slydifi-cfg#color-bg
+                            ; padding 2pt; named `stop`; distance 2.5mm] {\hskip(2cm);}
+                    ; node?:[named `res-2`; phantom (until 4)] {${\cnf![[lit (-2); lit (-10)]]}}
+                    ]
+                  ; [node?:[named `12`] {${\cnf![[lit (-11); lit 12]]}}]
+                  ]
+              ; arrow?:[phantom (until 2)] (east-of `-12`) (north-west-of `res-1`)
+              ; arrow?:[phantom (until 2)] (east-of  `12`) (south-west-of `res-1`)
+              ; arrow?:[phantom (until 3)] (east-of  `res-1`) (west-of `res-2`)
+              ; node-at?:[phantom (until 3)] (north-of `stop`)
+                  {\x-small{${\cnf![[lit (-10); lit 11]]}}}
+              ]);
+                  
+            }
+          }
+        ]
+      );>
+      +phantom(from 6)<+listing{
+        * 根拠となる節で導出を繰り返す事が、「原因」を手繰っていく事に対応
+      }>
+    >
+
+    +frame-nofooter({同じ例の CDCL の動作})(open DPLL in '< 
+      +centering {
+        長い例で学習節ありの Backjump がどう振る舞うか見てみよう
+      }
+      +xx-small<
+        +derive
+          [ [lit (-1); lit (-2); lit (-3); lit (-4); lit 5]
+          ; [lit (-3); lit (-4); lit (-6)]
+          ; [lit (-5); lit 6; lit (-1); lit 7]
+          ; [lit (-7); lit 8]
+          ; [lit (-2); lit (-7); lit 9]
+          ; [lit (-8); lit (-9); lit 10]
+          ; [lit (-10); lit 11]
+          ; [lit (-11); lit 12]
+          ; [lit (-10); lit (-2); lit (-12)]
+          ]
+          [ ( rule ${\cdots}
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
+              ; [ff (-3); ff (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); tt 7]
+              ; [ff (-7); tt 8]
+              ; [ff (-2); ff (-7); tt 9]
+              ; [ff (-8); ff (-9); tt 10]
+              ; [ff (-10); tt 11]
+              ; [ff (-11); xx 12]
+              ; [ff (-10); ff (-2); xx (-12)]
+              ]
+            , [somit; dd 4; somit; lit 11; xx 12]
+            )
+          ; (bj
+            , [ [ff (-1); ff (-2); lit (-3); lit (-4); lit 5]
+              ; [lit (-3); lit (-4); lit (-6)]
+              ; [lit (-5); lit 6; ff (-1); lit 7]
+              ; [lit (-7); lit 8]
+              ; [ff (-2); lit (-7); lit 9]
+              ; [lit (-8); lit (-9); lit 10]
+              ; [lit (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [lit (-10); ff (-2); lit (-12)]
+              ; [lit (-10); ff (-2)]
+              ]
+            , [dd 1; dd 2]
+            )
+          ; (unit-prop (-10)
+            , [ [ff (-1); ff (-2); lit (-3); lit (-4); lit 5]
+              ; [lit (-3); lit (-4); lit (-6)]
+              ; [lit (-5); lit 6; ff (-1); lit 7]
+              ; [lit (-7); lit 8]
+              ; [ff (-2); lit (-7); lit 9]
+              ; [lit (-8); lit (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ]
+            , [dd 1; dd 2; lit (-10)]
+            )
+          ; (rule ${\Decide [3\text!{-}4]}
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); lit 5]
+              ; [ff (-3); ff (-4); lit (-6)]
+              ; [lit (-5); lit 6; ff (-1); lit 7]
+              ; [lit (-7); lit 8]
+              ; [ff (-2); lit (-7); lit 9]
+              ; [lit (-8); lit (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ]
+            , [lit (-10); somit; dd 4]
+            )
+          ; (rule ${\UnitProp[5\text!{-}8]}
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
+              ; [ff (-3); ff (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); tt 7]
+              ; [ff (-7); tt 8]
+              ; [ff (-2); ff (-7); xx 9]
+              ; [ff (-8); xx (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ]
+            , [lit (-10); somit; lit 8]
+            )
+          ; (bj
+            , [ [ff (-1); ff (-2); lit (-3); lit (-4); lit 5]
+              ; [lit (-3); lit (-4); lit (-6)]
+              ; [lit (-5); lit 6; ff (-1); lit 7]
+              ; [lit (-7); lit 8]
+              ; [ff (-2); lit (-7); lit 9]
+              ; [lit (-8); lit (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ; [ff (-2); lit (-7); ff 10]
+              ]
+            , [dd 1; dd 2; lit (-10)]
+            )
+          ; (unit-prop (-7)
+            , [ [ff (-1); ff (-2); lit (-3); lit (-4); lit 5]
+              ; [lit (-3); lit (-4); lit (-6)]
+              ; [lit (-5); lit 6; ff (-1); ff 7]
+              ; [tt (-7); lit 8]
+              ; [ff (-2); tt (-7); lit 9]
+              ; [lit (-8); lit (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ; [ff (-2); tt (-7); ff 10]
+              ]
+            , [somit; lit (-7)]
+            )
+          ; (rule ${\Decide[3\text!{-}4]}
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); lit 5]
+              ; [ff (-3); ff (-4); lit (-6)]
+              ; [lit (-5); lit 6; ff (-1); ff 7]
+              ; [tt (-7); lit 8]
+              ; [ff (-2); tt (-7); lit 9]
+              ; [lit (-8); lit (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ; [ff (-2); tt (-7); ff 10]
+              ]
+            , [somit; dd 4]
+            )
+          ; (rule ${\UnitProp[5\text!{-}6]}
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
+              ; [ff (-3); ff (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); ff 7]
+              ; [tt (-7); lit 8]
+              ; [ff (-2); tt (-7); lit 9]
+              ; [lit (-8); lit (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ; [ff (-2); tt (-7); ff 10]
+              ]
+            , [somit; lit (-6)]
+            )
+          ; (dec 8
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
+              ; [ff (-3); ff (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); ff 7]
+              ; [tt (-7); tt 8]
+              ; [ff (-2); tt (-7); lit 9]
+              ; [ff (-8); lit (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ; [ff (-2); tt (-7); ff 10]
+              ]
+            , [somit; dd 8]
+            )
+          ; (unit-prop (-9)
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
+              ; [ff (-3); ff (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); ff 7]
+              ; [tt (-7); tt 8]
+              ; [ff (-2); tt (-7); ff 9]
+              ; [ff (-8); tt (-9); ff 10]
+              ; [tt (-10); lit 11]
+              ; [lit (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ; [ff (-2); tt (-7); ff 10]
+              ]
+            , [somit; dd 4; somit; lit (-6); dd 8; lit (-9)]
+            )
+          ; (dec 11
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
+              ; [ff (-3); ff (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); ff 7]
+              ; [tt (-7); tt 8]
+              ; [ff (-2); tt (-7); ff 9]
+              ; [ff (-8); tt (-9); ff 10]
+              ; [tt (-10); tt 11]
+              ; [ff (-11); lit 12]
+              ; [tt (-10); ff (-2); lit (-12)]
+              ; [tt (-10); ff (-2)]
+              ; [ff (-2); tt (-7); ff 10]
+              ]
+            , [somit;  lit 11]
+            )
+          ; (unit-prop 12
+            , [ [ff (-1); ff (-2); ff (-3); ff (-4); tt 5]
+              ; [ff (-3); ff (-4); tt (-6)]
+              ; [ff (-5); ff 6; ff (-1); ff 7]
+              ; [tt (-7); tt 8]
+              ; [ff (-2); tt (-7); ff 9]
+              ; [ff (-8); tt (-9); ff 10]
+              ; [tt (-10); tt 11]
+              ; [ff (-11); tt 12]
+              ; [tt (-10); ff (-2); ff (-12)]
+              ; [tt (-10); ff (-2)]
+              ; [ff (-2); tt (-7); ff 10]
+              ]
+            , [dd 1; somit;  lit 12]
+            )
+          ];
+      >
+
+      +centering{Backjump 二回だけですんなり解けている！}
+    >);
+
+
+    +frame-nofooter{CDCL：更なる最適化手法}<
+      +p{
+        現代のCDCLでは以下のようなテクニックで効率化が図られている：
+      }
+      +itemize<
+        +item{\emph{監視リテラル}：単位節または矛盾節の検出方法の効率化}<
+          +item{観察：単位節・矛盾節確定するのは、リテラル数が\emph{2以下}になったときだけ}<>
+          +item{そこで、節ごとに\emph{最大2つのリテラルを監視リテラル}として指定}<>
+          +item{監視リテラルの真偽が確定したときだけ、その節の状態を確かめて単位節・矛盾節の検出を行えばよい！}<>
+        >
+        +item{\emph{変数選択ヒューリスティクス}：場合分けする変数と真偽には任意性がある}<
+          +item{どのリテラル、値を選ぶかで\emph{性能が大きく変わる}}<>
+          +item{時間減衰する優先度をつかう\emph{VSIDS} など変数選択の指標が提案されている}<>
+          +item{選択の指標に関しては、例えば Liangらの論文\cite[`Liang:2015`]; が詳しい}<>
+        >
+      >
+    >
+
+    +frame{CDCL：更なる最適化手法（続）}<
+      +itemize<
+        +item{\emph{リスタート}：履歴の破棄}<
+          +item{辿った履歴によって簡単にとけたり、逆に永遠に解けなかったりする}<>
+          +item{そこで矛盾が起きたら一定間隔で状態を破棄し、\emph{ゼロから解きなおす}}<>
+          +item{学習節は捨てず、間隔はだんだん長くするので、完全性は担保される}<>
+          +item{リスタート間隔のヒューリスティクスは Wu らの論文\cite[`Wu:2006`]; が詳しい}<>
+        >
+        +item{\emph{忘却}：増えすぎた節の枝刈りをする}<
+          +item{矛盾のたびに学習節が増えるので、節数が爆発しがち}<>
+          +item{そこで、適切な指標の下で優先度の低い学習節を定期的に削除}<>
+          +item{削除するのは学習節だけなので、完全性に影響しない}<>
+        >
+      >
+    >
+  >
+
+  +section({|実装、まとめ|})(
+    let matome = '<
+          +itemize<
+            +item{SATソルバは古典命題論理式の充足可能性を判定するプログラム}<
+              +item{NP-完全なので本質的に難しい}<>
+              +item{\emph{CDCL}: 矛盾するごとに\emph{学習節}を作り、必要なところまで一気に巻き戻す}<>
+              +item{監視リテラルや Restart など、色々なヒューリスティクスが提案されている}<>
+            >
+            +item{CDCL は述語論理上の理論に一般化した\emph{SMT} ソルバの基礎でもある}<
+              +item{私の動機：Presburger 算術（整数計画法）と未解釈関数つき同値関係の理論の組合せソルバを実装したい}<>
+              +item{整数計画法のインクリメンタルでバックトラック可能で完全なソルバが必要}<
+                +item{CVC4 \cite[`CVC4`]; のサイトなどを見てみたがパッと見付からず}<>
+                +item{よい文献をご存知の方おしえてください}<>
+              >
+            >
+          >
+        >
+    in '<
+      +frame{CDCL型 SAT ソルバの実装}<
+        +itemize<
+          +item{MiniSat\cite[`MiniSat`]; (\url(`http://minisat.se`);) がシンプルかつ高速で、実装の参考になる}<>
+          +item{herbrand\cite[`herbrand`];: MiniSATや参考文献を基に私が Haskell で実装してみたもの}<
+            +item{\url(`https://github.com/konn/herbrand`);}<>
+            +item{Haskell を使って実装}<>
+            +item{それでも GC は無効化されないのでまだまだ遅い}<>
+            +item{メモリまわりの管理をMiniSatを参考に改築したい}<>
+          >
+          +item{solem\cite[`skolem`];: 上をRustに簡単に移植してみたもの}<
+            +item{\url(`https://github.com/konn/skolem-rs`);}<>
+          >
+        >
+      >
+      +frame({まとめ})(matome);
+
+      +frame-nofooter{参考文献}<
+        +tighten<+font-style[font-size bib-size]<
+          +makebibliography 
+            ?:(|sort-references=true; 
+                citestyle=CiteAsNumber;
+                name-shrink=true;
+              |)
+            (bibyfi-theme)(bibs);
+        >>
+      >
+      +slide-only<
+        +frame-nofooter{}<
+          +fontsize(75pt)<
+            +vskip(25pt);
+            +centering{御清聴}
+            +centering{ありがとう}
+            +centering{ございました}
+          >
+        >
+
+        +frame({Any Questions?})(matome);
+      >
+    >);
+  +section{|おまけ|}<
+    +frame{SATで解ける問題の例：数独}<+label-slide(`sudoku`)<
+      +fig-on-right(from-graphics-given-context (150pt, 150pt) sudoku)<
+        +itemize<
+          +item{簡単な例として、 ${4 \times 4} の小さな数独の問題を SAT で解くことを考える。}<>
+          +item{${i, j, k \leq 4} に対し命題変数 ${P^{=k}_{ij}} を用意する（${d_{ij} = k} というきもち）。}<>
+        >
+      >
+      +itemize<
+        +item{各マスには ${1, 2, 3, 4} のいずれかの数字一つを入れる。
+              
+        \gather?:(AZMathEquation.notag)(${|
+         \bigwedge_{i \leq 4} \bigwedge_{j \leq 4} \pb{
+           \p{P^{=1}_{ij} \vee P^{=2}_{ij} \vee P^{=3}_{ij} \vee P^{=4}_{ij}} \land
+           \bigwedge_{k \leq 4} \bigwedge_{l \neq k} \paren{P^{=k}_{ij} \longrightarrow \lnot P^{=l}_{ij}}
+           }
+        |});}<>
+        +item{次ページに続く}<>
+      >
+    >>
+
+    +frame{SATで解ける問題の例：数独（続）}<
+      +itemize<
+        +item{各行、各列、各 ${2 \times 2} の小ブロックには各数字 ${1, \ldots, 4} が一つずつ入る。}<
+          +item{「各行」は次のように書ける（「各列」も${i,j}の役割を入れ換え同様）：
+
+          \eqn?:(AZMathEquation.notag)(${
+          \bigwedge_{i \leq 4} \bigwedge_{k \leq 4} (P^{=k}_{i1} \vee P^{=k}_{i2} \vee P^{=k}_{i3} \vee P^{=k}_{i4})
+          });
+          }<>
+          +item{\emph{演習問題}：「一意性」の条件が要らない理由を考えてみよう。}<>
+          +item{\emph{演習問題}：「各ブロック」の条件を書き下してみよう。}<>
+        >
+        +item{あとは盤面の情報を${P_{ij}^{=k}}のandで与えれば個別の問題を解ける！}<>
+      >
+    >
+
+    +frame-nofooter?:(7){任意の命題論理式はCNFで表せる}<+label-slide(`cnf-equiv`)<
+      +thm?:({命題論理式のCNFへの変換})?:(false){
+        任意の命題論理式 ${\phi}は同値なCNF ${\phi_{\CNF}}を持つ。
+      }
+      +itemize<
+        +item{de Morgan 則と分配則を使って変換すればよいが、自乗のオーダーかかる}<>
+        +item{充足可能性だけを考えればよいのなら、結合子ごとに追加の命題変数${n_i}を導入し、各節のサイズが高々 ${3} のCNF（\emph{${3\text!{-}\CNF}}）に変換できる}<>
+      >
+
+      +fig-on-right(
+        let overrider ctx = 
+              ctx
+              |> override-node-when (bw 3 4) [`root`] 
+                  [fc Colors.red; tc Colors.white]
+              |> override-node-when (only 5) [`l`] 
+                  [fc Colors.red; tc Colors.white]
+              |> override-node-when (only 6) [`ld`] 
+                  [fc Colors.red; tc Colors.white]
+              |> override-node-when (only 7) [`r`] 
+                  [fc Colors.red; tc Colors.white]
+        in let diag = 
+              { \phantom(from 2){\tikzy?:(|
+                  default with
+                  default-node-style = 
+                    (|default-node-style with padding=2pt|) 
+                      |> circle |> distance 1.25cm
+                      |> style [set-font-size 12pt]
+                |)
+                (
+                let label ctx = ctx |> plain |> distance 3pt |> style [set-font-size 10pt]
+                in overrider
+                [ node-at?:[named `root`] (coord (0pt, 0pt)) {${\lor}}
+                ; node-at?:[label] (north-of `root`) {${n_0}}
+                ; node-at?:[named `l`] (south-west-of `root`) {${\lnot}}
+                ; node-at?:[label] (west-of `l`) {${n_1}}
+                ; node-at?:[named `ld`; distance 1cm] (south-of `l`) {${\land}}
+                ; node-at?:[label] (west-of `ld`) {${n_2}}
+                ; node-at?:[named `P`] (south-west-of `ld`) {${P}}
+                ; node-at?:[named `Q`] (south-east-of `ld`) {${Q}}
+                ; node-at?:[named `R`] (south-east-of `root`) {${R}}
+                ; arrow (south-west-of `root`) (north-of `l`)
+                ; arrow (south-east-of `root`) (north-of `R`)
+                ; arrow (south-of `l`) (north-of `ld`)
+                ; arrow (south-west-of `ld`) (north-of `P`)
+                ; arrow (south-east-of `ld`) (north-of `Q`)
+                ]);
+              }}
+        in textbox-with-width 6cm diag
+      )<
+        +itemize<
+          +item?:(from 1){論理式 ${\lnot (P \land Q) \lor (R \land S)} のCNFへの変換例：
+
+            \phantom(from 2){\x-small{\align?:(AZMathEquation.notag)(${
+              | \math-color?:!(only 3)!(Colors.red){n_0} 
+              | \land \math-color?:!(only 4)!(Colors.red){(\lnot n_0 \lor n_1 \lor R) \land (\lnot n_1 \lor n_0) \land (\lnot R \lor n_0)}
+              |     | \land \math-color?:!(only 5)!(Colors.red){(\lnot n_1 \lor \lnot n_2) \land (n_1 \lor n_2)}
+              |     | \land \math-color?:!(only 6)!(Colors.red){(\lnot n_2 \lor P) \land (\lnot n_2 \lor Q) \land (\lnot P \lor \lnot Q \lor n_2)}
+              |});
+            }}
+          }<>
+          +item?:(from 7){\emph{演習問題}：他の結合子の変換規則を考えてみよう。}<>
+        >
+      >
+    >>
+
+  >
+>)
+end
+let make-doc =  Document.make-doc
